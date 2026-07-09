@@ -155,12 +155,6 @@ The dummy test is only a smoke test. Do not report its metrics as scientific res
 
 - **EHR-only**: Transformer encoder over 24 hourly EHR time steps, with observation masks and attention pooling.
 - **Image-only**: EfficientNet-based CXR classifier with conservative regularization and optional EMA.
-- **Early fusion**: Concatenates projected image and EHR representations without cross-attention gating.
+- **Early fusion**: Concatenates projected image and EHR representations.
 - **MedFuse baselines**: Runs adapted original MedFuse-style EHR-only and multimodal baselines.
-- **RespireTransFuse**: Uses bidirectional cross-attention between image tokens and EHR tokens, then predicts a bounded residual around the EHR risk logit.
-
-## Notes
-
-- Raw MIMIC-IV and MIMIC-CXR data are not included in this repository.
-- Generated checkpoints, logs, figures, caches, and large run outputs should stay out of Git.
-- The dummy data is included for reproducibility and installation checks only.
+- **RespireTransFuse**: A multimodal bidirectional cross-attention model that connects image tokens and EHR tokens, then predicts a bounded residual around the EHR risk logit.
