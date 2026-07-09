@@ -137,7 +137,7 @@ Run it directly:
 bash data/dummy_100/run_2epoch_6_models.sh
 ```
 
-Or use the local Python launcher:
+Or use the local Python launcher, which runs the same steps without requiring bash:
 
 ```bash
 python start_dummy_test.py
