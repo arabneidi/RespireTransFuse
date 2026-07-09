@@ -1,0 +1,43 @@
+project_root: .
+runs:
+  uni_ehr:
+    script: scripts/train/train_medfuse.py
+    args:
+      cohort_csv: data/dummy_100/cohort_dummy_100.csv
+      ehr_npz: data/dummy_100/ehr_dummy_100.npz
+      output_root: .
+      save_dir: outputs/dummy_100/medfuse_uni_ehr_2e
+      fusion_type: uni_ehr
+      epochs: 2
+      patience: 2
+      lr: 5.0e-05
+      batch_size: 64
+      dropout: 0.0
+      beta_2: 0.999
+      weight_decay: 0.0001
+      monitor_metric: auprc
+      grad_clip: 5.0
+      num_workers: 2
+      seed: 42
+
+  lstm:
+    script: scripts/train/train_medfuse.py
+    args:
+      cohort_csv: data/dummy_100/cohort_dummy_100.csv
+      ehr_npz: data/dummy_100/ehr_dummy_100.npz
+      output_root: .
+      save_dir: outputs/dummy_100/medfuse_lstm_2e
+      fusion_type: lstm
+      epochs: 2
+      patience: 2
+      lr: 5.0e-05
+      batch_size: 24
+      dropout: 0.0
+      beta_2: 0.999
+      weight_decay: 0.001
+      monitor_metric: auprc
+      grad_clip: 5.0
+      vision-backbone: resnet34
+      image_size: 224
+      num_workers: 2
+      seed: 42

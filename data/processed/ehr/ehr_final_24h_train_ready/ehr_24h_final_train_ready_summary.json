@@ -1,0 +1,26 @@
+{
+  "input_npz": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_final_24h/ehr_24h_final_current_split.npz",
+  "features_csv": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_final_24h/ehr_24h_final_selected_features.csv",
+  "output_npz": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_final_24h_train_ready/ehr_24h_final_train_ready_current_split.npz",
+  "output_features_csv": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_final_24h_train_ready/ehr_24h_final_train_ready_features.csv",
+  "output_normalization_csv": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_final_24h_train_ready/ehr_24h_final_feature_normalization.csv",
+  "shape": [
+    11339,
+    24,
+    30
+  ],
+  "n_features": 30,
+  "split_counts": {
+    "train": 7866,
+    "test": 1739,
+    "val": 1734
+  },
+  "label_counts": {
+    "0": 9753,
+    "1": 1586
+  },
+  "has_X": true,
+  "has_X_raw": true,
+  "has_mask": true,
+  "has_M": true
+}

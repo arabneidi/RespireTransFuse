@@ -1,0 +1,12 @@
+project_root: .
+data:
+  cohort_csv: data/dummy_100/cohort_dummy_100.csv
+  ehr_npz: data/dummy_100/ehr_dummy_100.npz
+  image_root: .
+  multimodal_manifest: data/processed/multimodal/final_multimodal_manifest.csv
+  ehr_features_csv: data/processed/ehr/ehr_final_24h_train_ready/ehr_24h_final_train_ready_features.csv
+outputs:
+  root: outputs/dummy_100
+checkpoints:
+  ehr_path: outputs/dummy_100/ehr_only_2e/models/best_by_auprc.pt
+  image_path: outputs/dummy_100/image_only_2e/models/best_by_auprc.pt

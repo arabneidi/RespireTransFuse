@@ -1,0 +1,30 @@
+experiment_name: "medfuse_baseline"
+seed: 1337
+device: "cuda"
+use_amp: true
+
+data:
+  cohort_csv: "data/processed/cohorts/cohort_paired.csv"
+  image_dir: "data/raw/mimic_cxr/images"
+  ehr_npz: "data/processed/ehr/ehr_final_24h_train_ready.npz"
+  label_col: "label"
+  split_col: "split"
+
+model:
+  name: "medfuse"
+  image_size: 224
+  ehr_input_dim: 35
+  ehr_time_steps: 24
+  hidden_dim: 128
+  dropout: 0.1
+
+train:
+  epochs: 20
+  batch_size: 32
+  lr: 0.0001
+  weight_decay: 0.00001
+  num_workers: 4
+  grad_clip: 5.0
+
+output:
+  run_dir: "outputs/runs/medfuse_baseline"

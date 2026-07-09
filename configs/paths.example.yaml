@@ -1,0 +1,13 @@
+project_root: .
+data:
+  cohort_csv: data/processed/cohorts/final_cohort.csv
+  ehr_npz: data/processed/ehr/ehr_24h_final_train_ready_current_split.npz
+  image_root: data/raw/mimic_cxr/images
+  multimodal_manifest: data/processed/multimodal/final_multimodal_manifest.csv
+  ehr_features_csv: data/processed/ehr/ehr_final_24h_train_ready/ehr_24h_final_train_ready_features.csv
+outputs:
+  root: outputs
+checkpoints:
+  ehr_path: outputs/ehr_only/models/best_by_auprc.pt
+  image_path: outputs/image_only/models/best_by_auprc.pt
+  medfuse_rad_cxr_path: external/medfuse_original/checkpoints/cxr_rad_full/best_checkpoint.pth.tar

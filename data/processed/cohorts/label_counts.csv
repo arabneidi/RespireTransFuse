@@ -1,0 +1,13 @@
+cohort,label_col,total_rows_before_label_drop,usable_rows,positive,negative,missing_or_ambiguous,positive_rate
+all_cxr_icu,label_event_12h,45589,45589,2091,43498,0,0.045866327403540325
+exclude_prior_resp_event,label_event_12h,11503,11503,1015,10488,0,0.08823785099539251
+all_cxr_icu,label_event_24h,45589,45589,2914,42675,0,0.06391892781153348
+exclude_prior_resp_event,label_event_24h,11503,11503,1301,10202,0,0.11310093019212379
+all_cxr_icu,label_event_48h,45589,45589,4248,41341,0,0.09318037245826845
+exclude_prior_resp_event,label_event_48h,11503,11503,1586,9917,0,0.13787707554550988
+all_cxr_icu,label_event_72h,45589,45589,5231,40358,0,0.11474259141459563
+exclude_prior_resp_event,label_event_72h,11503,11503,1750,9753,0,0.152134225854125
+all_cxr_icu,label_24h_stable72h,45589,43272,2914,40358,2317,0.06734146792383065
+exclude_prior_resp_event,label_24h_stable72h,11503,11054,1301,9753,449,0.11769495205355528
+all_cxr_icu,label_48h_stable72h,45589,44606,4248,40358,983,0.09523382504595794
+exclude_prior_resp_event,label_48h_stable72h,11503,11339,1586,9753,164,0.13987124085016314

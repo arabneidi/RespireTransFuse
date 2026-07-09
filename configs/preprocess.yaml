@@ -1,0 +1,38 @@
+seed: 1337
+
+cohort:
+  output_csv: "data/processed/cohorts/cohort.csv"
+  paired_output_csv: "data/processed/cohorts/cohort_paired.csv"
+  label_col: "label"
+  sample_id_col: "sample_id"
+  split_col: "split"
+  index_time_col: "index_time"
+  prediction_window_hours: 48
+  stable_negative_hours: 72
+  exclude_prior_support: true
+  exclude_ambiguous_48_72h: true
+
+ehr:
+  window_hours: 24
+  time_bins: 24
+  candidate_npz: "data/processed/ehr/ehr_candidates_24h.npz"
+  nonzero_npz: "data/processed/ehr/ehr_candidates_24h_nonzero.npz"
+  final_npz: "data/processed/ehr/ehr_final_24h_train_ready.npz"
+  selected_features_csv: "data/processed/ehr/ehr_final_selected_features.csv"
+  allow_support_intensity_features: true
+  chunksize: 750000
+  max_chart_features: 80
+  max_lab_features: 80
+
+feature_selection:
+  remove_zero_train_features: true
+  corr_threshold: 0.85
+  lambda_redundancy: 0.50
+  n_bootstraps: 80
+  subsample_fraction: 0.75
+  final_groups:
+    - core
+    - strong
+
+normalization:
+  use_train_stats_only: true

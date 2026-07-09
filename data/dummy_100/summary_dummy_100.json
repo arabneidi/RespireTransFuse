@@ -1,0 +1,155 @@
+{
+  "base": "/content/drive/MyDrive/respire-transfuse",
+  "source_cohort_csv": "/content/drive/MyDrive/respire-transfuse/data/processed/cohorts/cohort.csv",
+  "source_ehr_npz": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_final_24h_train_ready/ehr_24h_final_train_ready_current_split.npz",
+  "cohort_out": "/content/drive/MyDrive/respire-transfuse/data/dummy_100/cohort_dummy_100.csv",
+  "ehr_npz_out": "/content/drive/MyDrive/respire-transfuse/data/dummy_100/ehr_dummy_100.npz",
+  "n_requested": 100,
+  "n_written": 100,
+  "source_rows_after_image_filter": 11339,
+  "source_npz_rows": 11339,
+  "source_matched_rows": 11339,
+  "dummy_by_split_label": [
+    {
+      "split": "test",
+      "label": 0,
+      "n": 13
+    },
+    {
+      "split": "test",
+      "label": 1,
+      "n": 2
+    },
+    {
+      "split": "train",
+      "label": 0,
+      "n": 60
+    },
+    {
+      "split": "train",
+      "label": 1,
+      "n": 10
+    },
+    {
+      "split": "val",
+      "label": 0,
+      "n": 13
+    },
+    {
+      "split": "val",
+      "label": 1,
+      "n": 2
+    }
+  ],
+  "source_by_split_label": [
+    {
+      "split": "test",
+      "label": 0,
+      "n": 1504
+    },
+    {
+      "split": "test",
+      "label": 1,
+      "n": 235
+    },
+    {
+      "split": "train",
+      "label": 0,
+      "n": 6736
+    },
+    {
+      "split": "train",
+      "label": 1,
+      "n": 1130
+    },
+    {
+      "split": "val",
+      "label": 0,
+      "n": 1513
+    },
+    {
+      "split": "val",
+      "label": 1,
+      "n": 221
+    }
+  ],
+  "allocation": [
+    {
+      "split": "test",
+      "label": 0,
+      "n_original": 1504,
+      "n_dummy": 13
+    },
+    {
+      "split": "test",
+      "label": 1,
+      "n_original": 235,
+      "n_dummy": 2
+    },
+    {
+      "split": "train",
+      "label": 0,
+      "n_original": 6736,
+      "n_dummy": 60
+    },
+    {
+      "split": "train",
+      "label": 1,
+      "n_original": 1130,
+      "n_dummy": 10
+    },
+    {
+      "split": "val",
+      "label": 0,
+      "n_original": 1513,
+      "n_dummy": 13
+    },
+    {
+      "split": "val",
+      "label": 1,
+      "n_original": 221,
+      "n_dummy": 2
+    }
+  ],
+  "npz_keys": [
+    "X_raw",
+    "mask",
+    "y",
+    "split",
+    "sample_id",
+    "variables",
+    "labels",
+    "sources",
+    "itemids",
+    "value_sources",
+    "window_hours",
+    "n_bins",
+    "X",
+    "M",
+    "feature_names",
+    "feature_mean",
+    "feature_std",
+    "source"
+  ],
+  "X_shape": [
+    100,
+    24,
+    30
+  ],
+  "M_shape": [
+    100,
+    24,
+    30
+  ],
+  "n_value_features_detected": 30,
+  "feature_names_count": 30,
+  "configs_written": [
+    "/content/drive/MyDrive/respire-transfuse/data/dummy_100/configs/ehr_only_dummy_100.yaml",
+    "/content/drive/MyDrive/respire-transfuse/data/dummy_100/configs/image_only_dummy_100.yaml",
+    "/content/drive/MyDrive/respire-transfuse/data/dummy_100/configs/respire_transfuse_dummy_100.yaml",
+    "/content/drive/MyDrive/respire-transfuse/data/dummy_100/configs/cross_attention_dummy_100.yaml",
+    "/content/drive/MyDrive/respire-transfuse/data/dummy_100/configs/early_fusion_dummy_100.yaml"
+  ],
+  "run_script": "/content/drive/MyDrive/respire-transfuse/data/dummy_100/run_2epoch_6_models.sh",
+  "readme": "/content/drive/MyDrive/respire-transfuse/data/dummy_100/README.md"
+}

@@ -1,0 +1,49 @@
+model:
+  name: image_only
+  backbone: tf_efficientnet_b0.ns_jft_in1k
+  pretrained: true
+  image_size: 224
+  dropout: 0.75
+  hidden_mult: 0.02
+  image_token_dim: 48
+  token_grid_size: 2
+data:
+  image_col: verified_image_path
+  label_col: label
+  split_col: split
+  sample_col: sample_id
+  require_image_exists: true
+  require_image_decode_ok: true
+training:
+  seed: 42
+  epochs: 20
+  batch_size: 24
+  num_workers: 2
+  use_amp: true
+  lr_backbone: 0.0
+  lr_head: 4.0e-05
+  weight_decay: 0.0007
+  freeze_backbone_epochs: 30
+  warmup_epochs: 2
+  min_lr_factor: 0.05
+  grad_clip: 1.0
+  patience: 15
+  min_delta_auprc: 0.0001
+  use_ema: true
+  ema_decay: 0.997
+augmentation:
+  hflip_p: 0.0
+  affine_p: 0.15
+  color_jitter_p: 0.03
+loss:
+  pos_weight_cap: 1.0
+  bce_weight: 1.0
+  ap_loss_weight: 0.0
+  ap_loss_tau: 0.25
+  logit_l2: 0.0
+  prob_mean_weight: 0.0
+  prob_mean_target: -1.0
+  logit_prior_weight: 0.0
+  logit_prior_target: -999.0
+outputs:
+  model_dir: image_only
