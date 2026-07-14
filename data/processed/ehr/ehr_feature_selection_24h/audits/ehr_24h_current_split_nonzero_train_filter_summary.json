@@ -1,0 +1,31 @@
+{
+  "input_npz": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_feature_selection_24h/tensors/ehr_24h_current_split.npz",
+  "output_npz": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_feature_selection_24h/tensors/ehr_24h_current_split_nonzero_train.npz",
+  "output_features_csv": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_feature_selection_24h/features/ehr_24h_current_split_nonzero_train_features.csv",
+  "output_summary_json": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_feature_selection_24h/audits/ehr_24h_current_split_nonzero_train_filter_summary.json",
+  "input_shape": [
+    11339,
+    24,
+    76
+  ],
+  "output_shape": [
+    11339,
+    24,
+    67
+  ],
+  "input_features": 76,
+  "kept_features": 67,
+  "removed_features": 9,
+  "train_rows": 8020,
+  "removed_feature_labels": [
+    "Glucose (whole blood) (soft)",
+    "FiO2 (CH)",
+    "FiO2ApacheIIValue",
+    "FiO2_ApacheIV",
+    "FiO2_ApacheIV_old",
+    "Calculated Bicarbonate",
+    "Total CO2",
+    "Rbc",
+    "Fibrinogen"
+  ]
+}

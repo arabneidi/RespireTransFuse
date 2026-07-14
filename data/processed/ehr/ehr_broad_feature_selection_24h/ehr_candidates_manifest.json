@@ -1,0 +1,23 @@
+{
+  "created_at": "2026-07-11T07:23:10.055481",
+  "cohort_csv": "/content/drive/MyDrive/respire-transfuse/data/processed/cohorts/cohort.csv",
+  "output_npz": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_broad_feature_selection_24h/ehr_24h_broad_current_split.npz",
+  "candidate_features_csv": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_broad_feature_selection_24h/ehr_24h_broad_current_split_candidate_features.csv",
+  "all_feature_stats_csv": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_broad_feature_selection_24h/ehr_24h_broad_current_split_feature_stats_all.csv",
+  "window_hours": 24,
+  "n_bins": 24,
+  "min_train_sample_coverage": 0.005,
+  "exclude_obvious_admin_or_leakage": true,
+  "shape": [
+    11339,
+    24,
+    532
+  ],
+  "rows": 11339,
+  "candidate_features": 532,
+  "positive": 1586,
+  "negative": 9753,
+  "observed_entries": 3383941,
+  "samples_with_zero_ehr": 150,
+  "runtime_minutes": 31.01
+}

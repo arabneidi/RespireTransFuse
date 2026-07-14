@@ -4,6 +4,7 @@ import re
 import time
 import gc
 import json
+import hashlib
 
 import numpy as np
 import pandas as pd
@@ -14,7 +15,7 @@ from tqdm.auto import tqdm
 # Build clean CXR-indexed respiratory support escalation cohort
 # ============================================================
 
-RANDOM_SEED = 42
+DEFAULT_RANDOM_SEED = 42
 
 
 def section(title):
@@ -79,6 +80,482 @@ def summarize_label(df, label_col, cohort_name):
     }
 
 
+
+def build_prevalence_balanced_patient_split(
+    df,
+    label_col,
+    seed,
+    search_iterations,
+    max_prevalence_gap,
+    max_size_deviation,
+):
+    target_fractions = np.array(
+        [0.70, 0.15, 0.15],
+        dtype=np.float64,
+    )
+
+    split_names = np.array(
+        ["train", "val", "test"],
+        dtype=object,
+    )
+
+    source = df.loc[
+        df[label_col].notna(),
+        ["subject_id", label_col],
+    ].copy()
+
+    source = source.dropna(
+        subset=["subject_id", label_col]
+    )
+
+    source["subject_id"] = pd.to_numeric(
+        source["subject_id"],
+        errors="raise",
+    ).astype(np.int64)
+
+    source[label_col] = pd.to_numeric(
+        source[label_col],
+        errors="raise",
+    ).astype(np.int64)
+
+    labels = set(
+        source[label_col]
+        .unique()
+        .tolist()
+    )
+
+    if not labels.issubset({0, 1}):
+        raise RuntimeError(
+            f"{label_col} must contain only 0 and 1. "
+            f"Found: {sorted(labels)}"
+        )
+
+    if source.empty:
+        raise RuntimeError(
+            "No usable final-label rows are available "
+            "for splitting."
+        )
+
+    subject_stats = (
+        source
+        .groupby(
+            "subject_id",
+            sort=True,
+        )
+        .agg(
+            usable_rows=(
+                label_col,
+                "size",
+            ),
+            positives=(
+                label_col,
+                "sum",
+            ),
+        )
+        .sort_index()
+    )
+
+    subject_stats["usable_rows"] = (
+        subject_stats["usable_rows"]
+        .astype(np.int64)
+    )
+
+    subject_stats["positives"] = (
+        subject_stats["positives"]
+        .astype(np.int64)
+    )
+
+    subjects = (
+        subject_stats.index
+        .to_numpy(dtype=np.int64)
+    )
+
+    subject_rows = (
+        subject_stats["usable_rows"]
+        .to_numpy(dtype=np.int64)
+    )
+
+    subject_positives = (
+        subject_stats["positives"]
+        .to_numpy(dtype=np.int64)
+    )
+
+    n_subjects = len(subjects)
+
+    n_train = int(
+        np.floor(
+            0.70 * n_subjects
+        )
+    )
+
+    n_val = int(
+        np.floor(
+            0.15 * n_subjects
+        )
+    )
+
+    n_test = (
+        n_subjects
+        - n_train
+        - n_val
+    )
+
+    if min(
+        n_train,
+        n_val,
+        n_test,
+    ) <= 0:
+        raise RuntimeError(
+            "Invalid patient split sizes."
+        )
+
+    total_rows = int(
+        subject_rows.sum()
+    )
+
+    total_positives = int(
+        subject_positives.sum()
+    )
+
+    total_negatives = (
+        total_rows
+        - total_positives
+    )
+
+    if (
+        total_rows <= 0
+        or total_positives <= 0
+        or total_negatives <= 0
+    ):
+        raise RuntimeError(
+            "The final cohort must contain "
+            "both outcome classes."
+        )
+
+    overall_prevalence = (
+        total_positives
+        / total_rows
+    )
+
+    rng = np.random.default_rng(
+        int(seed)
+    )
+
+    best = None
+
+    for search_index in range(
+        int(search_iterations)
+    ):
+        order = rng.permutation(
+            n_subjects
+        )
+
+        split_indices = (
+            order[:n_train],
+            order[
+                n_train:
+                n_train + n_val
+            ],
+            order[
+                n_train + n_val:
+            ],
+        )
+
+        rows = np.array(
+            [
+                int(
+                    subject_rows[
+                        indices
+                    ].sum()
+                )
+                for indices
+                in split_indices
+            ],
+            dtype=np.int64,
+        )
+
+        positives = np.array(
+            [
+                int(
+                    subject_positives[
+                        indices
+                    ].sum()
+                )
+                for indices
+                in split_indices
+            ],
+            dtype=np.int64,
+        )
+
+        negatives = (
+            rows
+            - positives
+        )
+
+        if (
+            np.any(rows <= 0)
+            or np.any(positives <= 0)
+            or np.any(negatives <= 0)
+        ):
+            continue
+
+        prevalence = (
+            positives
+            / rows
+        )
+
+        row_fractions = (
+            rows
+            / total_rows
+        )
+
+        prevalence_gap = float(
+            prevalence.max()
+            - prevalence.min()
+        )
+
+        prevalence_target_error = float(
+            np.abs(
+                prevalence
+                - overall_prevalence
+            ).max()
+        )
+
+        size_deviation = float(
+            np.abs(
+                row_fractions
+                - target_fractions
+            ).max()
+        )
+
+        size_valid = (
+            size_deviation
+            <= float(
+                max_size_deviation
+            )
+        )
+
+        key = (
+            0 if size_valid else 1,
+            (
+                prevalence_gap
+                if size_valid
+                else size_deviation
+            ),
+            (
+                prevalence_target_error
+                if size_valid
+                else prevalence_gap
+            ),
+            (
+                size_deviation
+                if size_valid
+                else prevalence_target_error
+            ),
+            search_index,
+        )
+
+        if (
+            best is None
+            or key < best["key"]
+        ):
+            best = {
+                "key": key,
+                "order": order.copy(),
+                "search_index": int(
+                    search_index
+                ),
+                "rows": rows.copy(),
+                "positives": (
+                    positives.copy()
+                ),
+                "negatives": (
+                    negatives.copy()
+                ),
+                "prevalence": (
+                    prevalence.copy()
+                ),
+                "row_fractions": (
+                    row_fractions.copy()
+                ),
+                "prevalence_gap": (
+                    prevalence_gap
+                ),
+                "prevalence_target_error": (
+                    prevalence_target_error
+                ),
+                "size_deviation": (
+                    size_deviation
+                ),
+            }
+
+    if best is None:
+        raise RuntimeError(
+            "No valid patient-level split "
+            "candidate was found."
+        )
+
+    if (
+        best["size_deviation"]
+        > float(max_size_deviation)
+    ):
+        raise RuntimeError(
+            "No seeded split candidate satisfied "
+            "the row-size tolerance. "
+            f"Best={best['size_deviation']:.6f}; "
+            f"allowed={float(max_size_deviation):.6f}."
+        )
+
+    if (
+        best["prevalence_gap"]
+        > float(max_prevalence_gap)
+    ):
+        raise RuntimeError(
+            "No seeded split candidate satisfied "
+            "the prevalence tolerance. "
+            f"Best={best['prevalence_gap']:.6f}; "
+            f"allowed={float(max_prevalence_gap):.6f}."
+        )
+
+    ordered_subjects = subjects[
+        best["order"]
+    ]
+
+    train_subjects = ordered_subjects[
+        :n_train
+    ]
+
+    val_subjects = ordered_subjects[
+        n_train:
+        n_train + n_val
+    ]
+
+    test_subjects = ordered_subjects[
+        n_train + n_val:
+    ]
+
+    split_map = {}
+
+    for name, ids in zip(
+        split_names,
+        [
+            train_subjects,
+            val_subjects,
+            test_subjects,
+        ],
+    ):
+        for subject_id in ids:
+            split_map[
+                int(subject_id)
+            ] = str(name)
+
+    assignments = (
+        subject_stats
+        .reset_index()
+        .copy()
+    )
+
+    assignments["negatives"] = (
+        assignments["usable_rows"]
+        - assignments["positives"]
+    )
+
+    assignments[
+        "subject_prevalence"
+    ] = (
+        assignments["positives"]
+        / assignments["usable_rows"]
+    )
+
+    assignments["split"] = (
+        assignments["subject_id"]
+        .map(split_map)
+    )
+
+    assignments = (
+        assignments
+        .sort_values(
+            "subject_id",
+            kind="mergesort",
+        )
+        .reset_index(
+            drop=True
+        )
+    )
+
+    if assignments[
+        "split"
+    ].isna().any():
+        raise RuntimeError(
+            "At least one eligible patient "
+            "has no split assignment."
+        )
+
+    summary = pd.DataFrame(
+        {
+            "split": split_names,
+            "rows": best["rows"],
+            "positives": (
+                best["positives"]
+            ),
+            "negatives": (
+                best["negatives"]
+            ),
+            "subjects": [
+                n_train,
+                n_val,
+                n_test,
+            ],
+            "prevalence": (
+                best["prevalence"]
+            ),
+            "row_fraction": (
+                best["row_fractions"]
+            ),
+        }
+    ).set_index("split")
+
+    info = {
+        "name": "seeded_patient_level_prevalence_search_v1",
+        "label_column": str(
+            label_col
+        ),
+        "seed": int(seed),
+        "search_iterations": int(
+            search_iterations
+        ),
+        "selected_search_iteration": int(
+            best["search_index"]
+        ),
+        "overall_prevalence": float(
+            overall_prevalence
+        ),
+        "maximum_prevalence_gap": float(
+            best["prevalence_gap"]
+        ),
+        "maximum_row_size_deviation": float(
+            best["size_deviation"]
+        ),
+        "allowed_prevalence_gap": float(
+            max_prevalence_gap
+        ),
+        "allowed_row_size_deviation": float(
+            max_size_deviation
+        ),
+        "target_row_fractions": {
+            "train": 0.70,
+            "val": 0.15,
+            "test": 0.15,
+        },
+    }
+
+    return (
+        split_map,
+        summary,
+        assignments,
+        info,
+    )
+
 def parse_args():
     parser = argparse.ArgumentParser(
         description="Build clean CXR-indexed respiratory deterioration cohort."
@@ -87,7 +564,9 @@ def parse_args():
     parser.add_argument(
         "--repo_root",
         type=str,
-        default="/content/drive/MyDrive/respire-transfuse",
+        default=str(
+            Path(__file__).resolve().parents[2]
+        ),
         help="Clean repo root."
     )
 
@@ -145,6 +624,34 @@ def parse_args():
         help="Disable prior respiratory event exclusion."
     )
 
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=DEFAULT_RANDOM_SEED,
+        help="Seed for reproducible patient-level split search."
+    )
+
+    parser.add_argument(
+        "--split_search_iterations",
+        type=int,
+        default=50000,
+        help="Number of seeded patient split candidates to evaluate."
+    )
+
+    parser.add_argument(
+        "--max_prevalence_gap",
+        type=float,
+        default=0.0025,
+        help="Maximum prevalence difference across train, val, and test."
+    )
+
+    parser.add_argument(
+        "--max_split_size_deviation",
+        type=float,
+        default=0.01,
+        help="Maximum absolute row-fraction deviation from 70/15/15."
+    )
+
     return parser.parse_args()
 
 
@@ -184,6 +691,7 @@ def main():
     OUT_RESP_ITEMIDS = OUT_DIR / "resp_itemids.csv"
     OUT_RESP_EVENTS = OUT_DIR / "resp_events.csv"
     OUT_MANIFEST = OUT_DIR / "cohort_manifest.json"
+    OUT_SUBJECT_SPLITS = OUT_DIR / "subject_split_assignments.csv"
 
     REQUIRE_CXR_DURING_ICU = bool(args.require_cxr_during_icu) and not bool(args.allow_cxr_outside_icu)
     EXCLUDE_PRIOR_RESP_EVENT = bool(args.exclude_prior_resp_event) and not bool(args.include_prior_resp_event)
@@ -259,16 +767,45 @@ def main():
 
     image_files = []
 
-    for p in tqdm(list(IMAGE_ROOT.iterdir()), desc="Scanning direct image folder"):
-        if p.is_file() and p.suffix.lower() in image_exts:
+    direct_candidates = sorted(
+        IMAGE_ROOT.iterdir(),
+        key=lambda path: path.as_posix(),
+    )
+
+    for p in tqdm(
+        direct_candidates,
+        desc="Scanning direct image folder",
+    ):
+        if (
+            p.is_file()
+            and p.suffix.lower() in image_exts
+        ):
             image_files.append(p)
 
     if len(image_files) == 0:
-        print("Direct image scan found 0 files. Falling back to recursive scan.")
-        for ext in ["*.jpg", "*.jpeg", "*.png"]:
-            matches = list(tqdm(IMAGE_ROOT.rglob(ext), desc=f"Finding {ext} recursively"))
-            print(ext, len(matches))
-            image_files.extend(matches)
+        print(
+            "Direct image scan found 0 files. "
+            "Falling back to recursive scan."
+        )
+
+        for ext in [
+            "*.jpg",
+            "*.jpeg",
+            "*.png",
+        ]:
+            matches = sorted(
+                IMAGE_ROOT.rglob(ext),
+                key=lambda path: path.as_posix(),
+            )
+
+            print(
+                ext,
+                len(matches),
+            )
+
+            image_files.extend(
+                matches
+            )
 
     dicom_to_path = {}
     duplicates = set()
@@ -511,61 +1048,187 @@ def main():
     print("Rows after prior exclusion:", len(cxr_clean))
     print(label_summary.to_string(index=False))
 
-    section("10) Patient-level train/val/test split")
+    section(
+        "10) Seeded patient-level prevalence-balanced "
+        "train/val/test split"
+    )
 
-    rng = np.random.default_rng(RANDOM_SEED)
+    label_source_col = "label_48h_stable72h"
 
-    subjects = np.array(sorted(cxr_clean["subject_id"].dropna().astype(int).unique()))
-    rng.shuffle(subjects)
-
-    n = len(subjects)
-    train_subjects = set(subjects[: int(0.70 * n)])
-    val_subjects = set(subjects[int(0.70 * n): int(0.85 * n)])
-    test_subjects = set(subjects[int(0.85 * n):])
+    (
+        split_map,
+        final_split_summary,
+        subject_assignments,
+        split_info,
+    ) = build_prevalence_balanced_patient_split(
+        df=cxr_clean,
+        label_col=label_source_col,
+        seed=int(args.seed),
+        search_iterations=int(
+            args.split_search_iterations
+        ),
+        max_prevalence_gap=float(
+            args.max_prevalence_gap
+        ),
+        max_size_deviation=float(
+            args.max_split_size_deviation
+        ),
+    )
 
     def assign_split(subject_id):
         if pd.isna(subject_id):
-            return "unknown"
+            return "excluded"
 
-        sid = int(subject_id)
+        return split_map.get(
+            int(subject_id),
+            "excluded",
+        )
 
-        if sid in train_subjects:
-            return "train"
-        if sid in val_subjects:
-            return "val"
-        if sid in test_subjects:
-            return "test"
+    cxr_clean["split"] = (
+        cxr_clean["subject_id"]
+        .apply(assign_split)
+    )
 
-        return "unknown"
+    final_for_split = cxr_clean.loc[
+        cxr_clean[
+            label_source_col
+        ].notna()
+    ].copy()
 
-    cxr_clean["split"] = cxr_clean["subject_id"].apply(assign_split)
+    if not final_for_split[
+        "split"
+    ].isin(
+        [
+            "train",
+            "val",
+            "test",
+        ]
+    ).all():
+        raise RuntimeError(
+            "A final-cohort row was not assigned "
+            "to train, val, or test."
+        )
 
-    split_summary = []
+    patient_split_counts = (
+        final_for_split
+        .groupby("subject_id")[
+            "split"
+        ]
+        .nunique()
+    )
+
+    leaking_patients = (
+        patient_split_counts[
+            patient_split_counts > 1
+        ]
+    )
+
+    if len(leaking_patients) > 0:
+        raise RuntimeError(
+            f"Patient leakage found for "
+            f"{len(leaking_patients)} patients."
+        )
+
+    split_summary_rows = []
 
     for label_col in label_cols:
-        for split in ["train", "val", "test"]:
-            d = cxr_clean[cxr_clean["split"] == split]
+        for split in [
+            "train",
+            "val",
+            "test",
+        ]:
+            d = cxr_clean[
+                cxr_clean[
+                    "split"
+                ] == split
+            ]
+
             s = d[label_col]
             usable = s.notna()
 
-            split_summary.append({
-                "label_col": label_col,
-                "split": split,
-                "rows": int(len(d)),
-                "usable": int(usable.sum()),
-                "positive": int(s.eq(1).sum()),
-                "negative": int(s.eq(0).sum()),
-                "missing_or_ambiguous": int(s.isna().sum()),
-                "positive_rate": float(s.eq(1).sum() / max(usable.sum(), 1)),
-            })
+            split_summary_rows.append(
+                {
+                    "label_col": (
+                        label_col
+                    ),
+                    "split": split,
+                    "rows": int(
+                        len(d)
+                    ),
+                    "usable": int(
+                        usable.sum()
+                    ),
+                    "positive": int(
+                        s.eq(1).sum()
+                    ),
+                    "negative": int(
+                        s.eq(0).sum()
+                    ),
+                    "missing_or_ambiguous": int(
+                        s.isna().sum()
+                    ),
+                    "positive_rate": float(
+                        s.eq(1).sum()
+                        / max(
+                            usable.sum(),
+                            1,
+                        )
+                    ),
+                }
+            )
 
-    split_summary = pd.DataFrame(split_summary)
+    split_summary = pd.DataFrame(
+        split_summary_rows
+    )
 
-    print("Unique subjects:", n)
-    print("Train subjects:", len(train_subjects))
-    print("Val subjects:", len(val_subjects))
-    print("Test subjects:", len(test_subjects))
-    print(split_summary.to_string(index=False))
+    print(
+        "Split seed:",
+        int(args.seed),
+    )
+
+    print(
+        "Search iterations:",
+        int(
+            args.split_search_iterations
+        ),
+    )
+
+    print(
+        "Selected search iteration:",
+        split_info[
+            "selected_search_iteration"
+        ],
+    )
+
+    print(
+        "\nFinal target split summary:"
+    )
+
+    print(
+        final_split_summary.to_string()
+    )
+
+    print(
+        "\nMaximum prevalence gap:",
+        f"{split_info['maximum_prevalence_gap']:.6f}",
+        f"({split_info['maximum_prevalence_gap'] * 100:.3f} "
+        "percentage points)",
+    )
+
+    print(
+        "Maximum row-size deviation:",
+        f"{split_info['maximum_row_size_deviation']:.6f}",
+    )
+
+    print(
+        "\nAll label variants:"
+    )
+
+    print(
+        split_summary.to_string(
+            index=False
+        )
+    )
 
     section("11) Create final cohort")
 
@@ -633,6 +1296,41 @@ def main():
     other_cols = [c for c in cohort.columns if c not in front_cols]
     cohort = cohort[front_cols + other_cols].copy()
 
+    stable_sort_columns = [
+        column
+        for column in [
+            "subject_id",
+            "stay_id",
+            "study_datetime",
+            "study_id",
+            "dicom_id",
+            "sample_id",
+        ]
+        if column in cohort.columns
+    ]
+
+    cohort = (
+        cohort
+        .sort_values(
+            stable_sort_columns,
+            kind="mergesort",
+        )
+        .reset_index(
+            drop=True
+        )
+    )
+
+    if not cohort["split"].isin(
+        [
+            "train",
+            "val",
+            "test",
+        ]
+    ).all():
+        raise RuntimeError(
+            "Final cohort contains an invalid split."
+        )
+
     summary_rows = []
     for split in ["train", "val", "test"]:
         d = cohort[cohort["split"] == split]
@@ -658,6 +1356,22 @@ def main():
     final_summary.to_csv(OUT_SUMMARY, index=False)
     label_summary.to_csv(OUT_LABEL_COUNTS, index=False)
     split_summary.to_csv(OUT_SPLIT_COUNTS, index=False)
+    subject_assignments.to_csv(
+        OUT_SUBJECT_SPLITS,
+        index=False,
+        lineterminator="\n",
+        float_format="%.12g",
+    )
+
+    with open(
+        OUT_SUBJECT_SPLITS,
+        "rb",
+    ) as file:
+        subject_split_sha256 = (
+            hashlib.sha256(
+                file.read()
+            ).hexdigest()
+        )
 
     manifest = {
         "created_at": pd.Timestamp.now().isoformat(),
@@ -667,7 +1381,16 @@ def main():
         "no_prior_rows_csv": str(OUT_NO_PRIOR),
         "resp_itemids_csv": str(OUT_RESP_ITEMIDS),
         "resp_events_csv": str(OUT_RESP_EVENTS),
-        "random_seed": RANDOM_SEED,
+        "random_seed": int(args.seed),
+        "split_algorithm": {
+            **split_info,
+            "subject_assignments_csv": str(
+                OUT_SUBJECT_SPLITS
+            ),
+            "subject_assignments_sha256": (
+                subject_split_sha256
+            ),
+        },
         "label": "label_48h_stable72h renamed to label",
         "positive": "selected respiratory intervention within 48h after CXR",
         "negative": "no selected respiratory intervention within 72h after CXR",
@@ -693,6 +1416,7 @@ def main():
     print(OUT_RESP_ITEMIDS)
     print(OUT_RESP_EVENTS)
     print(OUT_MANIFEST)
+    print(OUT_SUBJECT_SPLITS)
 
     print("\nFinal cohort:")
     print("rows:", len(cohort))

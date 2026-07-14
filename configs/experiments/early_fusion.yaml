@@ -1,37 +1,24 @@
 model:
-  name: respire_transfuse
-  fusion_dim: 48
-  n_heads: 4
-  dim_feedforward: 96
-  dropout: 0.45
-  residual_scale: 0.4
-  delta_bound: 3.0
-  delta_scale_start: 0.12
-  delta_scale_end: 0.35
-  detach_ehr_fusion_features: false
-  fusion_type: early_fusion_no_gate
-gate:
-  ehr_prior: 0.6
-  max_shift: 0.1
-  ehr_min: 0.55
-  ehr_max: 0.75
+  name: early_fusion
+  fusion_type: normalized_feature_concatenation
+  fusion_dim: 8
+  fusion_dropout: 0.0
 image_branch:
   backbone: tf_efficientnet_b0.ns_jft_in1k
   pretrained: true
   image_size: 224
-  dropout: 0.75
-  hidden_mult: 0.02
-  image_token_dim: 48
-  token_grid_size: 2
+  hidden_dim: 128
+  dropout: 0.5
 ehr_branch:
   d_model: 128
   n_heads: 4
-  n_layers: 3
-  dim_feedforward: 384
-  dropout: 0.25
+  n_layers: 2
+  dim_feedforward: 320
+  dropout: 0.35
   use_mask_channel: true
   use_cls_token: true
   ehr_token_dim: 48
+  local_scale_init: -1.1
 data:
   image_col: verified_image_path
   label_col: label
@@ -40,9 +27,11 @@ data:
   require_image_exists: true
   require_image_decode_ok: true
 checkpoints:
-  load_ehr: false
   load_image: false
+  load_ehr: false
   strict: false
+  image_path: ''
+  ehr_path: ''
 freeze:
   freeze_image_backbone: true
   freeze_image_classifier: false
@@ -51,21 +40,21 @@ freeze:
   train_fusion_layers: true
 training:
   seed: 42
-  epochs: 20
-  batch_size: 16
+  epochs: 30
+  batch_size: 32
   num_workers: 2
-  use_amp: true
+  use_amp: false
   lr_image_backbone: 0.0
-  lr_image_head: 1.0e-05
+  lr_image_head: 2.0e-05
   lr_ehr: 4.0e-05
-  lr_fusion: 1.75e-05
+  lr_fusion: 0.0001
   weight_decay_image: 0.001
-  weight_decay_ehr: 0.0003
+  weight_decay_ehr: 0.001
   weight_decay_fusion: 0.001
-  warmup_epochs: 2
-  min_lr_factor: 0.05
+  warmup_epochs: 0
+  min_lr_factor: 0.1
   grad_clip: 1.0
-  patience: 15
+  patience: 12
 sampling:
   balanced_batches: false
   pos_fraction: 0.35
@@ -77,12 +66,13 @@ augmentation:
 loss:
   pos_weight_cap: 1.0
   fusion_bce_weight: 1.0
-  image_aux_weight: 0.02
-  ehr_aux_weight: 0.5
-  fusion_delta_l2_weight: 0.005
-  fusion_delta_mean_l2_weight: 0.005
+  image_aux_weight: 0.05
+  ehr_aux_weight: 0.05
+  fusion_delta_l2_weight: 0.0
+  fusion_delta_mean_l2_weight: 0.0
 selection:
   min_delta_auprc: 0.0001
 outputs:
-  model_dir: early_fusion
-experiment_name: early_fusion
+  root: outputs
+  model_dir: early_fusion_simple_classic
+experiment_name: early_fusion_simple_classic

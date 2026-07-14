@@ -1,0 +1,68 @@
+feature_index,variable,label,source,itemid,value_source,hourly_coverage,possible_leakage_flag,static_like_flag,clinical_category,physiology_direction_hint
+0,chartevents::220045::Heart Rate::valuenum,Heart Rate,chartevents,220045,valuenum,0.62157106,False,False,vital_heart_rate,higher_may_indicate_physiologic_stress
+1,chartevents::220210::Respiratory Rate::valuenum,Respiratory Rate,chartevents,220210,valuenum,0.6187344,False,False,vital_respiratory_rate,higher_may_indicate_respiratory_distress
+2,chartevents::220277::O2 saturation pulseoxymetry::valuenum,O2 saturation pulseoxymetry,chartevents,220277,valuenum,0.6085671,False,False,vital_oxygen_saturation,lower_may_indicate_worse_oxygenation
+3,chartevents::220227::Arterial O2 Saturation::valuenum,Arterial O2 Saturation,chartevents,220227,valuenum,0.002618454,False,False,vital_oxygen_saturation,lower_may_indicate_worse_oxygenation
+4,chartevents::220179::Non Invasive Blood Pressure systolic::valuenum,Non Invasive Blood Pressure systolic,chartevents,220179,valuenum,0.5168797,False,False,vital_blood_pressure,low_or_high_may_indicate_instability
+5,chartevents::220180::Non Invasive Blood Pressure diastolic::valuenum,Non Invasive Blood Pressure diastolic,chartevents,220180,valuenum,0.51680696,False,False,vital_blood_pressure,low_or_high_may_indicate_instability
+6,chartevents::220181::Non Invasive Blood Pressure mean::valuenum,Non Invasive Blood Pressure mean,chartevents,220181,valuenum,0.5171654,False,False,vital_blood_pressure,low_or_high_may_indicate_instability
+7,chartevents::220050::Arterial Blood Pressure systolic::valuenum,Arterial Blood Pressure systolic,chartevents,220050,valuenum,0.094903365,False,False,vital_blood_pressure,low_or_high_may_indicate_instability
+8,chartevents::220051::Arterial Blood Pressure diastolic::valuenum,Arterial Blood Pressure diastolic,chartevents,220051,valuenum,0.09489817,False,False,vital_blood_pressure,low_or_high_may_indicate_instability
+9,chartevents::220052::Arterial Blood Pressure mean::valuenum,Arterial Blood Pressure mean,chartevents,220052,valuenum,0.09560474,False,False,vital_blood_pressure,low_or_high_may_indicate_instability
+10,chartevents::223761::Temperature Fahrenheit::valuenum,Temperature Fahrenheit,chartevents,223761,valuenum,0.16764858,False,False,vital_temperature,
+11,chartevents::223762::Temperature Celsius::valuenum,Temperature Celsius,chartevents,223762,valuenum,0.027971737,False,False,vital_temperature,
+12,chartevents::225664::Glucose finger stick (range 70-100)::valuenum,Glucose finger stick (range 70-100),chartevents,225664,valuenum,0.05810474,False,False,bedside_glucose,
+13,chartevents::220621::Glucose (serum)::valuenum,Glucose (serum),chartevents,220621,valuenum,0.053652328,False,False,bedside_glucose,
+14,chartevents::226537::Glucose (whole blood)::valuenum,Glucose (whole blood),chartevents,226537,valuenum,0.004041978,False,False,bedside_glucose,
+15,chartevents::224167::Manual Blood Pressure Systolic Left::valuenum,Manual Blood Pressure Systolic Left,chartevents,224167,valuenum,0.00030652535,False,False,vital_blood_pressure,low_or_high_may_indicate_instability
+16,chartevents::227243::Manual Blood Pressure Systolic Right::valuenum,Manual Blood Pressure Systolic Right,chartevents,227243,valuenum,0.00029613468,False,False,vital_blood_pressure,low_or_high_may_indicate_instability
+17,chartevents::224643::Manual Blood Pressure Diastolic Left::valuenum,Manual Blood Pressure Diastolic Left,chartevents,224643,valuenum,0.00030652535,False,False,vital_blood_pressure,low_or_high_may_indicate_instability
+18,chartevents::227242::Manual Blood Pressure Diastolic Right::valuenum,Manual Blood Pressure Diastolic Right,chartevents,227242,valuenum,0.00029093932,False,False,vital_blood_pressure,low_or_high_may_indicate_instability
+19,chartevents::227582::BiPap O2 Flow::valuenum,BiPap O2 Flow,chartevents,227582,valuenum,0.0023119284,False,False,respiratory_support_intensity,
+20,chartevents::229280::FiO2 (ECMO)::valuenum,FiO2 (ECMO),chartevents,229280,valuenum,1.039069e-05,False,False,respiratory_support_intensity,
+21,chartevents::223835::Inspired O2 Fraction::valuenum,Inspired O2 Fraction,chartevents,223835,valuenum,0.034891937,False,False,respiratory_support_intensity,
+22,chartevents::223834::O2 Flow::valuenum,O2 Flow,chartevents,223834,valuenum,0.11722776,False,False,respiratory_support_intensity,
+23,chartevents::227287::O2 Flow (additional cannula)::valuenum,O2 Flow (additional cannula),chartevents,227287,valuenum,0.010136118,False,False,respiratory_support_intensity,
+24,labevents::50820::pH::valuenum,pH,labevents,50820,valuenum,0.030823981,False,False,lab_blood_gas_respiration,lower_may_indicate_acidosis
+25,labevents::50821::pO2::valuenum,pO2,labevents,50821,valuenum,0.027171655,False,False,lab_blood_gas_respiration,lower_may_indicate_worse_oxygenation
+26,labevents::50818::pCO2::valuenum,pCO2,labevents,50818,valuenum,0.027150873,False,False,lab_blood_gas_respiration,higher_may_indicate_hypercapnia
+27,labevents::50802::Base Excess::valuenum,Base Excess,labevents,50802,valuenum,0.027182044,False,False,lab_blood_gas_respiration,
+28,labevents::50882::Bicarbonate::valuenum,Bicarbonate,labevents,50882,valuenum,0.06268184,False,False,lab_blood_gas_respiration,
+29,labevents::50804::Calculated Total CO2::valuenum,Calculated Total CO2,labevents,50804,valuenum,0.027150873,False,False,lab_blood_gas_respiration,
+30,labevents::50816::Oxygen::valuenum,Oxygen,labevents,50816,valuenum,0.0018131754,False,False,lab_blood_gas_respiration,
+31,labevents::50817::Oxygen Saturation::valuenum,Oxygen Saturation,labevents,50817,valuenum,0.013424772,False,False,lab_blood_gas_respiration,lower_may_indicate_worse_oxygenation
+32,labevents::50801::Alveolar-arterial Gradient::valuenum,Alveolar-arterial Gradient,labevents,50801,valuenum,0.0006598088,False,False,lab_other,
+33,labevents::50805::Carboxyhemoglobin::valuenum,Carboxyhemoglobin,labevents,50805,valuenum,0.00019222776,False,False,lab_cbc,
+34,labevents::50814::Methemoglobin::valuenum,Methemoglobin,labevents,50814,valuenum,0.000150665,False,False,lab_cbc,
+35,labevents::50813::Lactate::valuenum,Lactate,labevents,50813,valuenum,0.031234413,False,False,lab_metabolic,higher_may_indicate_shock_or_stress
+36,labevents::50868::Anion Gap::valuenum,Anion Gap,labevents,50868,valuenum,0.062629886,False,False,lab_metabolic,
+37,labevents::50809::Glucose::valuenum,Glucose,labevents,50809,valuenum,0.006068163,False,False,lab_metabolic,
+38,labevents::51301::White Blood Cells::valuenum,White Blood Cells,labevents,51301,valuenum,0.055356402,False,False,lab_cbc,
+39,labevents::50811::Hemoglobin::valuenum,Hemoglobin,labevents,50811,valuenum,0.008790524,False,False,lab_cbc,
+40,labevents::51221::Hematocrit::valuenum,Hematocrit,labevents,51221,valuenum,0.06032315,False,False,lab_cbc,
+41,labevents::51265::Platelet Count::valuenum,Platelet Count,labevents,51265,valuenum,0.05595906,False,False,lab_cbc,
+42,labevents::51279::Red Blood Cells::valuenum,Red Blood Cells,labevents,51279,valuenum,0.05530445,False,False,lab_other,
+43,labevents::51250::MCV::valuenum,MCV,labevents,51250,valuenum,0.05530445,False,False,lab_other,
+44,labevents::51248::MCH::valuenum,MCH,labevents,51248,valuenum,0.055299252,False,False,lab_other,
+45,labevents::51249::MCHC::valuenum,MCHC,labevents,51249,valuenum,0.05530445,False,False,lab_other,
+46,labevents::51277::RDW::valuenum,RDW,labevents,51277,valuenum,0.055299252,False,False,lab_other,
+47,labevents::50983::Sodium::valuenum,Sodium,labevents,50983,valuenum,0.06592893,False,False,lab_electrolyte,
+48,labevents::50971::Potassium::valuenum,Potassium,labevents,50971,valuenum,0.06592893,False,False,lab_electrolyte,
+49,labevents::50902::Chloride::valuenum,Chloride,labevents,50902,valuenum,0.06575748,False,False,lab_electrolyte,
+50,"labevents::50893::Calcium, Total::valuenum","Calcium, Total",labevents,50893,valuenum,0.058385286,False,False,lab_electrolyte,
+51,labevents::50808::Free Calcium::valuenum,Free Calcium,labevents,50808,valuenum,0.0130766835,False,False,lab_electrolyte,
+52,labevents::50960::Magnesium::valuenum,Magnesium,labevents,50960,valuenum,0.06003221,False,False,lab_electrolyte,
+53,labevents::50970::Phosphate::valuenum,Phosphate,labevents,50970,valuenum,0.05847361,False,False,lab_blood_gas_respiration,
+54,labevents::50912::Creatinine::valuenum,Creatinine,labevents,50912,valuenum,0.0633936,False,False,lab_renal,
+55,labevents::51006::Urea Nitrogen::valuenum,Urea Nitrogen,labevents,51006,valuenum,0.063196175,False,False,lab_renal,
+56,labevents::50862::Albumin::valuenum,Albumin,labevents,50862,valuenum,0.009206152,False,False,lab_liver_protein,
+57,"labevents::50885::Bilirubin, Total::valuenum","Bilirubin, Total",labevents,50885,valuenum,0.018344764,False,False,lab_liver_protein,
+58,"labevents::50883::Bilirubin, Direct::valuenum","Bilirubin, Direct",labevents,50883,valuenum,0.00120532,False,False,lab_liver_protein,
+59,labevents::51237::INR(PT)::valuenum,INR(PT),labevents,51237,valuenum,0.03706359,False,False,lab_coagulation,
+60,labevents::51274::PT::valuenum,PT,labevents,51274,valuenum,0.03706359,False,False,lab_coagulation,
+61,labevents::51275::PTT::valuenum,PTT,labevents,51275,valuenum,0.039359935,False,False,lab_coagulation,
+62,labevents::51256::Neutrophils::valuenum,Neutrophils,labevents,51256,valuenum,0.011086866,False,False,lab_blood_gas_respiration,
+63,labevents::51244::Lymphocytes::valuenum,Lymphocytes,labevents,51244,valuenum,0.011086866,False,False,lab_blood_gas_respiration,
+64,labevents::51254::Monocytes::valuenum,Monocytes,labevents,51254,valuenum,0.011086866,False,False,lab_other,
+65,labevents::51200::Eosinophils::valuenum,Eosinophils,labevents,51200,valuenum,0.011086866,False,False,lab_blood_gas_respiration,
+66,labevents::51146::Basophils::valuenum,Basophils,labevents,51146,valuenum,0.011086866,False,False,lab_blood_gas_respiration,

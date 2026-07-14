@@ -3,10 +3,8 @@ model:
   backbone: tf_efficientnet_b0.ns_jft_in1k
   pretrained: true
   image_size: 224
-  dropout: 0.75
-  hidden_mult: 0.02
-  image_token_dim: 48
-  token_grid_size: 2
+  hidden_dim: 128
+  dropout: 0.5
 data:
   image_col: verified_image_path
   label_col: label
@@ -20,17 +18,16 @@ training:
   batch_size: 24
   num_workers: 2
   use_amp: true
-  lr_backbone: 0.0
-  lr_head: 4.0e-05
-  weight_decay: 0.0007
-  freeze_backbone_epochs: 30
+  lr: 2.0e-05
+  weight_decay: 0.001
   warmup_epochs: 2
   min_lr_factor: 0.05
   grad_clip: 1.0
-  patience: 15
+  patience: 10
   min_delta_auprc: 0.0001
   use_ema: true
   ema_decay: 0.997
+  backbone_frozen: true
 augmentation:
   hflip_p: 0.0
   affine_p: 0.15
@@ -46,4 +43,5 @@ loss:
   logit_prior_weight: 0.0
   logit_prior_target: -999.0
 outputs:
+  root: outputs
   model_dir: image_only

@@ -888,7 +888,9 @@ def main():
     parser.add_argument(
         "--root",
         type=str,
-        default="/content/drive/MyDrive/respire-transfuse",
+        default=str(
+            Path(__file__).resolve().parents[2]
+        ),
     )
 
     parser.add_argument(
@@ -900,7 +902,10 @@ def main():
     parser.add_argument(
         "--output_dir",
         type=str,
-        default="/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_feature_selection_24h",
+        default=str(
+            Path(__file__).resolve().parents[2]
+            / "data/processed/ehr/ehr_feature_selection_24h"
+        ),
     )
 
     parser.add_argument(

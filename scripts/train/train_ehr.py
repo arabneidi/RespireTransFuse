@@ -150,20 +150,52 @@ def make_criterion(train_df, label_col, loss_cfg, device):
     }
 
 
+
+
+def save_history_without_accuracy_brier(history, path):
+    frame = pd.DataFrame(history)
+
+    excluded_columns = [
+        column
+        for column in frame.columns
+        if "accuracy" in column.lower()
+        or "brier" in column.lower()
+    ]
+
+    if excluded_columns:
+        frame = frame.drop(columns=excluded_columns)
+
+    frame.to_csv(path, index=False)
+
+def remove_unsaved_metrics(obj):
+    if isinstance(obj, dict):
+        return {
+            key: remove_unsaved_metrics(value)
+            for key, value in obj.items()
+            if key not in {"accuracy", "brier"}
+        }
+
+    if isinstance(obj, list):
+        return [remove_unsaved_metrics(value) for value in obj]
+
+    return obj
+
 def parse_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--paths", type=str, default="configs/paths.yaml")
-    parser.add_argument("--config", type=str, default="configs/experiments/ehr_only_natural_sampling.yaml")
+    parser.add_argument("--config", type=str, default="configs/experiments/ehr_only.yaml")
 
-    parser.add_argument("--epochs", type=int, default=20)
-    parser.add_argument("--batch_size", type=int, default=32)
-    parser.add_argument("--num_workers", type=int, default=2)
+    parser.add_argument("--epochs", type=int, default=None)
+    parser.add_argument("--batch_size", type=int, default=None)
+    parser.add_argument("--num_workers", type=int, default=None)
 
-    parser.add_argument("--dropout", type=float, default=0.3)
-    parser.add_argument("--lr", type=float, default=5.5e-5)
-    parser.add_argument("--weight_decay", type=float, default=1e-3)
-    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--dropout", type=float, default=None)
+    parser.add_argument("--lr", type=float, default=None)
+    parser.add_argument("--weight_decay", type=float, default=None)
+    parser.add_argument("--patience", type=int, default=None)
+    parser.add_argument("--min_delta_auprc", type=float, default=None)
+    parser.add_argument("--seed", type=int, default=None)
 
     parser.add_argument("--save_dir", type=str, default=None)
 
@@ -197,6 +229,14 @@ def main():
 
     if args.weight_decay is not None:
         cfg["training"]["weight_decay"] = float(args.weight_decay)
+
+    if args.patience is not None:
+        cfg["training"]["patience"] = int(args.patience)
+
+    if args.min_delta_auprc is not None:
+        cfg["selection"]["min_delta_auprc"] = float(
+            args.min_delta_auprc
+        )
 
     if args.seed is not None:
         cfg["training"]["seed"] = int(args.seed)
@@ -252,12 +292,6 @@ def main():
         train=True,
     )
 
-    train_eval_loader = build_loader(
-        train_set,
-        cfg,
-        train=False,
-    )
-
     val_loader = build_loader(
         val_set,
         cfg,
@@ -280,7 +314,12 @@ def main():
         use_mask_channel=bool(cfg["model"]["use_mask_channel"]),
         use_cls_token=bool(cfg["model"]["use_cls_token"]),
         ehr_token_dim=int(cfg["model"].get("ehr_token_dim", 48)),
+        local_scale_init=float(
+            cfg["model"].get("local_scale_init", -1.1)
+        ),
     ).to(device)
+
+    model.set_fusion_adapters_trainable(False)
 
     criterion, criterion_info = make_criterion(
         train_df,
@@ -290,7 +329,11 @@ def main():
     )
 
     optimizer = torch.optim.AdamW(
-        model.parameters(),
+        [
+            parameter
+            for parameter in model.parameters()
+            if parameter.requires_grad
+        ],
         lr=float(cfg["training"]["lr"]),
         weight_decay=float(cfg["training"]["weight_decay"]),
     )
@@ -301,12 +344,20 @@ def main():
             out_dir = ROOT / out_dir
     else:
         output_root = resolve_path(cfg["outputs"]["root"])
-        out_dir = output_root / "ehr_only"
+        out_dir = output_root / cfg["outputs"].get(
+            "model_dir",
+            "ehr_only",
+        )
 
     cfg["outputs"]["resolved_save_dir"] = str(out_dir)
 
     model_dir = out_dir / "models"
     model_dir.mkdir(parents=True, exist_ok=True)
+
+    best_path = model_dir / "best_by_auprc.pt"
+
+    if best_path.exists():
+        best_path.unlink()
 
     save_yaml(cfg, out_dir / "config_used.yaml")
 
@@ -317,7 +368,16 @@ def main():
         json.dump(json_safe(criterion_info), f, indent=2)
 
     total_params = sum(p.numel() for p in model.parameters())
-    trainable_params_now = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    trainable_params_now = sum(
+        p.numel()
+        for p in model.parameters()
+        if p.requires_grad
+    )
+    optimized_params_now = sum(
+        p.numel()
+        for group in optimizer.param_groups
+        for p in group["params"]
+    )
 
     print("=" * 100)
     print("EHR-only training")
@@ -331,6 +391,7 @@ def main():
     print("test positives:", int(test_df[cols["label_col"]].sum()) if len(test_df) > 0 else 0)
     print("n_params:", int(total_params))
     print("n_trainable_now:", int(trainable_params_now))
+    print("n_optimized_now:", int(optimized_params_now))
 
     if args.dry_run:
         batch = next(iter(train_loader))
@@ -366,7 +427,7 @@ def main():
     bad_epochs = 0
 
     total_points = int(cfg["training"]["epochs"])
-    train_epochs = max(1, total_points - 1)
+    train_epochs = max(1, total_points)
 
     for stale_path in [
         out_dir / "calibration_bins_10_by_epoch.csv",
@@ -379,85 +440,8 @@ def main():
     if epoch_prediction_dir.exists():
         shutil.rmtree(epoch_prediction_dir)
 
-    initial_train_stats = evaluate(
-        model=model,
-        loader=train_eval_loader,
-        criterion=criterion,
-        loss_cfg=cfg["loss"],
-        device=device,
-        use_amp=use_amp,
-        desc="EVAL train epoch 1",
-    )
-
-    initial_val_stats = evaluate(
-        model=model,
-        loader=val_loader,
-        criterion=criterion,
-        loss_cfg=cfg["loss"],
-        device=device,
-        use_amp=use_amp,
-        desc="EVAL val epoch 1",
-    )
-
-    initial_row = {
-        "epoch": 1,
-        "lr": float(cfg["training"]["lr"]),
-        "train_loss": initial_train_stats["loss"],
-        "train_bce": initial_train_stats["bce"],
-        "train_auroc": initial_train_stats["auroc"],
-        "train_auprc": initial_train_stats["auprc"],
-        "train_log_loss": initial_train_stats["log_loss"],
-        "train_brier": initial_train_stats["brier"],
-        "val_loss": initial_val_stats["loss"],
-        "val_bce": initial_val_stats["bce"],
-        "val_auroc": initial_val_stats["auroc"],
-        "val_auprc": initial_val_stats["auprc"],
-        "val_log_loss": initial_val_stats["log_loss"],
-        "val_brier": initial_val_stats["brier"],
-        "val_best_f1": initial_val_stats["best_f1"],
-        "val_best_f1_threshold": initial_val_stats["best_f1_threshold"],
-    }
-
-    initial_row.update(
-        save_epoch_artifacts(
-            save_dir=out_dir,
-            epoch=1,
-            split="train",
-            sample_ids=initial_train_stats.get("sample_ids", None),
-            y_true=initial_train_stats["labels"],
-            pred_values=initial_train_stats["logits"] if "logits" in initial_train_stats else initial_train_stats["probs"],
-            n_bins=10,
-            save_predictions=False,
-        )
-    )
-
-    initial_row.update(
-        save_epoch_artifacts(
-            save_dir=out_dir,
-            epoch=1,
-            split="val",
-            sample_ids=initial_val_stats.get("sample_ids", None),
-            y_true=initial_val_stats["labels"],
-            pred_values=initial_val_stats["logits"] if "logits" in initial_val_stats else initial_val_stats["probs"],
-            n_bins=10,
-            save_predictions=True,
-        )
-    )
-
-    history.append(initial_row)
-    pd.DataFrame(history).to_csv(out_dir / "history.csv", index=False)
-    plot_history(out_dir / "history.csv", out_dir, title_prefix="EHR-only")
-
-    print(
-        f"epoch 001 | "
-        f"train_loss={initial_row['train_loss']:.5f} | "
-        f"val_loss={initial_row['val_loss']:.5f} | "
-        f"val_auroc={initial_row['val_auroc']:.5f} | "
-        f"val_auprc={initial_row['val_auprc']:.5f}"
-    )
-
     for train_epoch in range(1, train_epochs + 1):
-        epoch = train_epoch + 1
+        epoch = train_epoch
 
         lr_factor = lr_factor_for_epoch(
             epoch=train_epoch,
@@ -481,16 +465,6 @@ def main():
             epoch=epoch,
         )
 
-        train_eval_stats = evaluate(
-            model=model,
-            loader=train_eval_loader,
-            criterion=criterion,
-            loss_cfg=cfg["loss"],
-            device=device,
-            use_amp=use_amp,
-            desc=f"EVAL train epoch {epoch}",
-        )
-
         val_stats = evaluate(
             model=model,
             loader=val_loader,
@@ -506,18 +480,16 @@ def main():
             "lr": current_lr,
             "optim_train_loss": train_stats["loss"],
             "optim_train_bce": train_stats["bce"],
-            "train_loss": train_eval_stats["loss"],
-            "train_bce": train_eval_stats["bce"],
-            "train_auroc": train_eval_stats["auroc"],
-            "train_auprc": train_eval_stats["auprc"],
-            "train_log_loss": train_eval_stats["log_loss"],
-            "train_brier": train_eval_stats["brier"],
+            "train_loss": train_stats["loss"],
+            "train_bce": train_stats["bce"],
+            "train_auroc": train_stats["auroc"],
+            "train_auprc": train_stats["auprc"],
+            "train_log_loss": train_stats["log_loss"],
             "val_loss": val_stats["loss"],
             "val_bce": val_stats["bce"],
             "val_auroc": val_stats["auroc"],
             "val_auprc": val_stats["auprc"],
             "val_log_loss": val_stats["log_loss"],
-            "val_brier": val_stats["brier"],
             "val_best_f1": val_stats["best_f1"],
             "val_best_f1_threshold": val_stats["best_f1_threshold"],
         }
@@ -527,9 +499,9 @@ def main():
                 save_dir=out_dir,
                 epoch=epoch,
                 split="train",
-                sample_ids=train_eval_stats.get("sample_ids", None),
-                y_true=train_eval_stats["labels"],
-                pred_values=train_eval_stats["logits"] if "logits" in train_eval_stats else train_eval_stats["probs"],
+                sample_ids=None,
+                y_true=train_stats["labels"],
+                pred_values=train_stats["logits"],
                 n_bins=10,
                 save_predictions=False,
             )
@@ -549,10 +521,18 @@ def main():
         )
 
         history.append(row)
-        pd.DataFrame(history).to_csv(out_dir / "history.csv", index=False)
+        save_history_without_accuracy_brier(history, out_dir / "history.csv")
         plot_history(out_dir / "history.csv", out_dir, title_prefix="EHR-only")
 
-        print(f"epoch {epoch:03d} | train_loss={row['train_loss']:.5f} | val_loss={row['val_loss']:.5f} | val_auroc={row['val_auroc']:.5f} | val_auprc={row['val_auprc']:.5f}")
+        print(
+            f"epoch {epoch:03d} | "
+            f"train_loss={row['train_loss']:.5f} | "
+            f"train_auroc={row['train_auroc']:.5f} | "
+            f"train_auprc={row['train_auprc']:.5f} | "
+            f"val_loss={row['val_loss']:.5f} | "
+            f"val_auroc={row['val_auroc']:.5f} | "
+            f"val_auprc={row['val_auprc']:.5f}"
+        )
 
         val_auprc = float(val_stats["auprc"])
         min_delta = float(cfg["selection"].get("min_delta_auprc", 0.0))
@@ -582,23 +562,11 @@ def main():
             print(f"early stopping at epoch {epoch}")
             break
 
-    best_path = model_dir / "best_by_auprc.pt"
-
     if not best_path.exists():
         raise RuntimeError("No best checkpoint was saved.")
 
     checkpoint = torch.load(best_path, map_location=device)
     model.load_state_dict(checkpoint["model_state_dict"])
-
-    train_final = evaluate(
-        model,
-        train_eval_loader,
-        criterion,
-        cfg["loss"],
-        device,
-        use_amp,
-        desc="FINAL train",
-    )
 
     val_final = evaluate(
         model,
@@ -610,6 +578,11 @@ def main():
         desc="FINAL val",
     )
 
+    if test_loader is None:
+        raise RuntimeError(
+            "The test split is empty or the test loader was not created."
+        )
+
     test_final = evaluate(
         model,
         test_loader,
@@ -618,13 +591,15 @@ def main():
         device,
         use_amp,
         desc="FINAL test",
-    ) if test_loader is not None else None
+    )
 
     temperature, bias = fit_temperature_bias(
         val_logits=val_final["logits"],
         val_labels=val_final["labels"],
         device=device,
-        max_iter=int(cfg["selection"]["calibration_max_iter"]),
+        max_iter=int(
+            cfg["selection"]["calibration_max_iter"]
+        ),
     )
 
     val_cal_prob = calibrated_probabilities(
@@ -638,12 +613,21 @@ def main():
         val_cal_prob,
     )
 
-    train_cal_prob = calibrated_probabilities(train_final["logits"], temperature, bias)
-    test_cal_prob = calibrated_probabilities(test_final["logits"], temperature, bias) if test_final is not None else None
+    test_cal_prob = (
+        calibrated_probabilities(
+            test_final["logits"],
+            temperature,
+            bias,
+        )
+        if test_final is not None
+        else None
+    )
 
     final_metrics = {
-        "best_epoch": best_epoch,
-        "best_val_auprc": best_val_auprc,
+        "best_epoch": int(checkpoint["epoch"]),
+        "best_val_auprc": float(
+            checkpoint["val_auprc"]
+        ),
         "calibration": {
             "temperature": float(temperature),
             "bias": float(bias),
@@ -651,27 +635,47 @@ def main():
             "val_best_f1": float(val_best_f1),
         },
         "raw": {
-            "train": summarize_probabilities(train_final["labels"], sigmoid_np(train_final["logits"])),
-            "val": summarize_probabilities(val_final["labels"], sigmoid_np(val_final["logits"])),
-            "test": summarize_probabilities(test_final["labels"], sigmoid_np(test_final["logits"])) if test_final is not None else None,
+            "val": summarize_probabilities(
+                val_final["labels"],
+                sigmoid_np(val_final["logits"]),
+            ),
+            "test": (
+                summarize_probabilities(
+                    test_final["labels"],
+                    sigmoid_np(test_final["logits"]),
+                )
+                if test_final is not None
+                else None
+            ),
         },
         "calibrated": {
-            "train": summarize_probabilities(train_final["labels"], train_cal_prob, threshold=threshold),
-            "val": summarize_probabilities(val_final["labels"], val_cal_prob, threshold=threshold),
-            "test": summarize_probabilities(test_final["labels"], test_cal_prob, threshold=threshold) if test_final is not None else None,
+            "val": summarize_probabilities(
+                val_final["labels"],
+                val_cal_prob,
+                threshold=threshold,
+            ),
+            "test": (
+                summarize_probabilities(
+                    test_final["labels"],
+                    test_cal_prob,
+                    threshold=threshold,
+                )
+                if test_final is not None
+                else None
+            ),
         },
     }
 
     with open(out_dir / "metrics.json", "w") as f:
-        json.dump(json_safe(final_metrics), f, indent=2)
-
-    save_predictions(
-        train_final,
-        out_dir / "train_predictions.csv",
-        threshold=threshold,
-        temperature=temperature,
-        bias=bias,
-    )
+        json.dump(
+            json_safe(
+                remove_unsaved_metrics(
+                    final_metrics
+                )
+            ),
+            f,
+            indent=2,
+        )
 
     save_predictions(
         val_final,
@@ -681,21 +685,27 @@ def main():
         bias=bias,
     )
 
-    if test_final is not None:
-        save_predictions(
-            test_final,
-            out_dir / "test_predictions.csv",
-            threshold=threshold,
-            temperature=temperature,
-            bias=bias,
-        )
+    print("\nfinal EHR-only validation:")
+    val_metrics = final_metrics["calibrated"]["val"]
+    print(
+        f"AUROC={val_metrics['auroc']:.5f} | "
+        f"AUPRC={val_metrics['auprc']:.5f}"
+    )
+
+    save_predictions(
+        test_final,
+        out_dir / "test_predictions.csv",
+        threshold=threshold,
+        temperature=temperature,
+        bias=bias,
+    )
 
     print("\nfinal EHR-only test:")
-    if test_final is not None:
-        test_metrics = final_metrics["calibrated"]["test"]
-        print(f"AUROC={test_metrics['auroc']:.5f} | AUPRC={test_metrics['auprc']:.5f}")
-    else:
-        print("no test split")
+    test_metrics = final_metrics["calibrated"]["test"]
+    print(
+        f"AUROC={test_metrics['auroc']:.5f} | "
+        f"AUPRC={test_metrics['auprc']:.5f}"
+    )
 
     print("\nsaved:")
     print(out_dir)

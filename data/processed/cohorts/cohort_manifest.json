@@ -1,5 +1,5 @@
 {
-  "created_at": "2026-07-05T22:03:52.381976",
+  "created_at": "2026-07-11T06:21:36.208796",
   "output_dir": "/content/drive/MyDrive/respire-transfuse/data/processed/cohorts",
   "cohort_csv": "/content/drive/MyDrive/respire-transfuse/data/processed/cohorts/cohort.csv",
   "all_rows_csv": "/content/drive/MyDrive/respire-transfuse/data/processed/cohorts/all_rows.csv",
@@ -7,6 +7,25 @@
   "resp_itemids_csv": "/content/drive/MyDrive/respire-transfuse/data/processed/cohorts/resp_itemids.csv",
   "resp_events_csv": "/content/drive/MyDrive/respire-transfuse/data/processed/cohorts/resp_events.csv",
   "random_seed": 42,
+  "split_algorithm": {
+    "name": "seeded_patient_level_prevalence_search_v1",
+    "label_column": "label_48h_stable72h",
+    "seed": 42,
+    "search_iterations": 50000,
+    "selected_search_iteration": 27529,
+    "overall_prevalence": 0.13987124085016314,
+    "maximum_prevalence_gap": 0.0001219242534058751,
+    "maximum_row_size_deviation": 0.007293412117470699,
+    "allowed_prevalence_gap": 0.0025,
+    "allowed_row_size_deviation": 0.01,
+    "target_row_fractions": {
+      "train": 0.7,
+      "val": 0.15,
+      "test": 0.15
+    },
+    "subject_assignments_csv": "/content/drive/MyDrive/respire-transfuse/data/processed/cohorts/subject_split_assignments.csv",
+    "subject_assignments_sha256": "1c1744ce1f5702317db332dc083b2a4310334fec360998d83bb2ac1cbacd2130"
+  },
   "label": "label_48h_stable72h renamed to label",
   "positive": "selected respiratory intervention within 48h after CXR",
   "negative": "no selected respiratory intervention within 72h after CXR",
@@ -19,36 +38,36 @@
   "split_summary": [
     {
       "split": "train",
-      "rows": 7866,
-      "subjects": 3930,
-      "stays": 4683,
-      "studies": 7866,
-      "dicoms": 7866,
-      "positive": 1130,
-      "negative": 6736,
-      "positive_rate": 0.14365624205441138
+      "rows": 8020,
+      "subjects": 3931,
+      "stays": 4726,
+      "studies": 8020,
+      "dicoms": 8020,
+      "positive": 1122,
+      "negative": 6898,
+      "positive_rate": 0.1399002493765586
     },
     {
       "split": "val",
-      "rows": 1734,
-      "subjects": 843,
-      "stays": 1017,
-      "studies": 1734,
-      "dicoms": 1734,
-      "positive": 221,
-      "negative": 1513,
-      "positive_rate": 0.12745098039215685
+      "rows": 1624,
+      "subjects": 842,
+      "stays": 996,
+      "studies": 1624,
+      "dicoms": 1624,
+      "positive": 227,
+      "negative": 1397,
+      "positive_rate": 0.13977832512315272
     },
     {
       "split": "test",
-      "rows": 1739,
+      "rows": 1695,
       "subjects": 844,
-      "stays": 1011,
-      "studies": 1739,
-      "dicoms": 1739,
-      "positive": 235,
-      "negative": 1504,
-      "positive_rate": 0.13513513513513514
+      "stays": 989,
+      "studies": 1695,
+      "dicoms": 1695,
+      "positive": 237,
+      "negative": 1458,
+      "positive_rate": 0.13982300884955753
     }
   ]
 }

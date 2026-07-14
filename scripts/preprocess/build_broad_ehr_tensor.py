@@ -11,7 +11,7 @@ import pandas as pd
 from tqdm.auto import tqdm
 
 
-BASE = Path("/content/drive/MyDrive/respire-transfuse")
+BASE = Path(__file__).resolve().parents[2]
 
 COHORT_DEFAULT = BASE / "data/processed/cohorts/cohort.csv"
 

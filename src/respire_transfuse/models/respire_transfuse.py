@@ -1,8 +1,12 @@
 import torch
 import torch.nn as nn
 
-from respire_transfuse.models.ehr_only import EHRTransformerRiskModel
-from respire_transfuse.models.image_only import ConservativeImageModel
+from respire_transfuse.models.ehr_only import (
+    EHRTransformerRiskModel,
+)
+from respire_transfuse.models.image_only import (
+    ImageOnlyModel,
+)
 
 
 def masked_mean(tokens, token_mask=None):
@@ -126,6 +130,7 @@ class RespireTransFuse(nn.Module):
         delta_scale_start=0.12,
         delta_scale_end=0.35,
         detach_ehr_fusion_features=False,
+        image_token_grid_size=2,
     ):
         super().__init__()
 
@@ -138,6 +143,36 @@ class RespireTransFuse(nn.Module):
         self.delta_scale_end = float(delta_scale_end)
         self.current_delta_scale = float(delta_scale_start)
         self.detach_ehr_fusion_features = bool(detach_ehr_fusion_features)
+        self.image_token_grid_size = int(image_token_grid_size)
+
+        self.image_token_pool = nn.AdaptiveAvgPool2d(
+            (
+                self.image_token_grid_size,
+                self.image_token_grid_size,
+            )
+        )
+
+        self.image_token_proj = nn.Sequential(
+            nn.LayerNorm(
+                self.image_branch.num_features
+            ),
+            nn.Linear(
+                self.image_branch.num_features,
+                self.fusion_dim,
+            ),
+            nn.GELU(),
+            nn.Dropout(float(dropout)),
+        )
+
+        self.image_summary_proj = nn.Sequential(
+            nn.LayerNorm(
+                self.image_branch.num_features
+            ),
+            nn.Linear(
+                self.image_branch.num_features,
+                self.fusion_dim,
+            ),
+        )
 
         self.cross_layers = nn.ModuleList([
             BidirectionalCrossAttentionLayer(
@@ -185,9 +220,21 @@ class RespireTransFuse(nn.Module):
         image_out = self.image_branch(image, return_all=True)
         ehr_out = self.ehr_branch(ehr_x, ehr_m, return_all=True)
 
-        image_tokens = image_out["image_tokens"]
-        image_summary = image_out["image_summary"]
+        image_feature_map = image_out["feature_map"]
+        image_features = image_out["image_features"]
         image_logit = image_out["logit"]
+
+        image_tokens = self.image_token_pool(
+            image_feature_map
+        ).flatten(2).transpose(1, 2).contiguous()
+
+        image_tokens = self.image_token_proj(
+            image_tokens
+        )
+
+        image_summary = self.image_summary_proj(
+            image_features
+        )
 
         ehr_tokens = ehr_out["ehr_tokens"]
         ehr_summary = ehr_out["ehr_summary"]
@@ -263,13 +310,11 @@ def build_respire_transfuse_from_config(cfg, n_ehr_features):
     ehr_cfg = cfg["ehr_branch"]
     model_cfg = cfg["model"]
 
-    image_branch = ConservativeImageModel(
+    image_branch = ImageOnlyModel(
         backbone_name=image_cfg["backbone"],
         pretrained=bool(image_cfg["pretrained"]),
+        hidden_dim=int(image_cfg["hidden_dim"]),
         dropout=float(image_cfg["dropout"]),
-        hidden_mult=float(image_cfg["hidden_mult"]),
-        image_token_dim=int(image_cfg.get("image_token_dim", 48)),
-        token_grid_size=int(image_cfg.get("token_grid_size", 2)),
     )
 
     ehr_branch = EHRTransformerRiskModel(
@@ -282,6 +327,9 @@ def build_respire_transfuse_from_config(cfg, n_ehr_features):
         use_mask_channel=bool(ehr_cfg["use_mask_channel"]),
         use_cls_token=bool(ehr_cfg["use_cls_token"]),
         ehr_token_dim=int(ehr_cfg.get("ehr_token_dim", 48)),
+        local_scale_init=float(
+            ehr_cfg.get("local_scale_init", -1.1)
+        ),
     )
 
     return RespireTransFuse(
@@ -296,6 +344,7 @@ def build_respire_transfuse_from_config(cfg, n_ehr_features):
         delta_scale_start=float(model_cfg.get("delta_scale_start", 0.12)),
         delta_scale_end=float(model_cfg.get("delta_scale_end", 0.35)),
         detach_ehr_fusion_features=bool(model_cfg.get("detach_ehr_fusion_features", False)),
+        image_token_grid_size=int(model_cfg.get("image_token_grid_size", 2)),
     )
 
 
@@ -317,8 +366,8 @@ def configure_respire_transfuse_trainability(model, freeze_cfg):
         set_requires_grad(model.ehr_branch, False)
 
     if bool(freeze_cfg.get("train_projection_layers", True)):
-        set_requires_grad(model.image_branch.token_proj, True)
-        set_requires_grad(model.image_branch.summary_proj, True)
+        set_requires_grad(model.image_token_proj, True)
+        set_requires_grad(model.image_summary_proj, True)
         set_requires_grad(model.ehr_branch.fusion_token_proj, True)
         set_requires_grad(model.ehr_branch.fusion_summary_proj, True)
 

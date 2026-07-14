@@ -1,31 +1,31 @@
 feature_order,feature_name,source,itemid,label,train_mean,train_std,observed_count_total,observed_count_train
-0,chartevents::220045::Heart Rate,chartevents,220045,Heart Rate,89.769,60.669193,169052,115986
-1,chartevents::220210::Respiratory Rate,chartevents,220210,Respiratory Rate,20.704828,6.0156574,168276,115569
-2,chartevents::220277::O2 saturation pulseoxymetry,chartevents,220277,O2 saturation pulseoxymetry,95.96035,3.029116,165186,113383
-3,chartevents::220179::Non Invasive Blood Pressure systolic,chartevents,220179,Non Invasive Blood Pressure systolic,118.46083,29.469969,140111,95607
-4,chartevents::220180::Non Invasive Blood Pressure diastolic,chartevents,220180,Non Invasive Blood Pressure diastolic,65.952225,250.67001,140094,95591
-5,chartevents::223761::Temperature Fahrenheit,chartevents,223761,Temperature Fahrenheit,98.40519,5.383438,45276,31138
-6,chartevents::223834::O2 Flow,chartevents,223834,O2 Flow,6.591685,8.134541,31727,21813
-7,chartevents::223835::Inspired O2 Fraction,chartevents,223835,Inspired O2 Fraction,58.66102,21.92202,9447,6519
-8,labevents::50813::Lactate,labevents,50813,Lactate,2.2341156,2.1826205,8414,5838
-9,labevents::50820::pH,labevents,50820,pH,7.377589,0.091773,8305,5724
-10,labevents::50802::Base Excess,labevents,50802,Base Excess,-0.82581764,10.022808,7300,5045
-11,labevents::50882::Bicarbonate,labevents,50882,Bicarbonate,24.014517,5.153231,16976,11745
-12,labevents::50811::Hemoglobin,labevents,50811,Hemoglobin,10.682618,2.0578277,2456,1748
-13,labevents::51301::White Blood Cells,labevents,51301,White Blood Cells,12.481442,14.953895,14888,10325
-14,labevents::50912::Creatinine,labevents,50912,Creatinine,1.6190572,1.5169374,17179,11901
-15,labevents::51274::PT,labevents,51274,PT,18.407045,10.904669,10015,6940
-16,labevents::51237::INR(PT),labevents,51237,INR(PT),1.6999769,1.0215675,10015,6940
-17,labevents::50960::Magnesium,labevents,50960,Magnesium,2.068285,0.51676345,16291,11266
-18,labevents::50970::Phosphate,labevents,50970,Phosphate,3.6202095,1.3539375,15847,10980
-19,"labevents::50893::Calcium, Total",labevents,50893,"Calcium, Total",8.444607,0.8465315,15831,10967
-20,chartevents::225638::Differential-Bands,chartevents,225638,Differential-Bands,4.5285716,7.338687,787,560
-21,chartevents::220224::Arterial O2 pressure,chartevents,220224,Arterial O2 pressure,965.1717,29157.314,3305,2350
-22,"labevents::50884::Bilirubin, Indirect",labevents,50884,"Bilirubin, Indirect",2.4210045,3.28289,292,219
-23,chartevents::226534::Sodium (whole blood),chartevents,226534,Sodium (whole blood),133.70901,8.803255,667,488
-24,chartevents::226536::Chloride (whole blood),chartevents,226536,Chloride (whole blood),103.56831,8.319762,468,344
-25,chartevents::229357::Absolute Count - Neuts,chartevents,229357,Absolute Count - Neuts,10.957776,9.087912,653,443
-26,labevents::50924::Ferritin,labevents,50924,Ferritin,1729.243,5966.709,330,228
-27,chartevents::220632::LDH,chartevents,220632,LDH,514.7099,948.04315,2441,1670
-28,"labevents::51214::Fibrinogen, Functional",labevents,51214,"Fibrinogen, Functional",309.54395,193.4122,1069,751
-29,"labevents::51283::Reticulocyte Count, Automated",labevents,51283,"Reticulocyte Count, Automated",2.6137142,1.5081248,245,175
+0,chartevents::220045::Heart Rate,chartevents,220045,Heart Rate,89.632065,18.588148,169052,119640
+1,chartevents::220210::Respiratory Rate,chartevents,220210,Respiratory Rate,20.817564,5.912626,168276,119092
+2,chartevents::220277::O2 saturation pulseoxymetry,chartevents,220277,O2 saturation pulseoxymetry,95.97063,4.792444,165186,117138
+3,chartevents::220179::Non Invasive Blood Pressure systolic,chartevents,220179,Non Invasive Blood Pressure systolic,118.00868,29.098724,140111,99486
+4,chartevents::220180::Non Invasive Blood Pressure diastolic,chartevents,220180,Non Invasive Blood Pressure diastolic,66.186874,282.89658,140094,99472
+5,chartevents::223761::Temperature Fahrenheit,chartevents,223761,Temperature Fahrenheit,98.37565,2.5271604,45276,32272
+6,chartevents::223834::O2 Flow,chartevents,223834,O2 Flow,6.543039,8.112141,31727,22565
+7,chartevents::223835::Inspired O2 Fraction,chartevents,223835,Inspired O2 Fraction,59.281914,22.411118,9447,6716
+8,labevents::50813::Lactate,labevents,50813,Lactate,2.1959198,2.1289237,8414,6012
+9,labevents::50820::pH,labevents,50820,pH,7.3757634,0.09134921,8305,5933
+10,labevents::50802::Base Excess,labevents,50802,Base Excess,-1.0451388,11.456236,7300,5232
+11,labevents::50882::Bicarbonate,labevents,50882,Bicarbonate,24.058186,5.2054806,16976,12065
+12,labevents::50811::Hemoglobin,labevents,50811,Hemoglobin,10.517652,2.043439,2456,1692
+13,labevents::51301::White Blood Cells,labevents,51301,White Blood Cells,11.896761,9.143013,14888,10655
+14,labevents::50912::Creatinine,labevents,50912,Creatinine,1.6497952,1.5915321,17179,12202
+15,labevents::51274::PT,labevents,51274,PT,18.308846,10.943341,10015,7134
+16,labevents::51237::INR(PT),labevents,51237,INR(PT),1.6898304,1.0216621,10015,7134
+17,labevents::50960::Magnesium,labevents,50960,Magnesium,2.078529,0.5655032,16291,11555
+18,labevents::50970::Phosphate,labevents,50970,Phosphate,3.6396623,1.3938913,15847,11255
+19,"labevents::50893::Calcium, Total",labevents,50893,"Calcium, Total",8.424822,0.8414802,15831,11238
+20,chartevents::225638::Differential-Bands,chartevents,225638,Differential-Bands,4.7324724,7.5187597,787,542
+21,chartevents::220224::Arterial O2 pressure,chartevents,220224,Arterial O2 pressure,971.841,29282.09,3305,2330
+22,"labevents::50884::Bilirubin, Indirect",labevents,50884,"Bilirubin, Indirect",2.0817757,2.5631638,292,214
+23,chartevents::226534::Sodium (whole blood),chartevents,226534,Sodium (whole blood),134.08522,8.9525,667,487
+24,chartevents::226536::Chloride (whole blood),chartevents,226536,Chloride (whole blood),104.22591,7.749671,468,332
+25,chartevents::229357::Absolute Count - Neuts,chartevents,229357,Absolute Count - Neuts,10.855733,8.827721,653,464
+26,labevents::50924::Ferritin,labevents,50924,Ferritin,2452.8213,8464.353,330,240
+27,chartevents::220632::LDH,chartevents,220632,LDH,622.6024,1846.1832,2441,1797
+28,"labevents::51214::Fibrinogen, Functional",labevents,51214,"Fibrinogen, Functional",303.52982,190.63507,1069,788
+29,"labevents::51283::Reticulocyte Count, Automated",labevents,51283,"Reticulocyte Count, Automated",2.7050278,1.8183199,245,179

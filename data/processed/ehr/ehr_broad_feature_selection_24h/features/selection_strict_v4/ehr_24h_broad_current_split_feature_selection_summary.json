@@ -1,0 +1,57 @@
+{
+  "npz_path": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_broad_feature_selection_24h/ehr_24h_broad_current_split.npz",
+  "shape": [
+    11339,
+    24,
+    532
+  ],
+  "train_n": 8020,
+  "val_n": 1624,
+  "test_n": 1695,
+  "train_label_counts": {
+    "0": 6898,
+    "1": 1122
+  },
+  "train_prevalence": 0.1399002493765586,
+  "summary_modes": [
+    "mean",
+    "last",
+    "max",
+    "min",
+    "std",
+    "observed_fraction",
+    "last_minus_first",
+    "slope"
+  ],
+  "corr_threshold": 0.85,
+  "lambda_redundancy": 0.5,
+  "n_bootstraps": 80,
+  "random_state": 42,
+  "elastic_top_k": 120,
+  "subsample_fraction": 0.75,
+  "run_rfecv": false,
+  "recommendation_counts": {
+    "reject_possible_leakage": 300,
+    "review": 68,
+    "reject_or_review_sparse": 65,
+    "weak_or_noise": 62,
+    "core": 19,
+    "strong": 18
+  },
+  "outputs": {
+    "all_modes": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_broad_feature_selection_24h/features/selection_strict_v4/ehr_24h_broad_current_split_all_modes_train_only.csv",
+    "best_summary": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_broad_feature_selection_24h/features/selection_strict_v4/ehr_24h_broad_current_split_best_summary_per_feature_train_only.csv",
+    "correlation_matrix_npy": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_broad_feature_selection_24h/features/selection_strict_v4/ehr_24h_broad_current_split_feature_correlation_matrix_train_only.npy",
+    "covariance_matrix_npy": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_broad_feature_selection_24h/features/selection_strict_v4/ehr_24h_broad_current_split_feature_covariance_matrix_train_only.npy",
+    "correlation_clusters": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_broad_feature_selection_24h/features/selection_strict_v4/ehr_24h_broad_current_split_correlation_clusters_train_only.csv",
+    "mrmr_ranked": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_broad_feature_selection_24h/features/selection_strict_v4/ehr_24h_broad_current_split_mrmr_ranked_train_only.csv",
+    "mrmr_all": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_broad_feature_selection_24h/features/selection_strict_v4/ehr_24h_broad_current_split_mrmr_all_features_train_only.csv",
+    "elasticnet_stability": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_broad_feature_selection_24h/features/selection_strict_v4/ehr_24h_broad_current_split_elasticnet_stability_train_only.csv",
+    "rfecv": null,
+    "consensus": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_broad_feature_selection_24h/features/selection_strict_v4/ehr_24h_broad_current_split_consensus_feature_evidence_train_only.csv",
+    "recommended_core": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_broad_feature_selection_24h/features/selection_strict_v4/ehr_24h_broad_current_split_recommended_core_features.csv",
+    "recommended_core_plus_strong": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_broad_feature_selection_24h/features/selection_strict_v4/ehr_24h_broad_current_split_recommended_core_plus_strong_features.csv",
+    "review": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_broad_feature_selection_24h/features/selection_strict_v4/ehr_24h_broad_current_split_review_features.csv",
+    "recommendation_by_category": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_broad_feature_selection_24h/features/selection_strict_v4/ehr_24h_broad_current_split_recommendation_by_category_summary.csv"
+  }
+}

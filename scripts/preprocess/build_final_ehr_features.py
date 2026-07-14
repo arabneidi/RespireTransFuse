@@ -51,7 +51,9 @@ def parse_args():
     parser.add_argument(
         "--repo_root",
         type=str,
-        default="/content/drive/MyDrive/respire-transfuse",
+        default=str(
+            Path(__file__).resolve().parents[2]
+        ),
     )
 
     parser.add_argument(

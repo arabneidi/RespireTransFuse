@@ -1,0 +1,533 @@
+feature_index,variable,source,itemid,label,value_source,train_measurement_count,train_sample_count,train_sample_coverage
+0,chartevents::220045::Heart Rate::valuenum,chartevents,220045,Heart Rate,valuenum,138291,7770,0.9688279301745636
+1,chartevents::220210::Respiratory Rate::valuenum,chartevents,220210,Respiratory Rate,valuenum,137382,7759,0.9674563591022444
+2,chartevents::220277::O2 saturation pulseoxymetry::valuenum,chartevents,220277,O2 saturation pulseoxymetry,valuenum,135292,7744,0.9655860349127182
+3,chartevents::224641::Alarms On::valuenum,chartevents,224641,Alarms On,valuenum,32439,7550,0.9413965087281796
+4,chartevents::224168::Parameters Checked::valuenum,chartevents,224168,Parameters Checked,valuenum,31727,7449,0.9288029925187032
+5,chartevents::220739::GCS - Eye Opening::valuenum,chartevents,220739,GCS - Eye Opening,valuenum,33291,7416,0.9246882793017457
+6,chartevents::223900::GCS - Verbal Response::valuenum,chartevents,223900,GCS - Verbal Response,valuenum,33366,7402,0.9229426433915212
+7,chartevents::223901::GCS - Motor Response::valuenum,chartevents,223901,GCS - Motor Response,valuenum,33167,7396,0.9221945137157107
+8,chartevents::223761::Temperature Fahrenheit::valuenum,chartevents,223761,Temperature Fahrenheit,valuenum,33089,7354,0.9169576059850374
+9,chartevents::226253::SpO2 Desat Limit::valuenum,chartevents,226253,SpO2 Desat Limit,valuenum,13265,7308,0.9112219451371572
+10,chartevents::220181::Non Invasive Blood Pressure mean::valuenum,chartevents,220181,Non Invasive Blood Pressure mean,valuenum,111162,7159,0.892643391521197
+11,chartevents::220179::Non Invasive Blood Pressure systolic::valuenum,chartevents,220179,Non Invasive Blood Pressure systolic,valuenum,111226,7150,0.8915211970074813
+12,chartevents::220180::Non Invasive Blood Pressure diastolic::valuenum,chartevents,220180,Non Invasive Blood Pressure diastolic,valuenum,111212,7150,0.8915211970074813
+13,chartevents::224054::Braden Sensory Perception::valuenum,chartevents,224054,Braden Sensory Perception,valuenum,17737,7150,0.8915211970074813
+14,chartevents::224055::Braden Moisture::valuenum,chartevents,224055,Braden Moisture,valuenum,17723,7149,0.8913965087281795
+15,chartevents::224057::Braden Mobility::valuenum,chartevents,224057,Braden Mobility,valuenum,17707,7146,0.8910224438902743
+16,chartevents::224058::Braden Nutrition::valuenum,chartevents,224058,Braden Nutrition,valuenum,17706,7146,0.8910224438902743
+17,chartevents::224056::Braden Activity::valuenum,chartevents,224056,Braden Activity,valuenum,17703,7144,0.8907730673316708
+18,chartevents::224059::Braden Friction/Shear::valuenum,chartevents,224059,Braden Friction/Shear,valuenum,17667,7140,0.8902743142144638
+19,chartevents::228096::Richmond-RAS Scale::valuenum,chartevents,228096,Richmond-RAS Scale,valuenum,25941,7065,0.8809226932668329
+20,labevents::50983::Sodium::valuenum,labevents,50983,Sodium,valuenum,12711,7065,0.8809226932668329
+21,labevents::50971::Potassium::valuenum,labevents,50971,Potassium,valuenum,12710,7065,0.8809226932668329
+22,labevents::50902::Chloride::valuenum,labevents,50902,Chloride,valuenum,12679,7063,0.8806733167082295
+23,labevents::50912::Creatinine::valuenum,labevents,50912,Creatinine,valuenum,12219,7048,0.8788029925187032
+24,labevents::51006::Urea Nitrogen::valuenum,labevents,51006,Urea Nitrogen,valuenum,12183,7047,0.8786783042394015
+25,labevents::50931::Glucose::valuenum,labevents,50931,Glucose,valuenum,12009,7029,0.8764339152119701
+26,labevents::50882::Bicarbonate::valuenum,labevents,50882,Bicarbonate,valuenum,12081,7028,0.8763092269326683
+27,labevents::50868::Anion Gap::valuenum,labevents,50868,Anion Gap,valuenum,12071,7025,0.8759351620947631
+28,labevents::51221::Hematocrit::valuenum,labevents,51221,Hematocrit,valuenum,11643,6958,0.8675810473815462
+29,labevents::51222::Hemoglobin::valuenum,labevents,51222,Hemoglobin,valuenum,10893,6925,0.8634663341645885
+30,labevents::51265::Platelet Count::valuenum,labevents,51265,Platelet Count,valuenum,10798,6921,0.8629675810473816
+31,labevents::51301::White Blood Cells::valuenum,labevents,51301,White Blood Cells,valuenum,10678,6920,0.8628428927680798
+32,labevents::51250::MCV::valuenum,labevents,51250,MCV,valuenum,10668,6918,0.8625935162094763
+33,labevents::51279::Red Blood Cells::valuenum,labevents,51279,Red Blood Cells,valuenum,10668,6918,0.8625935162094763
+34,labevents::51277::RDW::valuenum,labevents,51277,RDW,valuenum,10667,6918,0.8625935162094763
+35,labevents::51249::MCHC::valuenum,labevents,51249,MCHC,valuenum,10668,6917,0.8624688279301745
+36,labevents::51248::MCH::valuenum,labevents,51248,MCH,valuenum,10667,6917,0.8624688279301745
+37,labevents::50960::Magnesium::valuenum,labevents,50960,Magnesium,valuenum,11571,6886,0.8586034912718205
+38,labevents::50970::Phosphate::valuenum,labevents,50970,Phosphate,valuenum,11271,6851,0.8542394014962593
+39,"labevents::50893::Calcium, Total::valuenum",labevents,50893,"Calcium, Total",valuenum,11254,6836,0.8523690773067332
+40,chartevents::227345::Gait/Transferring::valuenum,chartevents,227345,Gait/Transferring,valuenum,13890,6825,0.850997506234414
+41,chartevents::227344::IV/Saline lock::valuenum,chartevents,227344,IV/Saline lock,valuenum,13890,6823,0.8507481296758105
+42,chartevents::227346::Mental status::valuenum,chartevents,227346,Mental status,valuenum,13874,6822,0.8506234413965087
+43,chartevents::227343::Ambulatory aid::valuenum,chartevents,227343,Ambulatory aid,valuenum,13873,6818,0.8501246882793018
+44,chartevents::227342::Secondary diagnosis::valuenum,chartevents,227342,Secondary diagnosis,valuenum,13950,6812,0.8493765586034913
+45,chartevents::228305::ST Segment Monitoring On::valuenum,chartevents,228305,ST Segment Monitoring On,valuenum,26000,6785,0.8460099750623441
+46,chartevents::227341::History of falling (within 3 mnths)::valuenum,chartevents,227341,History of falling (within 3 mnths),valuenum,13915,6781,0.8455112219451372
+47,chartevents::228412::Strength R Arm::valuenum,chartevents,228412,Strength R Arm,valuenum,26210,6568,0.8189526184538654
+48,chartevents::228409::Strength L Arm::valuenum,chartevents,228409,Strength L Arm,valuenum,26191,6566,0.8187032418952619
+49,chartevents::228411::Strength R Leg::valuenum,chartevents,228411,Strength R Leg,valuenum,26168,6562,0.8182044887780549
+50,chartevents::228410::Strength L Leg::valuenum,chartevents,228410,Strength L Leg,valuenum,26121,6556,0.8174563591022443
+51,chartevents::220645::Sodium (serum)::valuenum,chartevents,220645,Sodium (serum),valuenum,10945,6545,0.8160847880299252
+52,chartevents::227442::Potassium (serum)::valuenum,chartevents,227442,Potassium (serum),valuenum,10937,6545,0.8160847880299252
+53,chartevents::220602::Chloride (serum)::valuenum,chartevents,220602,Chloride (serum),valuenum,10914,6543,0.8158354114713217
+54,chartevents::220615::Creatinine (serum)::valuenum,chartevents,220615,Creatinine (serum),valuenum,10465,6525,0.8135910224438903
+55,chartevents::225624::BUN::valuenum,chartevents,225624,BUN,valuenum,10441,6521,0.8130922693266833
+56,chartevents::220621::Glucose (serum)::valuenum,chartevents,220621,Glucose (serum),valuenum,10340,6511,0.8118453865336658
+57,chartevents::227443::HCO3 (serum)::valuenum,chartevents,227443,HCO3 (serum),valuenum,10376,6510,0.8117206982543641
+58,chartevents::227073::Anion gap::valuenum,chartevents,227073,Anion gap,valuenum,10369,6506,0.8112219451371571
+59,chartevents::220545::Hematocrit (serum)::valuenum,chartevents,220545,Hematocrit (serum),valuenum,9796,6417,0.8001246882793017
+60,chartevents::220228::Hemoglobin::valuenum,chartevents,220228,Hemoglobin,valuenum,10430,6414,0.7997506234413965
+61,chartevents::220635::Magnesium::valuenum,chartevents,220635,Magnesium,valuenum,10096,6401,0.7981296758104738
+62,chartevents::225677::Phosphorous::valuenum,chartevents,225677,Phosphorous,valuenum,9855,6376,0.7950124688279302
+63,chartevents::227457::Platelet Count::valuenum,chartevents,227457,Platelet Count,valuenum,9078,6370,0.7942643391521197
+64,chartevents::220546::WBC::valuenum,chartevents,220546,WBC,valuenum,8975,6369,0.7941396508728179
+65,chartevents::225625::Calcium non-ionized::valuenum,chartevents,225625,Calcium non-ionized,valuenum,9837,6364,0.7935162094763092
+66,chartevents::228394::Orientation to Person::valuenum,chartevents,228394,Orientation to Person,valuenum,22690,5747,0.7165835411471322
+67,chartevents::228395::Orientation to Place::valuenum,chartevents,228395,Orientation to Place,valuenum,22476,5713,0.7123441396508728
+68,chartevents::228396::Orientation to Time::valuenum,chartevents,228396,Orientation to Time,valuenum,22232,5678,0.7079800498753117
+69,chartevents::223834::O2 Flow::valuenum,chartevents,223834,O2 Flow,valuenum,23109,5548,0.6917705735660847
+70,chartevents::223791::Pain Level::valuenum,chartevents,223791,Pain Level,valuenum,19510,5369,0.6694513715710724
+71,labevents::51237::INR(PT)::valuenum,labevents,51237,INR(PT),valuenum,7153,5112,0.6374064837905237
+72,labevents::51274::PT::valuenum,labevents,51274,PT,valuenum,7153,5112,0.6374064837905237
+73,labevents::51275::PTT::valuenum,labevents,51275,PTT,valuenum,7601,5042,0.6286783042394015
+74,chartevents::227465::Prothrombin time::valuenum,chartevents,227465,Prothrombin time,valuenum,6227,4728,0.5895261845386534
+75,chartevents::227467::INR::valuenum,chartevents,227467,INR,valuenum,6226,4728,0.5895261845386534
+76,chartevents::227466::PTT::valuenum,chartevents,227466,PTT,valuenum,6656,4673,0.5826683291770574
+77,chartevents::228337::CAM-ICU MS Change::valuenum,chartevents,228337,CAM-ICU MS Change,valuenum,8644,4315,0.5380299251870324
+78,chartevents::227368::20 Gauge Dressing Occlusive::valuenum,chartevents,227368,20 Gauge Dressing Occlusive,valuenum,14408,4282,0.5339152119700749
+79,chartevents::226138::20 Gauge placed in outside facility::valuenum,chartevents,226138,20 Gauge placed in outside facility,valuenum,14416,4276,0.5331670822942643
+80,chartevents::228100::20 Gauge placed in the field::valuenum,chartevents,228100,20 Gauge placed in the field,valuenum,14293,4237,0.5283042394014963
+81,chartevents::224409::Pain Level Response::valuenum,chartevents,224409,Pain Level Response,valuenum,11048,3840,0.47880299251870323
+82,chartevents::225664::Glucose finger stick (range 70-100)::valuenum,chartevents,225664,Glucose finger stick (range 70-100),valuenum,11307,3793,0.4729426433915212
+83,labevents::50813::Lactate::valuenum,labevents,50813,Lactate,valuenum,6130,3207,0.39987531172069823
+84,chartevents::228236::Insulin pump::valuenum,chartevents,228236,Insulin pump,valuenum,6530,3186,0.3972568578553616
+85,chartevents::227367::18 Gauge Dressing Occlusive::valuenum,chartevents,227367,18 Gauge Dressing Occlusive,valuenum,10007,3134,0.39077306733167083
+86,chartevents::226137::18 Gauge placed in outside facility::valuenum,chartevents,226137,18 Gauge placed in outside facility,valuenum,9994,3127,0.3899002493765586
+87,labevents::50820::pH::valuenum,labevents,50820,pH,valuenum,6104,3125,0.38965087281795513
+88,chartevents::228099::18 Gauge placed in the field::valuenum,chartevents,228099,18 Gauge placed in the field,valuenum,9908,3098,0.38628428927680797
+89,chartevents::227349::High risk (>51) interventions::valuenum,chartevents,227349,High risk (>51) interventions,valuenum,5073,2955,0.36845386533665836
+90,labevents::50802::Base Excess::valuenum,labevents,50802,Base Excess,valuenum,5380,2847,0.3549875311720698
+91,labevents::50878::Asparate Aminotransferase (AST)::valuenum,labevents,50878,Asparate Aminotransferase (AST),valuenum,3540,2846,0.3548628428927681
+92,labevents::50821::pO2::valuenum,labevents,50821,pO2,valuenum,5378,2844,0.3546134663341646
+93,labevents::50861::Alanine Aminotransferase (ALT)::valuenum,labevents,50861,Alanine Aminotransferase (ALT),valuenum,3536,2844,0.3546134663341646
+94,labevents::50804::Calculated Total CO2::valuenum,labevents,50804,Calculated Total CO2,valuenum,5374,2842,0.3543640897755611
+95,labevents::50818::pCO2::valuenum,labevents,50818,pCO2,valuenum,5374,2841,0.3542394014962594
+96,"labevents::50885::Bilirubin, Total::valuenum",labevents,50885,"Bilirubin, Total",valuenum,3534,2822,0.3518703241895262
+97,chartevents::225103::Intravenous  / IV access prior to admission::valuenum,chartevents,225103,Intravenous  / IV access prior to admission,valuenum,5126,2815,0.35099750623441395
+98,labevents::50863::Alkaline Phosphatase::valuenum,labevents,50863,Alkaline Phosphatase,valuenum,3482,2804,0.3496259351620948
+99,chartevents::228648::Home TF::valuenum,chartevents,228648,Home TF,valuenum,5568,2762,0.34438902743142147
+100,chartevents::225668::Lactic Acid::valuenum,chartevents,225668,Lactic Acid,valuenum,4989,2706,0.3374064837905237
+101,chartevents::228649::Pressure Ulcer Present::valuenum,chartevents,228649,Pressure Ulcer Present,valuenum,5322,2664,0.33216957605985037
+102,chartevents::229321::Activity / Mobility (JH-HLM)::valuenum,chartevents,229321,Activity / Mobility (JH-HLM),valuenum,18373,2582,0.3219451371571072
+103,chartevents::220644::ALT::valuenum,chartevents,220644,ALT,valuenum,2991,2525,0.31483790523690774
+104,chartevents::225092::Self ADL::valuenum,chartevents,225092,Self ADL,valuenum,4578,2524,0.314713216957606
+105,chartevents::220587::AST::valuenum,chartevents,220587,AST,valuenum,2990,2523,0.3145885286783042
+106,chartevents::225690::Total Bilirubin::valuenum,chartevents,225690,Total Bilirubin,valuenum,2992,2507,0.3125935162094763
+107,chartevents::225612::Alkaline Phosphate::valuenum,chartevents,225612,Alkaline Phosphate,valuenum,2941,2479,0.30910224438902745
+108,chartevents::225094::History of slips / falls::valuenum,chartevents,225094,History of slips / falls,valuenum,4461,2461,0.306857855361596
+109,labevents::52172::RDW-SD::valuenum,labevents,52172,RDW-SD,valuenum,3940,2449,0.3053615960099751
+110,chartevents::229326::CAM-ICU MS Change::valuenum,chartevents,229326,CAM-ICU MS Change,valuenum,4908,2337,0.29139650872817957
+111,chartevents::225118::Difficulty swallowing::valuenum,chartevents,225118,Difficulty swallowing,valuenum,4143,2329,0.2903990024937656
+112,chartevents::225113::Currently experiencing pain::valuenum,chartevents,225113,Currently experiencing pain,valuenum,4117,2283,0.2846633416458853
+113,chartevents::225087::Visual / hearing deficit::valuenum,chartevents,225087,Visual / hearing deficit,valuenum,4046,2238,0.27905236907730674
+114,chartevents::225106::ETOH::valuenum,chartevents,225106,ETOH,valuenum,4007,2237,0.278927680798005
+115,chartevents::229323::Current Dyspnea Assessment::valuenum,chartevents,229323,Current Dyspnea Assessment,valuenum,6345,2225,0.27743142144638405
+116,chartevents::225126::Dialysis patient::valuenum,chartevents,225126,Dialysis patient,valuenum,3708,2100,0.26184538653366585
+117,chartevents::225110::Recreational drug use::valuenum,chartevents,225110,Recreational drug use,valuenum,3683,2057,0.25648379052369075
+118,chartevents::225074::Any fear in relationships::valuenum,chartevents,225074,Any fear in relationships,valuenum,3684,2020,0.2518703241895262
+119,chartevents::225122::Special diet::valuenum,chartevents,225122,Special diet,valuenum,3476,1965,0.24501246882793018
+120,chartevents::225184::Eye Care::valuenum,chartevents,225184,Eye Care,valuenum,3192,1953,0.24351620947630923
+121,labevents::51146::Basophils::valuenum,labevents,51146,Basophils,valuenum,2136,1898,0.23665835411471323
+122,labevents::51200::Eosinophils::valuenum,labevents,51200,Eosinophils,valuenum,2136,1898,0.23665835411471323
+123,labevents::51244::Lymphocytes::valuenum,labevents,51244,Lymphocytes,valuenum,2136,1898,0.23665835411471323
+124,labevents::51254::Monocytes::valuenum,labevents,51254,Monocytes,valuenum,2136,1898,0.23665835411471323
+125,labevents::51256::Neutrophils::valuenum,labevents,51256,Neutrophils,valuenum,2136,1898,0.23665835411471323
+126,chartevents::225078::Social work consult::valuenum,chartevents,225078,Social work consult,valuenum,3255,1859,0.23179551122194514
+127,chartevents::223835::Inspired O2 Fraction::valuenum,chartevents,223835,Inspired O2 Fraction,valuenum,6948,1856,0.2314214463840399
+128,chartevents::225076::Emotional / physical / sexual harm by partner or close relation::valuenum,chartevents,225076,Emotional / physical / sexual harm by partner or close relation,valuenum,3335,1844,0.22992518703241896
+129,chartevents::226180::Sexuality / reproductive problems::valuenum,chartevents,226180,Sexuality / reproductive problems,valuenum,3158,1794,0.22369077306733168
+130,chartevents::225067::Is the spokesperson the Health Care Proxy::valuenum,chartevents,225067,Is the spokesperson the Health Care Proxy,valuenum,3168,1766,0.22019950124688278
+131,labevents::50954::Lactate Dehydrogenase (LD)::valuenum,labevents,50954,Lactate Dehydrogenase (LD),valuenum,2035,1729,0.21558603491271822
+132,chartevents::227429::Troponin-T::valuenum,chartevents,227429,Troponin-T,valuenum,2240,1590,0.19825436408977556
+133,labevents::50862::Albumin::valuenum,labevents,50862,Albumin,valuenum,1774,1580,0.1970074812967581
+134,chartevents::225639::Differential-Basos::valuenum,chartevents,225639,Differential-Basos,valuenum,1715,1571,0.1958852867830424
+135,chartevents::225640::Differential-Eos::valuenum,chartevents,225640,Differential-Eos,valuenum,1715,1571,0.1958852867830424
+136,chartevents::225641::Differential-Lymphs::valuenum,chartevents,225641,Differential-Lymphs,valuenum,1715,1571,0.1958852867830424
+137,chartevents::225642::Differential-Monos::valuenum,chartevents,225642,Differential-Monos,valuenum,1715,1571,0.1958852867830424
+138,chartevents::225643::Differential-Neuts::valuenum,chartevents,225643,Differential-Neuts,valuenum,1715,1571,0.1958852867830424
+139,chartevents::220632::LDH::valuenum,chartevents,220632,LDH,valuenum,1798,1569,0.1956359102244389
+140,"labevents::50911::Creatine Kinase, MB Isoenzyme::valuenum",labevents,50911,"Creatine Kinase, MB Isoenzyme",valuenum,2310,1560,0.19451371571072318
+141,labevents::50808::Free Calcium::valuenum,labevents,50808,Free Calcium,valuenum,2569,1503,0.1874064837905237
+142,chartevents::227369::22 Gauge Dressing Occlusive::valuenum,chartevents,227369,22 Gauge Dressing Occlusive,valuenum,4544,1481,0.1846633416458853
+143,chartevents::226139::22 Gauge placed in outside facility::valuenum,chartevents,226139,22 Gauge placed in outside facility,valuenum,4527,1475,0.18391521197007482
+144,labevents::51491::pH::valuenum,labevents,51491,pH,valuenum,1569,1474,0.18379052369077306
+145,chartevents::228101::22 Gauge placed in the field::valuenum,chartevents,228101,22 Gauge placed in the field,valuenum,4500,1457,0.1816708229426434
+146,chartevents::227445::CK-MB::valuenum,chartevents,227445,CK-MB,valuenum,2046,1442,0.1798004987531172
+147,chartevents::223830::PH (Arterial)::valuenum,chartevents,223830,PH (Arterial),valuenum,2458,1435,0.178927680798005
+148,labevents::51498::Specific Gravity::valuenum,labevents,51498,Specific Gravity,valuenum,1503,1412,0.17605985037406482
+149,labevents::50910::Creatine Kinase (CK)::valuenum,labevents,50910,Creatine Kinase (CK),valuenum,1914,1409,0.1756857855361596
+150,chartevents::220224::Arterial O2 pressure::valuenum,chartevents,220224,Arterial O2 pressure,valuenum,2367,1405,0.17518703241895262
+151,chartevents::220235::Arterial CO2 Pressure::valuenum,chartevents,220235,Arterial CO2 Pressure,valuenum,2366,1405,0.17518703241895262
+152,chartevents::224828::Arterial Base Excess::valuenum,chartevents,224828,Arterial Base Excess,valuenum,2366,1405,0.17518703241895262
+153,chartevents::225698::TCO2 (calc) Arterial::valuenum,chartevents,225698,TCO2 (calc) Arterial,valuenum,2365,1405,0.17518703241895262
+154,chartevents::220052::Arterial Blood Pressure mean::valuenum,chartevents,220052,Arterial Blood Pressure mean,valuenum,21672,1366,0.17032418952618453
+155,chartevents::228334::CAM-ICU Altered LOC::valuenum,chartevents,228334,CAM-ICU Altered LOC,valuenum,2301,1366,0.17032418952618453
+156,chartevents::220050::Arterial Blood Pressure systolic::valuenum,chartevents,220050,Arterial Blood Pressure systolic,valuenum,21467,1339,0.1669576059850374
+157,chartevents::220051::Arterial Blood Pressure diastolic::valuenum,chartevents,220051,Arterial Blood Pressure diastolic,valuenum,21463,1339,0.1669576059850374
+158,chartevents::227456::Albumin::valuenum,chartevents,227456,Albumin,valuenum,1441,1317,0.164214463840399
+159,chartevents::225667::Ionized Calcium::valuenum,chartevents,225667,Ionized Calcium,valuenum,2104,1308,0.1630922693266833
+160,chartevents::225188::Cough/Deep Breath::valuenum,chartevents,225188,Cough/Deep Breath,valuenum,5117,1289,0.1607231920199501
+161,chartevents::225634::CK (CPK)::valuenum,chartevents,225634,CK (CPK),valuenum,1660,1257,0.15673316708229426
+162,chartevents::220274::PH (Venous)::valuenum,chartevents,220274,PH (Venous),valuenum,1727,1234,0.1538653366583541
+163,chartevents::224564::Impaired Skin Odor #1::valuenum,chartevents,224564,Impaired Skin Odor #1,valuenum,3112,1216,0.15162094763092268
+164,labevents::51003::Troponin T::valuenum,labevents,51003,Troponin T,valuenum,1894,1201,0.1497506234413965
+165,labevents::50817::Oxygen Saturation::valuenum,labevents,50817,Oxygen Saturation,valuenum,2688,1182,0.14738154613466334
+166,chartevents::227293::Multi Lumen Dressing Occlusive::valuenum,chartevents,227293,Multi Lumen Dressing Occlusive,valuenum,4033,1169,0.14576059850374065
+167,chartevents::226113::Multi Lumen placed in outside facility::valuenum,chartevents,226113,Multi Lumen placed in outside facility,valuenum,3960,1148,0.143142144638404
+168,chartevents::227292::Arterial Line Dressing Occlusive::valuenum,chartevents,227292,Arterial Line Dressing Occlusive,valuenum,3794,1140,0.14214463840399003
+169,chartevents::229369::Acuity Workload Question 1::valuenum,chartevents,229369,Acuity Workload Question 1,valuenum,2282,1128,0.14064837905236907
+170,chartevents::229370::Acuity Workload Question 2::valuenum,chartevents,229370,Acuity Workload Question 2,valuenum,2282,1128,0.14064837905236907
+171,chartevents::226107::Arterial Line placed in outside facility::valuenum,chartevents,226107,Arterial Line placed in outside facility,valuenum,3760,1127,0.14052369077306734
+172,chartevents::220734::PH (dipstick)::valuenum,chartevents,220734,PH (dipstick),valuenum,1178,1125,0.14027431421446385
+173,chartevents::228336::CAM-ICU Inattention::valuenum,chartevents,228336,CAM-ICU Inattention,valuenum,1831,1114,0.13890274314214462
+174,chartevents::227471::Specific Gravity (urine)::valuenum,chartevents,227471,Specific Gravity (urine),valuenum,1137,1086,0.13541147132169576
+175,chartevents::225133::Discharge needs::valuenum,chartevents,225133,Discharge needs,valuenum,1858,1072,0.1336658354114713
+176,chartevents::225210::Arterial Line Zero/Calibrate::valuenum,chartevents,225210,Arterial Line Zero/Calibrate,valuenum,1900,1055,0.13154613466334164
+177,chartevents::223679::TCO2 (calc) Venous::valuenum,chartevents,223679,TCO2 (calc) Venous,valuenum,1410,1049,0.13079800498753116
+178,chartevents::226062::Venous CO2 Pressure::valuenum,chartevents,226062,Venous CO2 Pressure,valuenum,1410,1049,0.13079800498753116
+179,chartevents::226063::Venous O2 Pressure::valuenum,chartevents,226063,Venous O2 Pressure,valuenum,1409,1049,0.13079800498753116
+180,chartevents::225813::Baseline pain level::valuenum,chartevents,225813,Baseline pain level,valuenum,1828,1046,0.13042394014962594
+181,labevents::51516::WBC::valuenum,labevents,51516,WBC,valuenum,1056,1013,0.12630922693266833
+182,chartevents::227358::PICC Line Dressing Occlusive::valuenum,chartevents,227358,PICC Line Dressing Occlusive,valuenum,3681,1006,0.12543640897755612
+183,labevents::50825::Temperature::valuenum,labevents,50825,Temperature,valuenum,1412,999,0.1245635910224439
+184,labevents::51493::RBC::valuenum,labevents,51493,RBC,valuenum,1029,988,0.12319201995012469
+185,chartevents::226115::PICC Line placed in outside facility::valuenum,chartevents,226115,PICC Line placed in outside facility,valuenum,3412,935,0.11658354114713217
+186,labevents::51476::Epithelial Cells::valuenum,labevents,51476,Epithelial Cells,valuenum,949,911,0.11359102244389027
+187,chartevents::229325::CAM-ICU Inattention::valuenum,chartevents,229325,CAM-ICU Inattention,valuenum,1467,851,0.10610972568578554
+188,chartevents::220074::Central Venous Pressure::valuenum,chartevents,220074,Central Venous Pressure,valuenum,8450,847,0.10561097256857856
+189,labevents::50934::H::valuenum,labevents,50934,H,valuenum,1597,825,0.10286783042394015
+190,labevents::50947::I::valuenum,labevents,50947,I,valuenum,1597,825,0.10286783042394015
+191,labevents::51678::L::valuenum,labevents,51678,L,valuenum,1597,825,0.10286783042394015
+192,labevents::51492::Protein::valuenum,labevents,51492,Protein,valuenum,852,818,0.10199501246882793
+193,"labevents::50822::Potassium, Whole Blood::valuenum",labevents,50822,"Potassium, Whole Blood",valuenum,1320,803,0.10012468827930175
+194,"labevents::50810::Hematocrit, Calculated::valuenum",labevents,50810,"Hematocrit, Calculated",valuenum,1739,785,0.09788029925187032
+195,labevents::50811::Hemoglobin::valuenum,labevents,50811,Hemoglobin,valuenum,1739,785,0.09788029925187032
+196,chartevents::229381::Orientation::valuenum,chartevents,229381,Orientation,valuenum,16792,778,0.09700748129675811
+197,chartevents::225070::Unable to assess psychological::valuenum,chartevents,225070,Unable to assess psychological,valuenum,1277,754,0.09401496259351622
+198,labevents::50809::Glucose::valuenum,labevents,50809,Glucose,valuenum,1208,739,0.09214463840399002
+199,chartevents::227287::O2 Flow (additional cannula)::valuenum,chartevents,227287,O2 Flow (additional cannula),valuenum,2002,693,0.08640897755610973
+200,chartevents::226169::Subglottal Suctioning::valuenum,chartevents,226169,Subglottal Suctioning,valuenum,1557,693,0.08640897755610973
+201,chartevents::225175::See chart for initial patient assessment::valuenum,chartevents,225175,See chart for initial patient assessment,valuenum,1218,692,0.08628428927680798
+202,chartevents::225189::Incentive Spirometry::valuenum,chartevents,225189,Incentive Spirometry,valuenum,3055,683,0.08516209476309226
+203,chartevents::225117::Unable to assess nutrition / education::valuenum,chartevents,225117,Unable to assess nutrition / education,valuenum,1051,642,0.0800498753117207
+204,labevents::51009::Vancomycin::valuenum,labevents,51009,Vancomycin,valuenum,667,615,0.07668329177057356
+205,chartevents::225129::Unable to assess teaching / learning needs::valuenum,chartevents,225129,Unable to assess teaching / learning needs,valuenum,980,609,0.07593516209476309
+206,labevents::51133::Absolute Lymphocyte Count::valuenum,labevents,51133,Absolute Lymphocyte Count,valuenum,659,591,0.07369077306733167
+207,labevents::52069::Absolute Basophil Count::valuenum,labevents,52069,Absolute Basophil Count,valuenum,659,591,0.07369077306733167
+208,labevents::52073::Absolute Eosinophil Count::valuenum,labevents,52073,Absolute Eosinophil Count,valuenum,659,591,0.07369077306733167
+209,labevents::52074::Absolute Monocyte Count::valuenum,labevents,52074,Absolute Monocyte Count,valuenum,659,591,0.07369077306733167
+210,labevents::52075::Absolute Neutrophil Count::valuenum,labevents,52075,Absolute Neutrophil Count,valuenum,659,591,0.07369077306733167
+211,chartevents::227464::Potassium (whole blood)::valuenum,chartevents,227464,Potassium (whole blood),valuenum,873,589,0.07344139650872818
+212,chartevents::226540::Hematocrit (whole blood - calc)::valuenum,chartevents,226540,Hematocrit (whole blood - calc),valuenum,1309,578,0.07206982543640898
+213,chartevents::225091::Unable to assess activity / mobility::valuenum,chartevents,225091,Unable to assess activity / mobility,valuenum,951,575,0.07169576059850374
+214,"labevents::51082::Creatinine, Urine::valuenum",labevents,51082,"Creatinine, Urine",valuenum,617,575,0.07169576059850374
+215,chartevents::224562::Impaired Skin Length #1::valuenum,chartevents,224562,Impaired Skin Length #1,valuenum,1434,574,0.071571072319202
+216,chartevents::226537::Glucose (whole blood)::valuenum,chartevents,226537,Glucose (whole blood),valuenum,795,562,0.07007481296758104
+217,labevents::51144::Bands::valuenum,labevents,51144,Bands,valuenum,641,554,0.06907730673316709
+218,chartevents::224923::Impaired Skin Odor #2::valuenum,chartevents,224923,Impaired Skin Odor #2,valuenum,1513,552,0.0688279301745636
+219,chartevents::224846::Impaired Skin Width #1::valuenum,chartevents,224846,Impaired Skin Width #1,valuenum,1368,550,0.0685785536159601
+220,labevents::51143::Atypical Lymphocytes::valuenum,labevents,51143,Atypical Lymphocytes,valuenum,635,548,0.06832917705735661
+221,labevents::51251::Metamyelocytes::valuenum,labevents,51251,Metamyelocytes,valuenum,635,548,0.06832917705735661
+222,labevents::51255::Myelocytes::valuenum,labevents,51255,Myelocytes,valuenum,635,548,0.06832917705735661
+223,"labevents::51214::Fibrinogen, Functional::valuenum",labevents,51214,"Fibrinogen, Functional",valuenum,795,547,0.06820448877805486
+224,"labevents::50824::Sodium, Whole Blood::valuenum",labevents,50824,"Sodium, Whole Blood",valuenum,932,546,0.06807980049875312
+225,"labevents::51097::Potassium, Urine::valuenum",labevents,51097,"Potassium, Urine",valuenum,582,533,0.06645885286783042
+226,labevents::51482::Hyaline Casts::valuenum,labevents,51482,Hyaline Casts,valuenum,516,499,0.062219451371571075
+227,"labevents::51100::Sodium, Urine::valuenum",labevents,51100,"Sodium, Urine",valuenum,543,496,0.061845386533665836
+228,chartevents::225082::Pregnant::valuenum,chartevents,225082,Pregnant,valuenum,889,495,0.06172069825436409
+229,chartevents::227468::Fibrinogen::valuenum,chartevents,227468,Fibrinogen,valuenum,688,494,0.061596009975062344
+230,chartevents::225638::Differential-Bands::valuenum,chartevents,225638,Differential-Bands,valuenum,543,483,0.06022443890274314
+231,chartevents::225637::Differential-Atyps::valuenum,chartevents,225637,Differential-Atyps,valuenum,537,477,0.059476309226932665
+232,chartevents::227350::Cordis/Introducer Dressing Occlusive::valuenum,chartevents,227350,Cordis/Introducer Dressing Occlusive,valuenum,1650,475,0.05922693266832918
+233,chartevents::225085::Post menopausal::valuenum,chartevents,225085,Post menopausal,valuenum,837,474,0.059102244389027433
+234,"labevents::51078::Chloride, Urine::valuenum",labevents,51078,"Chloride, Urine",valuenum,518,472,0.05885286783042394
+235,chartevents::226109::Cordis/Introducer placed in outside facility::valuenum,chartevents,226109,Cordis/Introducer placed in outside facility,valuenum,1596,461,0.05748129675810474
+236,chartevents::228723::Pressure ulcer #1- Length::valuenum,chartevents,228723,Pressure ulcer #1- Length,valuenum,1118,457,0.056982543640897755
+237,chartevents::228620::Pressure Ulcer #1- Width::valuenum,chartevents,228620,Pressure Ulcer #1- Width,valuenum,1116,455,0.05673316708229426
+238,"labevents::50806::Chloride, Whole Blood::valuenum",labevents,50806,"Chloride, Whole Blood",valuenum,752,455,0.05673316708229426
+239,chartevents::225105::Unable to assess habits::valuenum,chartevents,225105,Unable to assess habits,valuenum,738,448,0.055860349127182046
+240,"labevents::51093::Osmolality, Urine::valuenum",labevents,51093,"Osmolality, Urine",valuenum,497,444,0.05536159600997506
+241,chartevents::225674::Mixed Venous O2% Sat::valuenum,chartevents,225674,Mixed Venous O2% Sat,valuenum,1470,443,0.055236907730673315
+242,chartevents::227366::16 Gauge Dressing Occlusive::valuenum,chartevents,227366,16 Gauge Dressing Occlusive,valuenum,1327,442,0.05511221945137157
+243,chartevents::225086::Unable to assess cognitive / perceptual::valuenum,chartevents,225086,Unable to assess cognitive / perceptual,valuenum,702,436,0.0543640897755611
+244,chartevents::228098::16 Gauge placed in the field::valuenum,chartevents,228098,16 Gauge placed in the field,valuenum,1302,432,0.053865336658354114
+245,chartevents::226136::16 Gauge placed in outside facility::valuenum,chartevents,226136,16 Gauge placed in outside facility,valuenum,1297,431,0.05374064837905237
+246,chartevents::229357::Absolute Count - Neuts::valuenum,chartevents,229357,Absolute Count - Neuts,valuenum,464,428,0.05336658354114713
+247,chartevents::229358::Absolute Count - Lymphs::valuenum,chartevents,229358,Absolute Count - Lymphs,valuenum,464,428,0.05336658354114713
+248,chartevents::229359::Absolute Count - Monos::valuenum,chartevents,229359,Absolute Count - Monos,valuenum,464,428,0.05336658354114713
+249,chartevents::229360::Absolute Count - Eos::valuenum,chartevents,229360,Absolute Count - Eos,valuenum,464,428,0.05336658354114713
+250,chartevents::229361::Absolute Count - Basos::valuenum,chartevents,229361,Absolute Count - Basos,valuenum,464,428,0.05336658354114713
+251,chartevents::225206::Multi Lumen Zero/Calibrate::valuenum,chartevents,225206,Multi Lumen Zero/Calibrate,valuenum,678,425,0.0529925187032419
+252,labevents::50956::Lipase::valuenum,labevents,50956,Lipase,valuenum,467,422,0.05261845386533666
+253,chartevents::220059::Pulmonary Artery Pressure systolic::valuenum,chartevents,220059,Pulmonary Artery Pressure systolic,valuenum,3463,405,0.05049875311720698
+254,chartevents::220060::Pulmonary Artery Pressure diastolic::valuenum,chartevents,220060,Pulmonary Artery Pressure diastolic,valuenum,3460,405,0.05049875311720698
+255,chartevents::220061::Pulmonary Artery Pressure mean::valuenum,chartevents,220061,Pulmonary Artery Pressure mean,valuenum,3020,402,0.05012468827930175
+256,chartevents::227351::PA Catheter Dressing Occlusive::valuenum,chartevents,227351,PA Catheter Dressing Occlusive,valuenum,1458,399,0.04975062344139651
+257,chartevents::224329::PCA lockout (min)::valuenum,chartevents,224329,PCA lockout (min),valuenum,2347,398,0.049625935162094764
+258,chartevents::224328::PCA dose::valuenum,chartevents,224328,PCA dose,valuenum,2346,397,0.04950124688279302
+259,chartevents::224330::PCA 1 hour limit::valuenum,chartevents,224330,PCA 1 hour limit,valuenum,2319,396,0.04937655860349127
+260,labevents::50993::Thyroid Stimulating Hormone::valuenum,labevents,50993,Thyroid Stimulating Hormone,valuenum,399,389,0.048503740648379055
+261,chartevents::226114::PA Catheter placed in outside facility::valuenum,chartevents,226114,PA Catheter placed in outside facility,valuenum,1413,387,0.04825436408977556
+262,chartevents::223762::Temperature Celsius::valuenum,chartevents,223762,Temperature Celsius,valuenum,6174,386,0.04812967581047382
+263,labevents::52135::Immature Granulocytes::valuenum,labevents,52135,Immature Granulocytes,valuenum,419,385,0.04800498753117207
+264,chartevents::227801::Stool Guaiac QC::valuenum,chartevents,227801,Stool Guaiac QC,valuenum,478,380,0.04738154613466334
+265,"labevents::51104::Urea Nitrogen, Urine::valuenum",labevents,51104,"Urea Nitrogen, Urine",valuenum,392,376,0.04688279301745636
+266,chartevents::220227::Arterial O2 Saturation::valuenum,chartevents,220227,Arterial O2 Saturation,valuenum,509,373,0.04650872817955112
+267,chartevents::224663::PCA attempt::valuenum,chartevents,224663,PCA attempt,valuenum,1718,367,0.045760598503740646
+268,chartevents::224332::PCA inject::valuenum,chartevents,224332,PCA inject,valuenum,1722,366,0.0456359102244389
+269,chartevents::224665::PCA total dose::valuenum,chartevents,224665,PCA total dose,valuenum,1622,362,0.04513715710723192
+270,chartevents::225358::PA Catheter Zero/Calibrate::valuenum,chartevents,225358,PA Catheter Zero/Calibrate,valuenum,680,341,0.04251870324189526
+271,chartevents::226185::ICU Consent Signed::valuenum,chartevents,226185,ICU Consent Signed,valuenum,340,340,0.04239401496259352
+272,labevents::50908::CK-MB Index::valuenum,labevents,50908,CK-MB Index,valuenum,486,334,0.04164588528678304
+273,chartevents::225112::Unable to assess pain::valuenum,chartevents,225112,Unable to assess pain,valuenum,549,326,0.04064837905236908
+274,chartevents::228773::Pressure ulcer #1- Odor::valuenum,chartevents,228773,Pressure ulcer #1- Odor,valuenum,454,321,0.04002493765586035
+275,labevents::50815::O2 Flow::valuenum,labevents,50815,O2 Flow,valuenum,378,318,0.03965087281795511
+276,chartevents::225672::Lipase::valuenum,chartevents,225672,Lipase,valuenum,347,316,0.03940149625935162
+277,chartevents::226534::Sodium (whole blood)::valuenum,chartevents,226534,Sodium (whole blood),valuenum,503,314,0.03915211970074813
+278,chartevents::225628::CK-MB fraction (%)::valuenum,chartevents,225628,CK-MB fraction (%),valuenum,444,314,0.03915211970074813
+279,chartevents::225280::Called Out::valuenum,chartevents,225280,Called Out,valuenum,305,305,0.038029925187032416
+280,chartevents::227455::Vancomycin (Trough)::valuenum,chartevents,227455,Vancomycin (Trough),valuenum,310,300,0.03740648379052369
+281,chartevents::225187::Back Care::valuenum,chartevents,225187,Back Care,valuenum,881,291,0.03628428927680798
+282,labevents::50816::Oxygen::valuenum,labevents,50816,Oxygen,valuenum,351,291,0.03628428927680798
+283,chartevents::224916::Impaired Skin Length #2::valuenum,chartevents,224916,Impaired Skin Length #2,valuenum,756,286,0.03566084788029925
+284,chartevents::225185::Skin Care::valuenum,chartevents,225185,Skin Care,valuenum,861,284,0.03541147132169576
+285,labevents::50963::NTproBNP::valuenum,labevents,50963,NTproBNP,valuenum,284,279,0.03478802992518703
+286,chartevents::227454::Vancomycin (Random)::valuenum,chartevents,227454,Vancomycin (Random),valuenum,296,278,0.03466334164588529
+287,chartevents::229356::Differential - Immature Granulocytes::valuenum,chartevents,229356,Differential - Immature Granulocytes,valuenum,291,277,0.034538653366583544
+288,chartevents::223773::PA Line cm Mark::valuenum,chartevents,223773,PA Line cm Mark,valuenum,881,275,0.03428927680798005
+289,chartevents::224689::Respiratory Rate (spontaneous)::valuenum,chartevents,224689,Respiratory Rate (spontaneous),valuenum,685,274,0.034164588528678305
+290,chartevents::224951::Impaired Skin Width #2::valuenum,chartevents,224951,Impaired Skin Width #2,valuenum,715,270,0.03366583541147132
+291,chartevents::228343::OCAT - Lips Tongue Gums Palate::valuenum,chartevents,228343,OCAT - Lips Tongue Gums Palate,valuenum,317,267,0.03329177057356608
+292,chartevents::228346::OCAT - Teeth::valuenum,chartevents,228346,OCAT - Teeth,valuenum,315,266,0.03316708229426434
+293,"chartevents::228344::OCAT - Saliva secretions, Voice quality::valuenum",chartevents,228344,"OCAT - Saliva secretions, Voice quality",valuenum,314,266,0.03316708229426434
+294,chartevents::228345::OCAT - Swallow::valuenum,chartevents,228345,OCAT - Swallow,valuenum,314,265,0.033042394014962596
+295,chartevents::224690::Respiratory Rate (Total)::valuenum,chartevents,224690,Respiratory Rate (Total),valuenum,664,259,0.03229426433915212
+296,chartevents::224924::Impaired Skin Odor #3::valuenum,chartevents,224924,Impaired Skin Odor #3,valuenum,741,258,0.03216957605985037
+297,chartevents::224366::Epidural Infusion Rate (mL/hr)::valuenum,chartevents,224366,Epidural Infusion Rate (mL/hr),valuenum,1514,253,0.03154613466334165
+298,labevents::51000::Triglycerides::valuenum,labevents,51000,Triglycerides,valuenum,274,252,0.0314214463840399
+299,labevents::51514::Urobilinogen::valuenum,labevents,51514,Urobilinogen,valuenum,262,249,0.031047381546134664
+300,chartevents::227357::Dialysis Catheter Dressing Occlusive::valuenum,chartevents,227357,Dialysis Catheter Dressing Occlusive,valuenum,870,246,0.030673316708229426
+301,chartevents::223873::Paw High::valuenum,chartevents,223873,Paw High,valuenum,631,246,0.030673316708229426
+302,labevents::51484::Ketone::valuenum,labevents,51484,Ketone,valuenum,255,244,0.030423940149625937
+303,chartevents::223876::Apnea Interval::valuenum,chartevents,223876,Apnea Interval,valuenum,628,243,0.03029925187032419
+304,labevents::50852::% Hemoglobin A1c::valuenum,labevents,50852,% Hemoglobin A1c,valuenum,247,243,0.03029925187032419
+305,labevents::51613::eAG::valuenum,labevents,51613,eAG,valuenum,247,243,0.03029925187032419
+306,chartevents::223874::Vti High::valuenum,chartevents,223874,Vti High,valuenum,622,240,0.029925187032418952
+307,chartevents::226536::Chloride (whole blood)::valuenum,chartevents,226536,Chloride (whole blood),valuenum,345,240,0.029925187032418952
+308,labevents::50924::Ferritin::valuenum,labevents,50924,Ferritin,valuenum,240,236,0.02942643391521197
+309,chartevents::223810::Paroxysmal Sweats::valuenum,chartevents,223810,Paroxysmal Sweats,valuenum,878,235,0.029301745635910224
+310,chartevents::223811::Anxiety::valuenum,chartevents,223811,Anxiety,valuenum,878,235,0.029301745635910224
+311,chartevents::223805::Nausea and Vomiting (CIWA)::valuenum,chartevents,223805,Nausea and Vomiting (CIWA),valuenum,876,235,0.029301745635910224
+312,chartevents::223817::Agitation::valuenum,chartevents,223817,Agitation,valuenum,874,235,0.029301745635910224
+313,chartevents::223875::Fspn High::valuenum,chartevents,223875,Fspn High,valuenum,567,235,0.029301745635910224
+314,chartevents::223806::Tremor (CIWA)::valuenum,chartevents,223806,Tremor (CIWA),valuenum,875,234,0.029177057356608478
+315,chartevents::223814::Auditory Disturbance::valuenum,chartevents,223814,Auditory Disturbance,valuenum,870,233,0.029052369077306732
+316,chartevents::223818::Tactile Disturbances::valuenum,chartevents,223818,Tactile Disturbances,valuenum,867,233,0.029052369077306732
+317,chartevents::223819::Visual Disturbances::valuenum,chartevents,223819,Visual Disturbances,valuenum,867,233,0.029052369077306732
+318,chartevents::223821::Orient/Clouding Sensory::valuenum,chartevents,223821,Orient/Clouding Sensory,valuenum,865,233,0.029052369077306732
+319,chartevents::225693::Triglyceride::valuenum,chartevents,225693,Triglyceride,valuenum,251,233,0.029052369077306732
+320,labevents::50935::Haptoglobin::valuenum,labevents,50935,Haptoglobin,valuenum,243,233,0.029052369077306732
+321,chartevents::223820::Headache::valuenum,chartevents,223820,Headache,valuenum,868,232,0.02892768079800499
+322,chartevents::227582::BiPap O2 Flow::valuenum,chartevents,227582,BiPap O2 Flow,valuenum,448,228,0.028428927680798004
+323,"labevents::50964::Osmolality, Measured::valuenum",labevents,50964,"Osmolality, Measured",valuenum,412,228,0.028428927680798004
+324,chartevents::227579::BiPap EPAP::valuenum,chartevents,227579,BiPap EPAP,valuenum,436,221,0.027556109725685785
+325,chartevents::226889::Legal Guardian::valuenum,chartevents,226889,Legal Guardian,valuenum,392,217,0.027057356608478803
+326,chartevents::224331::PCA basal rate (mL/hour)::valuenum,chartevents,224331,PCA basal rate (mL/hour),valuenum,1165,215,0.02680798004987531
+327,chartevents::224738::Inspiratory Time::valuenum,chartevents,224738,Inspiratory Time,valuenum,463,213,0.026558603491271822
+328,chartevents::226118::Dialysis Catheter placed in outside facility::valuenum,chartevents,226118,Dialysis Catheter placed in outside facility,valuenum,729,212,0.026433915211970076
+329,chartevents::227360::Indwelling Port (PortaCath) Dressing Occlusive::valuenum,chartevents,227360,Indwelling Port (PortaCath) Dressing Occlusive,valuenum,718,211,0.02630922693266833
+330,labevents::51446::Lymphocytes::valuenum,labevents,51446,Lymphocytes,valuenum,225,209,0.026059850374064837
+331,labevents::51450::Monos::valuenum,labevents,51450,Monos,valuenum,225,209,0.026059850374064837
+332,labevents::51455::Polys::valuenum,labevents,51455,Polys,valuenum,225,209,0.026059850374064837
+333,"labevents::52391::Total Nucleated Cells, Pleural::valuenum",labevents,52391,"Total Nucleated Cells, Pleural",valuenum,225,209,0.026059850374064837
+334,"labevents::51054::Lactate Dehydrogenase, Pleural::valuenum",labevents,51054,"Lactate Dehydrogenase, Pleural",valuenum,224,208,0.02593516209476309
+335,"labevents::51059::Total Protein, Pleural::valuenum",labevents,51059,"Total Protein, Pleural",valuenum,224,208,0.02593516209476309
+336,chartevents::227580::BiPap IPAP::valuenum,chartevents,227580,BiPap IPAP,valuenum,413,207,0.025810473815461348
+337,labevents::50867::Amylase::valuenum,labevents,50867,Amylase,valuenum,238,207,0.025810473815461348
+338,chartevents::223771::PCWP::valuenum,chartevents,223771,PCWP,valuenum,616,206,0.025685785536159602
+339,chartevents::228229::PAR-Activity::valuenum,chartevents,228229,PAR-Activity,valuenum,453,206,0.025685785536159602
+340,chartevents::228234::PAR-Respiration::valuenum,chartevents,228234,PAR-Respiration,valuenum,452,206,0.025685785536159602
+341,chartevents::228231::PAR-Consciousness::valuenum,chartevents,228231,PAR-Consciousness,valuenum,450,206,0.025685785536159602
+342,"labevents::50883::Bilirubin, Direct::valuenum",labevents,50883,"Bilirubin, Direct",valuenum,232,206,0.025685785536159602
+343,labevents::50952::Iron::valuenum,labevents,50952,Iron,valuenum,211,206,0.025685785536159602
+344,chartevents::228230::PAR-Circulation::valuenum,chartevents,228230,PAR-Circulation,valuenum,449,205,0.025561097256857856
+345,chartevents::228232::PAR-Oxygen saturation::valuenum,chartevents,228232,PAR-Oxygen saturation,valuenum,448,205,0.025561097256857856
+346,chartevents::225684::Serum Osmolality::valuenum,chartevents,225684,Serum Osmolality,valuenum,387,204,0.02543640897755611
+347,chartevents::229319::Activity / Mobility (JH-HLM)::valuenum,chartevents,229319,Activity / Mobility (JH-HLM),valuenum,1303,203,0.025311720698254363
+348,chartevents::227446::Brain Natiuretic Peptide (BNP)::valuenum,chartevents,227446,Brain Natiuretic Peptide (BNP),valuenum,200,199,0.024812967581047382
+349,"labevents::50907::Cholesterol, Total::valuenum",labevents,50907,"Cholesterol, Total",valuenum,200,198,0.024688279301745636
+350,"labevents::50884::Bilirubin, Indirect::valuenum",labevents,50884,"Bilirubin, Indirect",valuenum,214,195,0.024314214463840397
+351,labevents::51257::Nucleated Red Cells::valuenum,labevents,51257,Nucleated Red Cells,valuenum,212,195,0.024314214463840397
+352,"labevents::50953::Iron Binding Capacity, Total::valuenum",labevents,50953,"Iron Binding Capacity, Total",valuenum,196,193,0.02406483790523691
+353,labevents::50998::Transferrin::valuenum,labevents,50998,Transferrin,valuenum,196,193,0.02406483790523691
+354,chartevents::220581::Amylase::valuenum,chartevents,220581,Amylase,valuenum,214,192,0.023940149625935162
+355,"labevents::51053::Glucose, Pleural::valuenum",labevents,51053,"Glucose, Pleural",valuenum,202,191,0.023815461346633416
+356,chartevents::227516::PO2 (Mixed Venous)::valuenum,chartevents,227516,PO2 (Mixed Venous),valuenum,285,189,0.023566084788029924
+357,chartevents::220603::Cholesterol::valuenum,chartevents,220603,Cholesterol,valuenum,186,184,0.022942643391521196
+358,chartevents::224688::Respiratory Rate (Set)::valuenum,chartevents,224688,Respiratory Rate (Set),valuenum,421,182,0.022693266832917707
+359,chartevents::225651::Direct Bilirubin::valuenum,chartevents,225651,Direct Bilirubin,valuenum,198,182,0.022693266832917707
+360,"labevents::50904::Cholesterol, HDL::valuenum",labevents,50904,"Cholesterol, HDL",valuenum,183,181,0.02256857855361596
+361,labevents::50903::Cholesterol Ratio (Total/HDL)::valuenum,labevents,50903,Cholesterol Ratio (Total/HDL),valuenum,182,180,0.022443890274314215
+362,chartevents::224563::Impaired Skin Depth #1::valuenum,chartevents,224563,Impaired Skin Depth #1,valuenum,451,178,0.022194513715710722
+363,"labevents::51283::Reticulocyte Count, Automated::valuenum",labevents,51283,"Reticulocyte Count, Automated",valuenum,179,177,0.022069825436408976
+364,"labevents::50905::Cholesterol, LDL, Calculated::valuenum",labevents,50905,"Cholesterol, LDL, Calculated",valuenum,178,176,0.021945137157107233
+365,chartevents::225312::ART BP Mean::valuenum,chartevents,225312,ART BP Mean,valuenum,2457,175,0.021820448877805487
+366,"labevents::51457::RBC, Pleural::valuenum",labevents,51457,"RBC, Pleural",valuenum,186,175,0.021820448877805487
+367,chartevents::223772::SvO2::valuenum,chartevents,223772,SvO2,valuenum,684,173,0.021571072319201995
+368,chartevents::220624::HDL::valuenum,chartevents,220624,HDL,valuenum,174,172,0.02144638403990025
+369,chartevents::225309::ART BP Systolic::valuenum,chartevents,225309,ART BP Systolic,valuenum,2439,171,0.021321695760598502
+370,chartevents::225310::ART BP Diastolic::valuenum,chartevents,225310,ART BP Diastolic,valuenum,2437,171,0.021321695760598502
+371,chartevents::228335::CAM-ICU Disorganized thinking::valuenum,chartevents,228335,CAM-ICU Disorganized thinking,valuenum,215,171,0.021321695760598502
+372,chartevents::224309::Assisted Systole::valuenum,chartevents,224309,Assisted Systole,valuenum,2378,170,0.02119700748129676
+373,chartevents::224310::Augmented Diastole::valuenum,chartevents,224310,Augmented Diastole,valuenum,2378,170,0.02119700748129676
+374,chartevents::224311::BAEDP::valuenum,chartevents,224311,BAEDP,valuenum,2378,170,0.02119700748129676
+375,chartevents::224322::IABP Mean::valuenum,chartevents,224322,IABP Mean,valuenum,2378,170,0.02119700748129676
+376,chartevents::224652::Unassisted Systole::valuenum,chartevents,224652,Unassisted Systole,valuenum,2335,170,0.02119700748129676
+377,chartevents::224654::PAEDP::valuenum,chartevents,224654,PAEDP,valuenum,2335,170,0.02119700748129676
+378,chartevents::225671::LDL calculated::valuenum,chartevents,225671,LDL calculated,valuenum,169,167,0.02082294264339152
+379,chartevents::225313::Bed Bath::valuenum,chartevents,225313,Bed Bath,valuenum,189,165,0.02057356608478803
+380,chartevents::227439::Indwelling Port (PortaCath) placed in outside facility::valuenum,chartevents,227439,Indwelling Port (PortaCath) placed in outside facility,valuenum,578,164,0.020448877805486283
+381,chartevents::223872::Inspired Gas Temp.::valuenum,chartevents,223872,Inspired Gas Temp.,valuenum,611,163,0.02032418952618454
+382,chartevents::228610::Pressure Ulcer #1- Depth::valuenum,chartevents,228610,Pressure Ulcer #1- Depth,valuenum,406,160,0.0199501246882793
+383,chartevents::225342::IABP Zero/Calibrate::valuenum,chartevents,225342,IABP Zero/Calibrate,valuenum,523,159,0.019825436408977555
+384,chartevents::227355::IABP Dressing Occlusive::valuenum,chartevents,227355,IABP Dressing Occlusive,valuenum,523,159,0.019825436408977555
+385,chartevents::225981::IABP Alarms Activated::valuenum,chartevents,225981,IABP Alarms Activated,valuenum,513,158,0.01970074812967581
+386,chartevents::226110::IABP placed in outside facility::valuenum,chartevents,226110,IABP placed in outside facility,valuenum,517,157,0.019576059850374066
+387,labevents::50909::Cortisol::valuenum,labevents,50909,Cortisol,valuenum,172,153,0.01907730673316708
+388,"labevents::51051::Cholesterol, Pleural::valuenum",labevents,51051,"Cholesterol, Pleural",valuenum,162,151,0.018827930174563592
+389,labevents::51447::Macrophages::valuenum,labevents,51447,Macrophages,valuenum,162,151,0.018827930174563592
+390,"labevents::50976::Protein, Total::valuenum",labevents,50976,"Protein, Total",valuenum,154,149,0.0185785536159601
+391,"labevents::51046::Albumin, Pleural::valuenum",labevents,51046,"Albumin, Pleural",valuenum,154,146,0.01820448877805486
+392,chartevents::229324::CAM-ICU Disorganized thinking::valuenum,chartevents,229324,CAM-ICU Disorganized thinking,valuenum,178,143,0.017830423940149626
+393,chartevents::227463::Cortisol::valuenum,chartevents,227463,Cortisol,valuenum,156,143,0.017830423940149626
+394,chartevents::225980::IABP Volume::valuenum,chartevents,225980,IABP Volume,valuenum,464,140,0.017456359102244388
+395,chartevents::224917::Impaired Skin Length #3::valuenum,chartevents,224917,Impaired Skin Length #3,valuenum,384,139,0.017331670822942645
+396,chartevents::226871::Expiratory Ratio::valuenum,chartevents,226871,Expiratory Ratio,valuenum,291,138,0.0172069825436409
+397,chartevents::226873::Inspiratory Ratio::valuenum,chartevents,226873,Inspiratory Ratio,valuenum,289,137,0.017082294264339153
+398,labevents::51478::Glucose::valuenum,labevents,51478,Glucose,valuenum,142,137,0.017082294264339153
+399,chartevents::220650::Total Protein::valuenum,chartevents,220650,Total Protein,valuenum,141,136,0.016957605985037406
+400,chartevents::224952::Impaired Skin Width #3::valuenum,chartevents,224952,Impaired Skin Width #3,valuenum,365,133,0.01658354114713217
+401,labevents::51007::Uric Acid::valuenum,labevents,51007,Uric Acid,valuenum,184,130,0.016209476309226933
+402,chartevents::225192::Collar Care::valuenum,chartevents,225192,Collar Care,valuenum,167,124,0.015461346633416459
+403,chartevents::224417::Cuff Pressure::valuenum,chartevents,224417,Cuff Pressure,valuenum,185,121,0.015087281795511222
+404,labevents::50831::pH::valuenum,labevents,50831,pH,valuenum,129,120,0.014962593516209476
+405,labevents::50967::Phenytoin::valuenum,labevents,50967,Phenytoin,valuenum,144,119,0.014837905236907731
+406,chartevents::228621::Pressure Ulcer #2- Width::valuenum,chartevents,228621,Pressure Ulcer #2- Width,valuenum,256,118,0.014713216957605985
+407,chartevents::224925::Impaired Skin Odor #4::valuenum,chartevents,224925,Impaired Skin Odor #4,valuenum,316,117,0.014588528678304239
+408,chartevents::228724::Pressure ulcer #2- Length::valuenum,chartevents,228724,Pressure ulcer #2- Length,valuenum,251,117,0.014588528678304239
+409,chartevents::226473::Blood Transfusion Consent::valuenum,chartevents,226473,Blood Transfusion Consent,valuenum,117,117,0.014588528678304239
+410,chartevents::228233::PAR-Remain sedated::valuenum,chartevents,228233,PAR-Remain sedated,valuenum,184,115,0.014339152119700748
+411,labevents::50986::tacroFK::valuenum,labevents,50986,tacroFK,valuenum,127,114,0.014214463840399002
+412,chartevents::228137::CHG Bath::valuenum,chartevents,228137,CHG Bath,valuenum,125,113,0.014089775561097256
+413,labevents::51448::Mesothelial Cells::valuenum,labevents,51448,Mesothelial Cells,valuenum,117,113,0.014089775561097256
+414,chartevents::224701::PSV Level::valuenum,chartevents,224701,PSV Level,valuenum,267,109,0.013591022443890275
+415,chartevents::225695::Uric Acid::valuenum,chartevents,225695,Uric Acid,valuenum,148,109,0.013591022443890275
+416,labevents::50801::Alveolar-arterial Gradient::valuenum,labevents,50801,Alveolar-arterial Gradient,valuenum,129,108,0.013466334164588529
+417,labevents::50823::Required O2::valuenum,labevents,50823,Required O2,valuenum,129,108,0.013466334164588529
+418,chartevents::226457::Ultrafiltrate Output::valuenum,chartevents,226457,Ultrafiltrate Output,valuenum,1265,105,0.013092269326683292
+419,chartevents::224169::MDI #1 Puff::valuenum,chartevents,224169,MDI #1 Puff,valuenum,131,105,0.013092269326683292
+420,chartevents::227461::Phenytoin (Dilantin)::valuenum,chartevents,227461,Phenytoin (Dilantin),valuenum,122,105,0.013092269326683292
+421,chartevents::224751::Temporary Pacemaker Rate::valuenum,chartevents,224751,Temporary Pacemaker Rate,valuenum,348,101,0.012593516209476309
+422,labevents::51479::Granular Casts::valuenum,labevents,51479,Granular Casts,valuenum,103,101,0.012593516209476309
+423,labevents::50889::C-Reactive Protein::valuenum,labevents,50889,C-Reactive Protein,valuenum,103,101,0.012593516209476309
+424,chartevents::224410::PCA bolus::valuenum,chartevents,224410,PCA bolus,valuenum,281,100,0.012468827930174564
+425,chartevents::227462::FK506::valuenum,chartevents,227462,FK506,valuenum,113,100,0.012468827930174564
+426,chartevents::227686::Central Venous O2% Sat::valuenum,chartevents,227686,Central Venous O2% Sat,valuenum,113,99,0.012344139650872818
+427,chartevents::225729::Multi Lumen Line Tip Cultured::valuenum,chartevents,225729,Multi Lumen Line Tip Cultured,valuenum,146,97,0.012094763092269327
+428,chartevents::224411::Epidural Bolus (mL)::valuenum,chartevents,224411,Epidural Bolus (mL),valuenum,318,95,0.011845386533665835
+429,labevents::50917::Digoxin::valuenum,labevents,50917,Digoxin,valuenum,99,95,0.011845386533665835
+430,chartevents::226499::Hemodialysis Output::valuenum,chartevents,226499,Hemodialysis Output,valuenum,91,89,0.011097256857855361
+431,chartevents::225722::Arterial Line Tip Cultured::valuenum,chartevents,225722,Arterial Line Tip Cultured,valuenum,134,88,0.010972568578553617
+432,labevents::51453::Other::valuenum,labevents,51453,Other,valuenum,89,87,0.01084788029925187
+433,chartevents::224406::VEN Lumen Volume::valuenum,chartevents,224406,VEN Lumen Volume,valuenum,316,86,0.010723192019950124
+434,chartevents::224404::ART Lumen Volume::valuenum,chartevents,224404,ART Lumen Volume,valuenum,315,86,0.010723192019950124
+435,chartevents::224838::Temporary Ventricular Stim Setting mA::valuenum,chartevents,224838,Temporary Ventricular Stim Setting mA,valuenum,273,86,0.010723192019950124
+436,chartevents::224837::Temporary Ventricular Sens Setting mV::valuenum,chartevents,224837,Temporary Ventricular Sens Setting mV,valuenum,263,86,0.010723192019950124
+437,"labevents::50803::Calculated Bicarbonate, Whole Blood::valuenum",labevents,50803,"Calculated Bicarbonate, Whole Blood",valuenum,103,86,0.010723192019950124
+438,chartevents::227444::C Reactive Protein (CRP)::valuenum,chartevents,227444,C Reactive Protein (CRP),valuenum,86,85,0.01059850374064838
+439,labevents::51010::Vitamin B12::valuenum,labevents,51010,Vitamin B12,valuenum,84,84,0.010473815461346634
+440,chartevents::224895::Impaired Skin Depth #2::valuenum,chartevents,224895,Impaired Skin Depth #2,valuenum,230,83,0.010349127182044887
+441,chartevents::225732::PICC Line Tip Cultured::valuenum,chartevents,225732,PICC Line Tip Cultured,valuenum,132,83,0.010349127182044887
+442,chartevents::227440::Digoxin::valuenum,chartevents,227440,Digoxin,valuenum,87,83,0.010349127182044887
+443,chartevents::227418::Midline Dressing Occlusive::valuenum,chartevents,227418,Midline Dressing Occlusive,valuenum,264,82,0.010224438902743141
+444,"labevents::51282::Reticulocyte Count, Absolute::valuenum",labevents,51282,"Reticulocyte Count, Absolute",valuenum,82,82,0.010224438902743141
+445,chartevents::223960::Temporary Venticular Stim Threshold mA::valuenum,chartevents,223960,Temporary Venticular Stim Threshold mA,valuenum,177,79,0.009850374064837904
+446,labevents::51427::Lymphocytes::valuenum,labevents,51427,Lymphocytes,valuenum,83,79,0.009850374064837904
+447,labevents::51431::Monos::valuenum,labevents,51431,Monos,valuenum,83,79,0.009850374064837904
+448,labevents::51436::Polys::valuenum,labevents,51436,Polys,valuenum,83,79,0.009850374064837904
+449,chartevents::224144::Blood Flow (ml/min)::valuenum,chartevents,224144,Blood Flow (ml/min),valuenum,1165,76,0.009476309226932668
+450,"labevents::51102::Total Protein, Urine::valuenum",labevents,51102,"Total Protein, Urine",valuenum,77,76,0.009476309226932668
+451,chartevents::224191::Hourly Patient Fluid Removal::valuenum,chartevents,224191,Hourly Patient Fluid Removal,valuenum,1218,75,0.009351620947630923
+452,chartevents::224153::Replacement Rate::valuenum,chartevents,224153,Replacement Rate,valuenum,1198,75,0.009351620947630923
+453,chartevents::228005::PBP (Prefilter) Replacement Rate::valuenum,chartevents,228005,PBP (Prefilter) Replacement Rate,valuenum,1196,75,0.009351620947630923
+454,chartevents::224149::Access Pressure::valuenum,chartevents,224149,Access Pressure,valuenum,1169,75,0.009351620947630923
+455,chartevents::224150::Filter Pressure::valuenum,chartevents,224150,Filter Pressure,valuenum,1168,75,0.009351620947630923
+456,chartevents::224151::Effluent Pressure::valuenum,chartevents,224151,Effluent Pressure,valuenum,1168,75,0.009351620947630923
+457,chartevents::224152::Return Pressure::valuenum,chartevents,224152,Return Pressure,valuenum,1167,75,0.009351620947630923
+458,chartevents::227356::Sheath Line Dressing Occlusive::valuenum,chartevents,227356,Sheath Line Dressing Occlusive,valuenum,160,75,0.009351620947630923
+459,chartevents::228774::Pressure ulcer #2- Odor::valuenum,chartevents,228774,Pressure ulcer #2- Odor,valuenum,106,75,0.009351620947630923
+460,labevents::50930::Globulin::valuenum,labevents,50930,Globulin,valuenum,75,75,0.009351620947630923
+461,chartevents::224154::Dialysate Rate::valuenum,chartevents,224154,Dialysate Rate,valuenum,1184,74,0.009226932668329177
+462,chartevents::224631::Pressure Ulcer Stage #1::valuenum,chartevents,224631,Pressure Ulcer Stage #1,valuenum,203,74,0.009226932668329177
+463,chartevents::224926::Impaired Skin Odor #5::valuenum,chartevents,224926,Impaired Skin Odor #5,valuenum,210,72,0.008977556109725686
+464,"labevents::50995::Thyroxine (T4), Free::valuenum",labevents,50995,"Thyroxine (T4), Free",valuenum,71,71,0.00885286783042394
+465,chartevents::228004::Citrate (ACD-A)::valuenum,chartevents,228004,Citrate (ACD-A),valuenum,1095,70,0.008728179551122194
+466,chartevents::220765::Intra Cranial Pressure::valuenum,chartevents,220765,Intra Cranial Pressure,valuenum,1387,69,0.00860349127182045
+467,chartevents::226112::Midline placed in outside facility::valuenum,chartevents,226112,Midline placed in outside facility,valuenum,232,68,0.008478802992518703
+468,chartevents::223958::Temporary Venticular Sens Threshold mV::valuenum,chartevents,223958,Temporary Venticular Sens Threshold mV,valuenum,166,67,0.008354114713216957
+469,labevents::50950::Immunoglobulin G::valuenum,labevents,50950,Immunoglobulin G,valuenum,67,65,0.008104738154613466
+470,labevents::51099::Protein/Creatinine Ratio::valuenum,labevents,51099,Protein/Creatinine Ratio,valuenum,66,65,0.008104738154613466
+471,chartevents::228006::Post Filter Replacement Rate::valuenum,chartevents,228006,Post Filter Replacement Rate,valuenum,1019,64,0.00798004987531172
+472,chartevents::224918::Impaired Skin Length #4::valuenum,chartevents,224918,Impaired Skin Length #4,valuenum,160,64,0.00798004987531172
+473,chartevents::226117::Sheath placed in outside facility::valuenum,chartevents,226117,Sheath placed in outside facility,valuenum,139,64,0.00798004987531172
+474,labevents::50994::Thyroxine (T4)::valuenum,labevents,50994,Thyroxine (T4),valuenum,64,64,0.00798004987531172
+475,"labevents::52369::Total Nucleated Cells, Other::valuenum",labevents,52369,"Total Nucleated Cells, Other",valuenum,64,64,0.00798004987531172
+476,chartevents::226129::ICP Line placed in outside facility::valuenum,chartevents,226129,ICP Line placed in outside facility,valuenum,281,63,0.007855361596009976
+477,chartevents::227363::ICP Line Dressing Occlusive::valuenum,chartevents,227363,ICP Line Dressing Occlusive,valuenum,281,63,0.007855361596009976
+478,chartevents::224953::Impaired Skin Width #4::valuenum,chartevents,224953,Impaired Skin Width #4,valuenum,146,61,0.007605985037406484
+479,chartevents::225724::Cordis/Introducer Line Tip Cultured::valuenum,chartevents,225724,Cordis/Introducer Line Tip Cultured,valuenum,117,61,0.007605985037406484
+480,chartevents::224145::Heparin Dose (per hour)::valuenum,chartevents,224145,Heparin Dose (per hour),valuenum,784,57,0.007107231920199501
+481,chartevents::224691::Flow Rate (L/min)::valuenum,chartevents,224691,Flow Rate (L/min),valuenum,187,57,0.007107231920199501
+482,chartevents::229371::Bladder Scan Estimate::valuenum,chartevents,229371,Bladder Scan Estimate,valuenum,87,57,0.007107231920199501
+483,chartevents::225730::PA Catheter Line Tip Cultured::valuenum,chartevents,225730,PA Catheter Line Tip Cultured,valuenum,105,56,0.006982543640897756
+484,chartevents::224167::Manual Blood Pressure Systolic Left::valuenum,chartevents,224167,Manual Blood Pressure Systolic Left,valuenum,61,56,0.006982543640897756
+485,chartevents::224643::Manual Blood Pressure Diastolic Left::valuenum,chartevents,224643,Manual Blood Pressure Diastolic Left,valuenum,60,56,0.006982543640897756
+486,chartevents::227243::Manual Blood Pressure Systolic Right::valuenum,chartevents,227243,Manual Blood Pressure Systolic Right,valuenum,59,55,0.00685785536159601
+487,chartevents::227242::Manual Blood Pressure Diastolic Right::valuenum,chartevents,227242,Manual Blood Pressure Diastolic Right,valuenum,57,55,0.00685785536159601
+488,"labevents::51026::Amylase, Body Fluid::valuenum",labevents,51026,"Amylase, Body Fluid",valuenum,55,55,0.00685785536159601
+489,chartevents::227066::Cerebral Perfusion Pressure::valuenum,chartevents,227066,Cerebral Perfusion Pressure,valuenum,976,54,0.006733167082294264
+490,labevents::51116::Lymphocytes::valuenum,labevents,51116,Lymphocytes,valuenum,54,54,0.006733167082294264
+491,labevents::51120::Monocytes::valuenum,labevents,51120,Monocytes,valuenum,54,54,0.006733167082294264
+492,labevents::51125::Polys::valuenum,labevents,51125,Polys,valuenum,54,54,0.006733167082294264
+493,"labevents::52065::Total Nucleated Cells, Ascites::valuenum",labevents,52065,"Total Nucleated Cells, Ascites",valuenum,54,54,0.006733167082294264
+494,chartevents::224367::Epidural Total Dose (mL)::valuenum,chartevents,224367,Epidural Total Dose (mL),valuenum,167,53,0.006608478802992519
+495,chartevents::227802::GI Guaiac QC::valuenum,chartevents,227802,GI Guaiac QC,valuenum,60,53,0.006608478802992519
+496,"labevents::51047::Amylase, Pleural::valuenum",labevents,51047,"Amylase, Pleural",valuenum,55,53,0.006608478802992519
+497,labevents::51001::Triiodothyronine (T3)::valuenum,labevents,51001,Triiodothyronine (T3),valuenum,53,53,0.006608478802992519
+498,"labevents::51034::Glucose, Body Fluid::valuenum",labevents,51034,"Glucose, Body Fluid",valuenum,53,53,0.006608478802992519
+499,"labevents::51043::Total Protein, Body Fluid::valuenum",labevents,51043,"Total Protein, Body Fluid",valuenum,53,53,0.006608478802992519
+500,"labevents::51127::RBC, Ascites::valuenum",labevents,51127,"RBC, Ascites",valuenum,53,53,0.006608478802992519
+501,chartevents::224845::Permanent Pacemaker Rate::valuenum,chartevents,224845,Permanent Pacemaker Rate,valuenum,114,52,0.006483790523690773
+502,labevents::50951::Immunoglobulin M::valuenum,labevents,50951,Immunoglobulin M,valuenum,53,52,0.006483790523690773
+503,chartevents::226134::ICP Line Zero/Calibrate::valuenum,chartevents,226134,ICP Line Zero/Calibrate,valuenum,99,51,0.006359102244389027
+504,labevents::51444::Eosinophils::valuenum,labevents,51444,Eosinophils,valuenum,51,51,0.006359102244389027
+505,"labevents::51035::LD, Body Fluid::valuenum",labevents,51035,"LD, Body Fluid",valuenum,51,51,0.006359102244389027
+506,chartevents::228368::Cardiac Index (CI NICOM)::valuenum,chartevents,228368,Cardiac Index (CI NICOM),valuenum,135,50,0.006234413965087282
+507,chartevents::228622::Pressure Ulcer #3- Width::valuenum,chartevents,228622,Pressure Ulcer #3- Width,valuenum,93,50,0.006234413965087282
+508,chartevents::228725::Pressure ulcer #3- Length::valuenum,chartevents,228725,Pressure ulcer #3- Length,valuenum,93,50,0.006234413965087282
+509,"labevents::51025::Albumin, Body Fluid::valuenum",labevents,51025,"Albumin, Body Fluid",valuenum,50,50,0.006234413965087282
+510,chartevents::228375::Stroke Volume Index (SVI NICOM)::valuenum,chartevents,228375,Stroke Volume Index (SVI NICOM),valuenum,129,49,0.006109725685785536
+511,chartevents::223763::Bladder Pressure::valuenum,chartevents,223763,Bladder Pressure,valuenum,83,49,0.006109725685785536
+512,chartevents::223962::Temporary Pacemaker Wires Venticular::valuenum,chartevents,223962,Temporary Pacemaker Wires Venticular,valuenum,137,47,0.005860349127182045
+513,chartevents::224192::Pulsus Paradoxus::valuenum,chartevents,224192,Pulsus Paradoxus,valuenum,76,46,0.005735660847880299
+514,labevents::50949::Immunoglobulin A::valuenum,labevents,50949,Immunoglobulin A,valuenum,47,46,0.005735660847880299
+515,labevents::50925::Folate::valuenum,labevents,50925,Folate,valuenum,46,46,0.005735660847880299
+516,labevents::51117::Macrophage::valuenum,labevents,51117,Macrophage,valuenum,46,46,0.005735660847880299
+517,chartevents::228640::EtCO2::valuenum,chartevents,228640,EtCO2,valuenum,252,45,0.005610972568578554
+518,chartevents::227359::Tunneled (Hickman) Dressing Occlusive::valuenum,chartevents,227359,Tunneled (Hickman) Dressing Occlusive,valuenum,173,45,0.005610972568578554
+519,chartevents::225989::Pericardial Drain Aspiration::valuenum,chartevents,225989,Pericardial Drain Aspiration,valuenum,117,44,0.005486284289276808
+520,labevents::52264::Lymphs::valuenum,labevents,52264,Lymphs,valuenum,53,44,0.005486284289276808
+521,labevents::52272::Monocytes::valuenum,labevents,52272,Monocytes,valuenum,53,44,0.005486284289276808
+522,labevents::52281::Polys::valuenum,labevents,52281,Polys,valuenum,53,44,0.005486284289276808
+523,"labevents::52286::Total Nucleated Cells, CSF::valuenum",labevents,52286,"Total Nucleated Cells, CSF",valuenum,53,44,0.005486284289276808
+524,chartevents::225990::Pericardial Drain Flush::valuenum,chartevents,225990,Pericardial Drain Flush,valuenum,122,43,0.005361596009975062
+525,chartevents::224927::Impaired Skin Odor #6::valuenum,chartevents,224927,Impaired Skin Odor #6,valuenum,114,43,0.005361596009975062
+526,"labevents::51802::Total Protein, CSF::valuenum",labevents,51802,"Total Protein, CSF",valuenum,43,43,0.005361596009975062
+527,labevents::51428::Macrophage::valuenum,labevents,51428,Macrophage,valuenum,43,42,0.005236907730673317
+528,"labevents::51422::Hematocrit, Other Fluid::valuenum",labevents,51422,"Hematocrit, Other Fluid",valuenum,42,42,0.005236907730673317
+529,chartevents::224896::Impaired Skin Depth #3::valuenum,chartevents,224896,Impaired Skin Depth #3,valuenum,104,41,0.005112219451371571
+530,"labevents::52285::RBC, CSF::valuenum",labevents,52285,"RBC, CSF",valuenum,50,41,0.005112219451371571
+531,"labevents::51790::Glucose, CSF::valuenum",labevents,51790,"Glucose, CSF",valuenum,41,41,0.005112219451371571

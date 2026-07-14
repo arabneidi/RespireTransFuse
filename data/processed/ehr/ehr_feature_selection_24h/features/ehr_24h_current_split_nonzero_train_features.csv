@@ -1,0 +1,68 @@
+feature_index,feature_index_original,source,itemid,label,variable,value_source,train_observed_entries,full_observed_entries
+0,0,chartevents,220045,Heart Rate,chartevents::220045::Heart Rate::valuenum,valuenum,119640,169051
+1,1,chartevents,220210,Respiratory Rate,chartevents::220210::Respiratory Rate::valuenum,valuenum,119094,168277
+2,2,chartevents,220277,O2 saturation pulseoxymetry,chartevents::220277::O2 saturation pulseoxymetry::valuenum,valuenum,117137,165183
+3,3,chartevents,220227,Arterial O2 Saturation,chartevents::220227::Arterial O2 Saturation::valuenum,valuenum,504,761
+4,4,chartevents,220179,Non Invasive Blood Pressure systolic,chartevents::220179::Non Invasive Blood Pressure systolic::valuenum,valuenum,99489,140112
+5,5,chartevents,220180,Non Invasive Blood Pressure diastolic,chartevents::220180::Non Invasive Blood Pressure diastolic::valuenum,valuenum,99475,140095
+6,6,chartevents,220181,Non Invasive Blood Pressure mean,chartevents::220181::Non Invasive Blood Pressure mean::valuenum,valuenum,99544,140183
+7,7,chartevents,220050,Arterial Blood Pressure systolic,chartevents::220050::Arterial Blood Pressure systolic::valuenum,valuenum,18267,26640
+8,8,chartevents,220051,Arterial Blood Pressure diastolic,chartevents::220051::Arterial Blood Pressure diastolic::valuenum,valuenum,18266,26638
+9,9,chartevents,220052,Arterial Blood Pressure mean,chartevents::220052::Arterial Blood Pressure mean::valuenum,valuenum,18402,26837
+10,10,chartevents,223761,Temperature Fahrenheit,chartevents::223761::Temperature Fahrenheit::valuenum,valuenum,32269,45273
+11,11,chartevents,223762,Temperature Celsius,chartevents::223762::Temperature Celsius::valuenum,valuenum,5384,8081
+12,12,chartevents,225664,Glucose finger stick (range 70-100),chartevents::225664::Glucose finger stick (range 70-100)::valuenum,valuenum,11184,15716
+13,13,chartevents,220621,Glucose (serum),chartevents::220621::Glucose (serum)::valuenum,valuenum,10327,14512
+14,14,chartevents,226537,Glucose (whole blood),chartevents::226537::Glucose (whole blood)::valuenum,valuenum,778,1058
+15,16,chartevents,224167,Manual Blood Pressure Systolic Left,chartevents::224167::Manual Blood Pressure Systolic Left::valuenum,valuenum,59,83
+16,17,chartevents,227243,Manual Blood Pressure Systolic Right,chartevents::227243::Manual Blood Pressure Systolic Right::valuenum,valuenum,57,77
+17,18,chartevents,224643,Manual Blood Pressure Diastolic Left,chartevents::224643::Manual Blood Pressure Diastolic Left::valuenum,valuenum,59,82
+18,19,chartevents,227242,Manual Blood Pressure Diastolic Right,chartevents::227242::Manual Blood Pressure Diastolic Right::valuenum,valuenum,56,76
+19,20,chartevents,227582,BiPap O2 Flow,chartevents::227582::BiPap O2 Flow::valuenum,valuenum,445,660
+20,22,chartevents,229280,FiO2 (ECMO),chartevents::229280::FiO2 (ECMO)::valuenum,valuenum,2,2
+21,26,chartevents,223835,Inspired O2 Fraction,chartevents::223835::Inspired O2 Fraction::valuenum,valuenum,6716,9447
+22,27,chartevents,223834,O2 Flow,chartevents::223834::O2 Flow::valuenum,valuenum,22564,31726
+23,28,chartevents,227287,O2 Flow (additional cannula),chartevents::227287::O2 Flow (additional cannula)::valuenum,valuenum,1951,2772
+24,29,labevents,50820,pH,labevents::50820::pH::valuenum,valuenum,5933,8305
+25,30,labevents,50821,pO2,labevents::50821::pO2::valuenum,valuenum,5230,7301
+26,31,labevents,50818,pCO2,labevents::50818::pCO2::valuenum,valuenum,5226,7294
+27,32,labevents,50802,Base Excess,labevents::50802::Base Excess::valuenum,valuenum,5232,7300
+28,33,labevents,50882,Bicarbonate,labevents::50882::Bicarbonate::valuenum,valuenum,12065,16976
+29,35,labevents,50804,Calculated Total CO2,labevents::50804::Calculated Total CO2::valuenum,valuenum,5226,7294
+30,37,labevents,50816,Oxygen,labevents::50816::Oxygen::valuenum,valuenum,349,481
+31,38,labevents,50817,Oxygen Saturation,labevents::50817::Oxygen Saturation::valuenum,valuenum,2584,3747
+32,39,labevents,50801,Alveolar-arterial Gradient,labevents::50801::Alveolar-arterial Gradient::valuenum,valuenum,127,180
+33,40,labevents,50805,Carboxyhemoglobin,labevents::50805::Carboxyhemoglobin::valuenum,valuenum,37,50
+34,41,labevents,50814,Methemoglobin,labevents::50814::Methemoglobin::valuenum,valuenum,29,47
+35,42,labevents,50813,Lactate,labevents::50813::Lactate::valuenum,valuenum,6012,8414
+36,43,labevents,50868,Anion Gap,labevents::50868::Anion Gap::valuenum,valuenum,12055,16962
+37,44,labevents,50809,Glucose,labevents::50809::Glucose::valuenum,valuenum,1168,1574
+38,45,labevents,51301,White Blood Cells,labevents::51301::White Blood Cells::valuenum,valuenum,10655,14888
+39,46,labevents,50811,Hemoglobin,labevents::50811::Hemoglobin::valuenum,valuenum,1692,2456
+40,47,labevents,51221,Hematocrit,labevents::51221::Hematocrit::valuenum,valuenum,11611,16236
+41,48,labevents,51265,Platelet Count,labevents::51265::Platelet Count::valuenum,valuenum,10771,15043
+42,49,labevents,51279,Red Blood Cells,labevents::51279::Red Blood Cells::valuenum,valuenum,10645,14872
+43,51,labevents,51250,MCV,labevents::51250::MCV::valuenum,valuenum,10645,14872
+44,52,labevents,51248,MCH,labevents::51248::MCH::valuenum,valuenum,10644,14870
+45,53,labevents,51249,MCHC,labevents::51249::MCHC::valuenum,valuenum,10645,14871
+46,54,labevents,51277,RDW,labevents::51277::RDW::valuenum,valuenum,10644,14871
+47,55,labevents,50983,Sodium,labevents::50983::Sodium::valuenum,valuenum,12690,17878
+48,56,labevents,50971,Potassium,labevents::50971::Potassium::valuenum,valuenum,12690,17862
+49,57,labevents,50902,Chloride,labevents::50902::Chloride::valuenum,valuenum,12657,17828
+50,58,labevents,50893,"Calcium, Total","labevents::50893::Calcium, Total::valuenum",valuenum,11238,15831
+51,59,labevents,50808,Free Calcium,labevents::50808::Free Calcium::valuenum,valuenum,2517,3398
+52,60,labevents,50960,Magnesium,labevents::50960::Magnesium::valuenum,valuenum,11555,16291
+53,61,labevents,50970,Phosphate,labevents::50970::Phosphate::valuenum,valuenum,11255,15847
+54,62,labevents,50912,Creatinine,labevents::50912::Creatinine::valuenum,valuenum,12202,17179
+55,63,labevents,51006,Urea Nitrogen,labevents::51006::Urea Nitrogen::valuenum,valuenum,12164,17118
+56,64,labevents,50862,Albumin,labevents::50862::Albumin::valuenum,valuenum,1772,2398
+57,65,labevents,50885,"Bilirubin, Total","labevents::50885::Bilirubin, Total::valuenum",valuenum,3531,4910
+58,66,labevents,50883,"Bilirubin, Direct","labevents::50883::Bilirubin, Direct::valuenum",valuenum,232,320
+59,67,labevents,51237,INR(PT),labevents::51237::INR(PT)::valuenum,valuenum,7134,10015
+60,68,labevents,51274,PT,labevents::51274::PT::valuenum,valuenum,7134,10015
+61,69,labevents,51275,PTT,labevents::51275::PTT::valuenum,valuenum,7576,10694
+62,71,labevents,51256,Neutrophils,labevents::51256::Neutrophils::valuenum,valuenum,2134,3001
+63,72,labevents,51244,Lymphocytes,labevents::51244::Lymphocytes::valuenum,valuenum,2134,3002
+64,73,labevents,51254,Monocytes,labevents::51254::Monocytes::valuenum,valuenum,2134,3002
+65,74,labevents,51200,Eosinophils,labevents::51200::Eosinophils::valuenum,valuenum,2134,3002
+66,75,labevents,51146,Basophils,labevents::51146::Basophils::valuenum,valuenum,2134,3002

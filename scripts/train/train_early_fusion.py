@@ -186,68 +186,90 @@ def collect_trainable_params(items):
 
 
 def build_parameter_groups(model, train_cfg):
-    groups = []
-
-    image_backbone = collect_trainable_params([
-        model.image_branch.backbone,
-    ])
-
     image_head = collect_trainable_params([
+        model.image_branch.attention_score,
+        model.image_branch.attention_mix_logit,
         model.image_branch.classifier,
     ])
 
-    ehr_core = collect_trainable_params([
-        model.ehr_branch.cls_token,
-        model.ehr_branch.input_proj,
-        model.ehr_branch.encoder,
-        model.ehr_branch.attn_pool,
-        model.ehr_branch.head,
+    ehr = collect_trainable_params([
+        model.ehr_branch,
     ])
 
     fusion = collect_trainable_params([
-        model.image_branch.token_proj,
-        model.image_branch.summary_proj,
-        model.ehr_branch.fusion_token_proj,
-        model.ehr_branch.fusion_summary_proj,
-        model.modality_gate,
-        model.cross_layers,
+        model.image_fusion_proj,
+        model.ehr_fusion_proj,
         model.fusion_head,
     ])
 
     candidates = [
         {
-            "name": "image_backbone",
-            "params": image_backbone,
-            "lr": float(train_cfg["lr_image_backbone"]),
-            "weight_decay": float(train_cfg["weight_decay_image"]),
-        },
-        {
             "name": "image_head",
             "params": image_head,
-            "lr": float(train_cfg["lr_image_head"]),
-            "weight_decay": float(train_cfg["weight_decay_image"]),
+            "lr": float(
+                train_cfg["lr_image_head"]
+            ),
+            "weight_decay": float(
+                train_cfg["weight_decay_image"]
+            ),
         },
         {
             "name": "ehr",
-            "params": ehr_core,
-            "lr": float(train_cfg["lr_ehr"]),
-            "weight_decay": float(train_cfg["weight_decay_ehr"]),
+            "params": ehr,
+            "lr": float(
+                train_cfg["lr_ehr"]
+            ),
+            "weight_decay": float(
+                train_cfg["weight_decay_ehr"]
+            ),
         },
         {
-            "name": "cross_attention_fusion",
+            "name": "fusion",
             "params": fusion,
-            "lr": float(train_cfg["lr_fusion"]),
-            "weight_decay": float(train_cfg["weight_decay_fusion"]),
+            "lr": float(
+                train_cfg["lr_fusion"]
+            ),
+            "weight_decay": float(
+                train_cfg["weight_decay_fusion"]
+            ),
         },
     ]
 
+    groups = []
+    seen = set()
+
     for group in candidates:
-        if len(group["params"]) > 0:
-            group["base_lr"] = float(group["lr"])
+        params = []
+
+        for parameter in group["params"]:
+            parameter_id = id(parameter)
+
+            if parameter_id not in seen:
+                params.append(parameter)
+                seen.add(parameter_id)
+
+        if params:
+            group["params"] = params
+            group["base_lr"] = float(
+                group["lr"]
+            )
             groups.append(group)
 
-    if len(groups) == 0:
-        raise RuntimeError("No trainable parameter groups found.")
+    required = {
+        "image_head",
+        "ehr",
+        "fusion",
+    }
+
+    found = {
+        group["name"]
+        for group in groups
+    }
+
+    if found != required:
+        raise RuntimeError(
+            f"Incorrect optimizer groups: {found}"
+        )
 
     return groups
 
@@ -261,19 +283,6 @@ def set_group_lrs(optimizer, lr_factor):
         current[group.get("name", "group")] = float(group["lr"])
 
     return current
-
-
-def delta_scale_for_epoch(train_epoch, train_epochs, start, end):
-    train_epoch = int(train_epoch)
-    train_epochs = int(train_epochs)
-
-    if train_epochs <= 1:
-        return float(end)
-
-    progress = (train_epoch - 1) / max(train_epochs - 1, 1)
-    progress = min(max(progress, 0.0), 1.0)
-
-    return float(start) + progress * (float(end) - float(start))
 
 
 def _stats_value(stats, names):
@@ -308,6 +317,38 @@ def _add_epoch_artifacts(row, save_dir, epoch, split, stats, save_predictions):
         )
     )
 
+def save_history_without_accuracy_brier(history, path):
+    frame = pd.DataFrame(history)
+
+    excluded_columns = [
+        column
+        for column in frame.columns
+        if "accuracy" in column.lower()
+        or "brier" in column.lower()
+    ]
+
+    if excluded_columns:
+        frame = frame.drop(columns=excluded_columns)
+
+    frame.to_csv(path, index=False)
+
+
+def remove_unsaved_metrics(obj):
+    if isinstance(obj, dict):
+        return {
+            key: remove_unsaved_metrics(value)
+            for key, value in obj.items()
+            if key not in {"accuracy", "brier"}
+        }
+
+    if isinstance(obj, list):
+        return [
+            remove_unsaved_metrics(value)
+            for value in obj
+        ]
+
+    return obj
+
 def parse_args():
     parser = argparse.ArgumentParser()
 
@@ -320,10 +361,14 @@ def parse_args():
 
     parser.add_argument("--lr", type=float, default=None)
     parser.add_argument("--weight_decay", type=float, default=None)
+    parser.add_argument("--weight_decay_image", type=float, default=None)
+    parser.add_argument("--weight_decay_ehr", type=float, default=None)
+    parser.add_argument("--weight_decay_fusion", type=float, default=None)
     parser.add_argument("--lr_image_head", type=float, default=None)
     parser.add_argument("--lr_ehr", type=float, default=None)
     parser.add_argument("--lr_fusion", type=float, default=None)
     parser.add_argument("--fusion_dropout", type=float, default=None)
+    parser.add_argument("--grad_clip", type=float, default=None)
 
     parser.add_argument("--save_dir", type=str, default=None)
     parser.add_argument("--seed", type=int, default=None)
@@ -355,7 +400,24 @@ def main():
         cfg["training"]["lr_fusion"] = float(args.lr)
 
     if args.weight_decay is not None:
+        cfg["training"]["weight_decay_image"] = float(args.weight_decay)
+        cfg["training"]["weight_decay_ehr"] = float(args.weight_decay)
         cfg["training"]["weight_decay_fusion"] = float(args.weight_decay)
+
+    if args.weight_decay_image is not None:
+        cfg["training"]["weight_decay_image"] = float(
+            args.weight_decay_image
+        )
+
+    if args.weight_decay_ehr is not None:
+        cfg["training"]["weight_decay_ehr"] = float(
+            args.weight_decay_ehr
+        )
+
+    if args.weight_decay_fusion is not None:
+        cfg["training"]["weight_decay_fusion"] = float(
+            args.weight_decay_fusion
+        )
 
     if args.lr_image_head is not None:
         cfg["training"]["lr_image_head"] = float(args.lr_image_head)
@@ -367,7 +429,10 @@ def main():
         cfg["training"]["lr_fusion"] = float(args.lr_fusion)
 
     if args.fusion_dropout is not None:
-        cfg["model"]["dropout"] = float(args.fusion_dropout)
+        cfg["model"]["fusion_dropout"] = float(args.fusion_dropout)
+
+    if args.grad_clip is not None:
+        cfg["training"]["grad_clip"] = float(args.grad_clip)
 
     if args.seed is not None:
         cfg["training"]["seed"] = int(args.seed)
@@ -427,18 +492,6 @@ def main():
         transform=train_tf,
     )
 
-    train_eval_set = MultimodalRespireDataset(
-        train_df,
-        X,
-        M,
-        image_col=data_cfg["image_col"],
-        sample_col=data_cfg["sample_col"],
-        label_col=data_cfg["label_col"],
-        output_root=ROOT,
-        cohort_dir=cohort_dir,
-        transform=eval_tf,
-    )
-
     val_set = MultimodalRespireDataset(
         val_df,
         X,
@@ -473,13 +526,6 @@ def main():
         seed=int(train_cfg["seed"]),
     )
 
-    train_eval_loader = build_loader(
-        train_eval_set,
-        batch_size=train_cfg["batch_size"],
-        num_workers=train_cfg["num_workers"],
-        train=False,
-    )
-
     val_loader = build_loader(
         val_set,
         batch_size=train_cfg["batch_size"],
@@ -499,18 +545,13 @@ def main():
         n_ehr_features=int(X.shape[-1]),
     )
 
-    train_prevalence = float(train_df[data_cfg["label_col"]].mean())
-
-    prior_info = {}
-
-    if hasattr(model.image_branch, "initialize_prior"):
-        prior_info["image"] = model.image_branch.initialize_prior(train_prevalence)
-
-    if hasattr(model, "initialize_fusion_prior"):
-        prior_info["fusion"] = model.initialize_fusion_prior(train_prevalence)
+    prior_info = {
+        "initialization": "zero_final_bias",
+        "prevalence_bias_initialization": False,
+    }
 
     load_reports = {
-        "mode": "scratch_multimodal_no_unimodal_checkpoint_loading",
+        "mode": "scratch_early_fusion_no_checkpoint_loading",
         "ehr": {
             "loaded": False,
             "reason": "disabled_by_config",
@@ -567,6 +608,11 @@ def main():
     model_dir = out_dir / "models"
     model_dir.mkdir(parents=True, exist_ok=True)
 
+    best_path = model_dir / "best_by_auprc.pt"
+
+    if best_path.exists():
+        best_path.unlink()
+
     for stale_name in [
         "calibration_bins_10_by_epoch.csv",
         "adaptive_calibration_bins_10_by_epoch.csv",
@@ -604,8 +650,6 @@ def main():
     print("cohort_csv:", cohort_csv)
     print("ehr_npz:", ehr_npz)
     print("image_col:", data_cfg["image_col"])
-    print("X shape:", X.shape)
-    print("M shape:", M.shape)
     print("train/val/test:", len(train_df), len(val_df), len(test_df))
     print("train positives:", int(train_df[data_cfg["label_col"]].sum()))
     print("val positives:", int(val_df[data_cfg["label_col"]].sum()))
@@ -651,85 +695,11 @@ def main():
     bad_epochs = 0
 
     total_points = int(train_cfg["epochs"])
-    train_epochs = max(1, total_points - 1)
+    train_epochs = max(1, total_points)
 
-    model.set_delta_scale(float(cfg["model"]["delta_scale_start"]))
-
-    initial_train_stats = evaluate_multimodal(
-        model=model,
-        loader=train_eval_loader,
-        criterion=criterion,
-        loss_cfg=loss_cfg,
-        device=device,
-        use_amp=use_amp,
-        desc="EVAL train epoch 1",
-    )
-
-    initial_val_stats = evaluate_multimodal(
-        model=model,
-        loader=val_loader,
-        criterion=criterion,
-        loss_cfg=loss_cfg,
-        device=device,
-        use_amp=use_amp,
-        desc="EVAL val epoch 1",
-    )
-
-    initial_row = {
-        "epoch": 1,
-        "lr_image_head": float(train_cfg["lr_image_head"]),
-        "lr_ehr": float(train_cfg["lr_ehr"]),
-        "lr_fusion": float(train_cfg["lr_fusion"]),
-        "delta_scale": float(cfg["model"]["delta_scale_start"]),
-        "train_loss": initial_train_stats["loss"],
-        "train_bce": initial_train_stats["fusion_bce"],
-        "train_auroc": initial_train_stats["auroc"],
-        "train_auprc": initial_train_stats["auprc"],
-        "train_log_loss": initial_train_stats["log_loss"],
-        "train_brier": initial_train_stats["brier"],
-        "val_loss": initial_val_stats["loss"],
-        "val_bce": initial_val_stats["fusion_bce"],
-        "val_auroc": initial_val_stats["auroc"],
-        "val_auprc": initial_val_stats["auprc"],
-        "val_log_loss": initial_val_stats["log_loss"],
-        "val_brier": initial_val_stats["brier"],
-        "val_best_f1": initial_val_stats["best_f1"],
-        "val_best_f1_threshold": initial_val_stats["best_f1_threshold"],
-    }
-
-
-    _add_epoch_artifacts(
-        initial_row,
-        save_dir=out_dir,
-        epoch=1,
-        split="train",
-        stats=initial_train_stats,
-        save_predictions=False,
-    )
-
-    _add_epoch_artifacts(
-        initial_row,
-        save_dir=out_dir,
-        epoch=1,
-        split="val",
-        stats=initial_val_stats,
-        save_predictions=True,
-    )
-
-    history.append(initial_row)
-    pd.DataFrame(history).to_csv(out_dir / "history.csv", index=False)
-    plot_history(out_dir / "history.csv", out_dir, title_prefix="EarlyFusion")
-
-    print(
-        f"epoch 001 | "
-        f"train_loss={initial_row['train_loss']:.5f} | "
-        f"val_loss={initial_row['val_loss']:.5f} | "
-        f"val_auroc={initial_row['val_auroc']:.5f} | "
-        f"val_auprc={initial_row['val_auprc']:.5f}"
-    )
 
     for train_epoch in range(1, train_epochs + 1):
-        epoch = train_epoch + 1
+        epoch = train_epoch
 
         lr_factor = lr_factor_for_epoch(
             epoch=train_epoch,
@@ -740,14 +710,6 @@ def main():
 
         current_lrs = set_group_lrs(optimizer, lr_factor)
 
-        current_delta_scale = delta_scale_for_epoch(
-            train_epoch=train_epoch,
-            train_epochs=train_epochs,
-            start=float(cfg["model"]["delta_scale_start"]),
-            end=float(cfg["model"]["delta_scale_end"]),
-        )
-
-        model.set_delta_scale(current_delta_scale)
 
         train_stats = train_multimodal_one_epoch(
             model=model,
@@ -760,16 +722,6 @@ def main():
             use_amp=use_amp,
             grad_clip=float(train_cfg["grad_clip"]),
             epoch=epoch,
-        )
-
-        train_eval_stats = evaluate_multimodal(
-            model=model,
-            loader=train_eval_loader,
-            criterion=criterion,
-            loss_cfg=loss_cfg,
-            device=device,
-            use_amp=use_amp,
-            desc=f"EVAL train epoch {epoch}",
         )
 
         val_stats = evaluate_multimodal(
@@ -786,22 +738,19 @@ def main():
             "epoch": epoch,
             "lr_image_head": float(current_lrs.get("image_head", 0.0)),
             "lr_ehr": float(current_lrs.get("ehr", 0.0)),
-            "lr_fusion": float(current_lrs.get("cross_attention_fusion", 0.0)),
-            "delta_scale": float(current_delta_scale),
+            "lr_fusion": float(current_lrs.get("fusion", 0.0)),
             "optim_train_loss": train_stats["loss"],
             "optim_train_bce": train_stats["fusion_bce"],
-            "train_loss": train_eval_stats["loss"],
-            "train_bce": train_eval_stats["fusion_bce"],
-            "train_auroc": train_eval_stats["auroc"],
-            "train_auprc": train_eval_stats["auprc"],
-            "train_log_loss": train_eval_stats["log_loss"],
-            "train_brier": train_eval_stats["brier"],
+            "train_loss": train_stats["loss"],
+            "train_bce": train_stats["fusion_bce"],
+            "train_auroc": train_stats["auroc"],
+            "train_auprc": train_stats["auprc"],
+            "train_log_loss": train_stats["log_loss"],
             "val_loss": val_stats["loss"],
             "val_bce": val_stats["fusion_bce"],
             "val_auroc": val_stats["auroc"],
             "val_auprc": val_stats["auprc"],
             "val_log_loss": val_stats["log_loss"],
-            "val_brier": val_stats["brier"],
             "val_best_f1": val_stats["best_f1"],
             "val_best_f1_threshold": val_stats["best_f1_threshold"],
         }
@@ -812,7 +761,7 @@ def main():
             save_dir=out_dir,
             epoch=epoch,
             split="train",
-            stats=train_eval_stats,
+            stats=train_stats,
             save_predictions=False,
         )
 
@@ -826,10 +775,18 @@ def main():
         )
 
         history.append(row)
-        pd.DataFrame(history).to_csv(out_dir / "history.csv", index=False)
+        save_history_without_accuracy_brier(history, out_dir / "history.csv")
         plot_history(out_dir / "history.csv", out_dir, title_prefix="EarlyFusion")
 
-        print(f"epoch {epoch:03d} | train_loss={row['train_loss']:.5f} | val_loss={row['val_loss']:.5f} | val_auroc={row['val_auroc']:.5f} | val_auprc={row['val_auprc']:.5f}")
+        print(
+            f"epoch {epoch:03d} | "
+            f"train_loss={row['train_loss']:.5f} | "
+            f"train_auroc={row['train_auroc']:.5f} | "
+            f"train_auprc={row['train_auprc']:.5f} | "
+            f"val_loss={row['val_loss']:.5f} | "
+            f"val_auroc={row['val_auroc']:.5f} | "
+            f"val_auprc={row['val_auprc']:.5f}"
+        )
 
         val_auprc = float(val_stats["auprc"])
         min_delta = float(cfg["selection"]["min_delta_auprc"])
@@ -868,16 +825,6 @@ def main():
     checkpoint = torch.load(best_path, map_location=device)
     model.load_state_dict(checkpoint["model_state_dict"])
 
-    train_final = evaluate_multimodal(
-        model=model,
-        loader=train_eval_loader,
-        criterion=criterion,
-        loss_cfg=loss_cfg,
-        device=device,
-        use_amp=use_amp,
-        desc="FINAL train",
-    )
-
     val_final = evaluate_multimodal(
         model=model,
         loader=val_loader,
@@ -898,25 +845,57 @@ def main():
         desc="FINAL test",
     )
 
-    threshold = float(val_final["best_f1_threshold"])
+    threshold = float(
+        val_final["best_f1_threshold"]
+    )
 
     final_metrics = {
-        "best_epoch": int(checkpoint["epoch"]),
-        "best_val_auprc": float(checkpoint["val_auprc"]),
+        "best_epoch": int(
+            checkpoint["epoch"]
+        ),
+        "best_val_auprc": float(
+            checkpoint["val_auprc"]
+        ),
         "threshold_selected_on_val_f1": threshold,
         "raw": {
-            "train": metrics_at_threshold(train_final["labels"], train_final["probs"], threshold),
-            "val": metrics_at_threshold(val_final["labels"], val_final["probs"], threshold),
-            "test": metrics_at_threshold(test_final["labels"], test_final["probs"], threshold),
+            "val": metrics_at_threshold(
+                val_final["labels"],
+                val_final["probs"],
+                threshold,
+            ),
+            "test": metrics_at_threshold(
+                test_final["labels"],
+                test_final["probs"],
+                threshold,
+            ),
         },
     }
 
-    with open(out_dir / "metrics.json", "w") as f:
-        json.dump(json_safe(final_metrics), f, indent=2)
+    with open(
+        out_dir / "metrics.json",
+        "w",
+    ) as f:
+        json.dump(
+            json_safe(
+                remove_unsaved_metrics(
+                    final_metrics
+                )
+            ),
+            f,
+            indent=2,
+        )
 
-    save_multimodal_predictions(train_final, out_dir / "train_predictions.csv", threshold=threshold)
-    save_multimodal_predictions(val_final, out_dir / "val_predictions.csv", threshold=threshold)
-    save_multimodal_predictions(test_final, out_dir / "test_predictions.csv", threshold=threshold)
+    save_multimodal_predictions(
+        val_final,
+        out_dir / "val_predictions.csv",
+        threshold=threshold,
+    )
+
+    save_multimodal_predictions(
+        test_final,
+        out_dir / "test_predictions.csv",
+        threshold=threshold,
+    )
 
     print("\nfinal EarlyFusion test:")
     test_metrics = final_metrics["raw"]["test"]

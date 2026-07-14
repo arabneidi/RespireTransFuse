@@ -1484,6 +1484,7 @@ def main():
         "corr_threshold": args.corr_threshold,
         "lambda_redundancy": args.lambda_redundancy,
         "n_bootstraps": args.n_bootstraps,
+        "random_state": int(args.random_state),
         "subsample_fraction": args.subsample_fraction,
         "run_rfecv": bool(args.run_rfecv),
         "recommendation_counts": {str(k): int(v) for k, v in recommendation_counts.items()},

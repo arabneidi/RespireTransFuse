@@ -15,11 +15,13 @@ from .trainer import Trainer
 import pandas as pd
 import os
 import json
+import shutil
 
 
 import numpy as np
 from sklearn import metrics
 from sklearn.metrics import log_loss, brier_score_loss, precision_recall_curve
+from respire_transfuse.utils.epoch_metrics import save_epoch_artifacts
 
 class FusionTrainer(Trainer):
     def __init__(self, 
@@ -95,6 +97,7 @@ class FusionTrainer(Trainer):
         self.best_auroc = 0
         self.best_score = 0
         self.best_stats = None
+        self.best_epoch = None
         # self.scheduler = optim.lr_scheduler.ExponentialLR(self.optimizer, 0.99) 
         self.epochs_stats = {'loss train': [], 'loss val': [], 'auroc val': [], 'loss align train': [], 'loss align val': []}
         self.history = []
@@ -245,67 +248,144 @@ class FusionTrainer(Trainer):
         return ret
 
 
-    def validate(self, dl, split="validation", save_predictions=False, epoch=None):
-        print(f'starting val epoch {self.epoch}')
+    def validate(
+        self,
+        dl,
+        split="validation",
+        save_predictions=False,
+        epoch=None,
+        step_scheduler=False,
+    ):
+        print(f"starting {split} epoch {self.epoch}")
+
+        self.model.eval()
+
         epoch_loss = 0.0
         epoch_loss_align = 0.0
         outGT = torch.FloatTensor().to(self.device)
         outPRED = torch.FloatTensor().to(self.device)
 
         with torch.no_grad():
-            for i, (x, img, y_ehr, y_cxr, seq_lengths, pairs) in enumerate(dl):
+            for i, (
+                x,
+                img,
+                y_ehr,
+                y_cxr,
+                seq_lengths,
+                pairs,
+            ) in enumerate(dl):
                 y = self.get_gt(y_ehr, y_cxr)
 
                 x = torch.from_numpy(x).float()
-                x = Variable(x.to(self.device), requires_grad=False)
-                y = Variable(y.to(self.device), requires_grad=False)
+                x = Variable(
+                    x.to(self.device),
+                    requires_grad=False,
+                )
+
+                y = Variable(
+                    y.to(self.device),
+                    requires_grad=False,
+                )
+
                 img = img.to(self.device)
 
-                output = self.model(x, seq_lengths, img, pairs)
+                output = self.model(
+                    x,
+                    seq_lengths,
+                    img,
+                    pairs,
+                )
 
-                pred = output[self.args.fusion_type]
+                pred = output[
+                    self.args.fusion_type
+                ]
+
                 pred = pred.float().view(-1)
                 y = y.float().view(-1)
 
-                loss = self.compute_loss(pred, y)
+                loss = self.compute_loss(
+                    pred,
+                    y,
+                )
+
                 epoch_loss += loss.item()
 
                 if self.args.align > 0.0:
-                    epoch_loss_align += output['align_loss'].item()
+                    epoch_loss_align += (
+                        output["align_loss"].item()
+                    )
 
-                outPRED = torch.cat((outPRED, pred), 0)
-                outGT = torch.cat((outGT, y), 0)
+                outPRED = torch.cat(
+                    (outPRED, pred),
+                    0,
+                )
+
+                outGT = torch.cat(
+                    (outGT, y),
+                    0,
+                )
 
         denom = max(i + 1, 1)
+
         val_loss = epoch_loss / denom
         val_align_loss = epoch_loss_align / denom
 
-        self.scheduler.step(val_loss)
+        if step_scheduler:
+            self.scheduler.step(val_loss)
 
-        print(f"val [{self.epoch:04d} / {self.args.epochs:04d}] validation loss: 	{val_loss:0.5f} 	{val_align_loss:0.5f}")
+        print(
+            f"{split} "
+            f"[{self.epoch:04d} / "
+            f"{self.args.epochs:04d}] "
+            f"loss: {val_loss:0.5f} "
+            f"align: {val_align_loss:0.5f}"
+        )
 
         y_true = outGT.data.cpu().numpy()
         probs = outPRED.data.cpu().numpy()
 
-        ret = self.computeAUROC(y_true, probs, split)
-        ret.update(self._binary_extra_metrics(y_true, probs))
-        ret['loss'] = float(val_loss)
-        ret['loss_align'] = float(val_align_loss)
-        ret['labels'] = y_true.reshape(-1)
-        ret['probs'] = probs.reshape(-1)
+        ret = self.computeAUROC(
+            y_true,
+            probs,
+            split,
+        )
 
-        np.save(f'{self.args.save_dir}/pred.npy', probs)
-        np.save(f'{self.args.save_dir}/gt.npy', y_true)
+        ret.update(
+            self._binary_extra_metrics(
+                y_true,
+                probs,
+            )
+        )
+
+        ret["loss"] = float(val_loss)
+        ret["loss_align"] = float(
+            val_align_loss
+        )
+
+        ret["labels"] = y_true.reshape(-1)
+        ret["probs"] = probs.reshape(-1)
 
         if save_predictions:
-            self._save_prediction_csv(split=split, y_true=y_true, probs=probs, epoch=epoch)
+            self._save_prediction_csv(
+                split=split,
+                y_true=y_true,
+                probs=probs,
+                epoch=epoch,
+            )
 
-        self.epochs_stats['auroc val'].append(ret['auroc_mean'])
-        self.epochs_stats['loss val'].append(val_loss)
-        self.epochs_stats['loss align val'].append(val_align_loss)
+        self.epochs_stats[
+            "auroc val"
+        ].append(ret["auroc_mean"])
+
+        self.epochs_stats[
+            "loss val"
+        ].append(val_loss)
+
+        self.epochs_stats[
+            "loss align val"
+        ].append(val_align_loss)
 
         return ret
-
 
     def _binary_extra_metrics(self, y_true, probs):
         y_true = np.asarray(y_true).reshape(-1).astype(int)
@@ -492,45 +572,106 @@ class FusionTrainer(Trainer):
             # self.print_and_write(ret , isbest=True, prefix=f'{self.args.fusion_type} age_{start}_{i + 10}_{len(indexes)}', filename='results_test.txt')
             start = i + step
     def test(self):
-        print('validating ... ')
+        print("validating ...")
+
         self.epoch = 0
-        self.model.eval()
 
         val_ret = self.validate(
             self.val_dl,
             split="val",
             save_predictions=False,
             epoch=None,
+            step_scheduler=False,
         )
-        self._save_prediction_csv("val", val_ret["labels"], val_ret["probs"], epoch=None)
-        self.print_and_write(val_ret, isbest=True, prefix=f'{self.args.fusion_type} val', filename='results_val.txt')
 
-        self.model.eval()
+        self._save_prediction_csv(
+            "val",
+            val_ret["labels"],
+            val_ret["probs"],
+            epoch=None,
+        )
+
+        self.print_and_write(
+            val_ret,
+            isbest=True,
+            prefix=(
+                f"{self.args.fusion_type} val"
+            ),
+            filename="results_val.txt",
+        )
+
         test_ret = self.validate(
             self.test_dl,
             split="test",
             save_predictions=False,
             epoch=None,
+            step_scheduler=False,
         )
-        self._save_prediction_csv("test", test_ret["labels"], test_ret["probs"], epoch=None)
-        self.print_and_write(test_ret, isbest=True, prefix=f'{self.args.fusion_type} test', filename='results_test.txt')
+
+        self._save_prediction_csv(
+            "test",
+            test_ret["labels"],
+            test_ret["probs"],
+            epoch=None,
+        )
+
+        self.print_and_write(
+            test_ret,
+            isbest=True,
+            prefix=(
+                f"{self.args.fusion_type} test"
+            ),
+            filename="results_test.txt",
+        )
 
         metrics_out = {
-            "best_epoch": None,
-            "best_score": float(self.best_score),
-            "monitor_metric": str(getattr(self.args, "monitor_metric", "auroc")).lower(),
-            "fusion_type": str(self.args.fusion_type),
-            "val": self._ret_for_json(val_ret),
-            "test": self._ret_for_json(test_ret),
+            "best_epoch": (
+                int(self.best_epoch)
+                if self.best_epoch is not None
+                else None
+            ),
+            "best_score": float(
+                self.best_score
+            ),
+            "monitor_metric": str(
+                getattr(
+                    self.args,
+                    "monitor_metric",
+                    "auroc",
+                )
+            ).lower(),
+            "fusion_type": str(
+                self.args.fusion_type
+            ),
+            "val": self._ret_for_json(
+                val_ret
+            ),
+            "test": self._ret_for_json(
+                test_ret
+            ),
         }
 
-        metrics_path = os.path.join(self.args.save_dir, "metrics.json")
-        with open(metrics_path, "w") as f:
-            json.dump(metrics_out, f, indent=2)
+        metrics_path = os.path.join(
+            self.args.save_dir,
+            "metrics.json",
+        )
 
-        print(f"metrics saved: {metrics_path}")
+        with open(
+            metrics_path,
+            "w",
+        ) as f:
+            json.dump(
+                metrics_out,
+                f,
+                indent=2,
+            )
+
+        print(
+            f"metrics saved: "
+            f"{metrics_path}"
+        )
+
         return
-
 
     def eval(self):
         # self.eval_age()
@@ -583,99 +724,251 @@ class FusionTrainer(Trainer):
         return float(p[y == 1].mean() - p[y == 0].mean())
 
 
-    def save_history_row(self, train_ret, val_ret, is_best):
+    def save_history_row(
+        self,
+        train_ret,
+        val_ret,
+        is_best,
+    ):
         row = {
-            'epoch': int(self.epoch),
-            'lr': float(self.optimizer.param_groups[0]['lr']),
-            'train_loss': self._history_float(train_ret.get('loss')),
-            'train_align_loss': self._history_float(train_ret.get('loss_align')),
-            'train_auroc': self._history_float(train_ret.get('auroc_mean')),
-            'train_auprc': self._history_float(train_ret.get('auprc_mean')),
-            'train_log_loss': self._history_float(train_ret.get('log_loss')),
-            'train_brier': self._history_float(train_ret.get('brier')),
-            'train_ece_10': self._history_float(train_ret.get('ece_10')),
-            'train_mce_10': self._history_float(train_ret.get('mce_10')),
-            'train_best_f1': self._history_float(train_ret.get('best_f1')),
-            'train_best_f1_threshold': self._history_float(train_ret.get('best_f1_threshold')),
-            'train_pos_neg_gap': self._history_float(self._positive_negative_gap(train_ret)),
-            'val_loss': self._history_float(val_ret.get('loss')),
-            'val_align_loss': self._history_float(val_ret.get('loss_align')),
-            'val_auroc': self._history_float(val_ret.get('auroc_mean')),
-            'val_auprc': self._history_float(val_ret.get('auprc_mean')),
-            'val_log_loss': self._history_float(val_ret.get('log_loss')),
-            'val_brier': self._history_float(val_ret.get('brier')),
-            'val_ece_10': self._history_float(val_ret.get('ece_10')),
-            'val_mce_10': self._history_float(val_ret.get('mce_10')),
-            'val_best_f1': self._history_float(val_ret.get('best_f1')),
-            'val_best_f1_threshold': self._history_float(val_ret.get('best_f1_threshold')),
-            'val_pos_neg_gap': self._history_float(self._positive_negative_gap(val_ret)),
-            'monitor_metric': str(getattr(self.args, 'monitor_metric', 'auroc')).lower(),
-            'best_score': float(self.best_score),
-            'is_best': bool(is_best),
+            "epoch": int(self.epoch),
+            "lr": float(
+                self.optimizer.param_groups[0]["lr"]
+            ),
+            "optim_train_loss": self._history_float(
+                train_ret.get("loss")
+            ),
+            "optim_train_bce": self._history_float(
+                train_ret.get("loss")
+            ),
+            "train_loss": self._history_float(
+                train_ret.get("loss")
+            ),
+            "train_bce": self._history_float(
+                train_ret.get("loss")
+            ),
+            "train_align_loss": self._history_float(
+                train_ret.get("loss_align")
+            ),
+            "val_loss": self._history_float(
+                val_ret.get("loss")
+            ),
+            "val_bce": self._history_float(
+                val_ret.get("loss")
+            ),
+            "val_align_loss": self._history_float(
+                val_ret.get("loss_align")
+            ),
         }
 
-        self.history.append(row)
-        pd.DataFrame(self.history).to_csv(self.history_csv, index=False)
-
-        with open(self.history_json, 'w') as f:
-            json.dump(self.history, f, indent=2)
-
-        print(
-            f"epoch {row['epoch']:03d} | "
-            f"train_loss={row['train_loss']:.5f} | "
-            f"train_auroc={row['train_auroc']:.5f} | "
-            f"train_auprc={row['train_auprc']:.5f} | "
-            f"val_loss={row['val_loss']:.5f} | "
-            f"val_auroc={row['val_auroc']:.5f} | "
-            f"val_auprc={row['val_auprc']:.5f} | "
-            f"val_brier={row['val_brier']:.5f} | "
-            f"best={row['is_best']}"
+        row.update(
+            save_epoch_artifacts(
+                save_dir=self.args.save_dir,
+                epoch=self.epoch,
+                split="train",
+                sample_ids=None,
+                y_true=train_ret["labels"],
+                pred_values=train_ret["probs"],
+                n_bins=10,
+                save_predictions=False,
+            )
         )
-        print(f"history saved: {self.history_csv}")
 
+        row.update(
+            save_epoch_artifacts(
+                save_dir=self.args.save_dir,
+                epoch=self.epoch,
+                split="val",
+                sample_ids=None,
+                y_true=val_ret["labels"],
+                pred_values=val_ret["probs"],
+                n_bins=10,
+                save_predictions=True,
+            )
+        )
+
+        monitor_metric = str(
+            getattr(
+                self.args,
+                "monitor_metric",
+                "auroc",
+            )
+        ).lower()
+
+        score_key = (
+            "auprc_mean"
+            if monitor_metric == "auprc"
+            else "auroc_mean"
+        )
+
+        row.update(
+            {
+                "monitor_metric": monitor_metric,
+                "current_score": self._history_float(
+                    val_ret.get(score_key)
+                ),
+                "best_score": float(
+                    self.best_score
+                ),
+                "best_epoch": (
+                    int(self.best_epoch)
+                    if self.best_epoch is not None
+                    else None
+                ),
+                "is_best": bool(is_best),
+            }
+        )
+
+        self.history.append(row)
+
+        pd.DataFrame(
+            self.history
+        ).to_csv(
+            self.history_csv,
+            index=False,
+        )
+
+        with open(
+            self.history_json,
+            "w",
+        ) as f:
+            json.dump(
+                self.history,
+                f,
+                indent=2,
+            )
 
     def train(self):
-        print(f'running for fusion_type {self.args.fusion_type}')
+        print(
+            f"running for fusion_type "
+            f"{self.args.fusion_type}"
+        )
 
-        end_epoch = int(self.args.epochs) + 1
+        for stale_name in [
+            "history.csv",
+            "history.json",
+            "calibration_bins_10_by_epoch.csv",
+            "adaptive_calibration_bins_10_by_epoch.csv",
+        ]:
+            stale_path = os.path.join(
+                self.args.save_dir,
+                stale_name,
+            )
 
-        for self.epoch in range(int(self.start_epoch), end_epoch):
-            self.model.eval()
+            if os.path.exists(stale_path):
+                os.remove(stale_path)
+
+        prediction_dir = os.path.join(
+            self.args.save_dir,
+            "epoch_predictions",
+        )
+
+        if os.path.isdir(prediction_dir):
+            shutil.rmtree(prediction_dir)
+
+        self.history = []
+
+        end_epoch = (
+            int(self.args.epochs) + 1
+        )
+
+        for self.epoch in range(
+            int(self.start_epoch),
+            end_epoch,
+        ):
+            self.model.train()
+
+            train_ret = self.train_epoch()
+
             val_ret = self.validate(
                 self.val_dl,
                 split="val",
-                save_predictions=True,
+                save_predictions=False,
                 epoch=self.epoch,
+                step_scheduler=True,
             )
 
-            self.save_checkpoint(prefix='last')
+            monitor_metric = str(
+                getattr(
+                    self.args,
+                    "monitor_metric",
+                    "auroc",
+                )
+            ).lower()
 
-            monitor_metric = str(getattr(self.args, "monitor_metric", "auroc")).lower()
-            current_score = val_ret["auprc_mean"] if monitor_metric == "auprc" else val_ret["auroc_mean"]
+            if monitor_metric == "auprc":
+                current_score = float(
+                    val_ret["auprc_mean"]
+                )
+            else:
+                current_score = float(
+                    val_ret["auroc_mean"]
+                )
 
-            is_best = self.best_score < current_score
+            is_best = (
+                current_score
+                > float(self.best_score)
+            )
 
             if is_best:
                 self.best_score = current_score
-                self.best_auroc = val_ret['auroc_mean']
+                self.best_auroc = float(
+                    val_ret["auroc_mean"]
+                )
+
                 self.best_stats = val_ret
+                self.best_epoch = int(
+                    self.epoch
+                )
+
                 self.save_checkpoint()
-                self.print_and_write(val_ret, isbest=True)
+
+                self.print_and_write(
+                    val_ret,
+                    isbest=True,
+                )
+
                 self.patience = 0
             else:
-                self.print_and_write(val_ret, isbest=False)
+                self.print_and_write(
+                    val_ret,
+                    isbest=False,
+                )
+
                 self.patience += 1
 
-            self.model.train()
-            train_ret = self.train_epoch()
+            self.save_checkpoint(
+                prefix="last"
+            )
 
-            self.save_history_row(train_ret, val_ret, is_best)
-            self.plot_stats(key='loss', filename='loss.pdf')
-            self.plot_stats(key='auroc', filename='auroc.pdf')
+            self.save_history_row(
+                train_ret,
+                val_ret,
+                is_best,
+            )
 
-            if self.patience >= self.args.patience:
+            self.plot_stats(
+                key="loss",
+                filename="loss.pdf",
+            )
+
+            self.plot_stats(
+                key="auroc",
+                filename="auroc.pdf",
+            )
+
+            if self.patience >= int(
+                self.args.patience
+            ):
+                print(
+                    f"early stopping at epoch "
+                    f"{self.epoch}"
+                )
                 break
 
-        self.print_and_write(self.best_stats, isbest=True)
-
+        if self.best_stats is not None:
+            self.print_and_write(
+                self.best_stats,
+                isbest=True,
+            )
 

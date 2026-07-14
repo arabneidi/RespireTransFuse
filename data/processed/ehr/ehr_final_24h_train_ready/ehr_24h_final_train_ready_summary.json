@@ -11,9 +11,9 @@
   ],
   "n_features": 30,
   "split_counts": {
-    "train": 7866,
-    "test": 1739,
-    "val": 1734
+    "train": 8020,
+    "test": 1695,
+    "val": 1624
   },
   "label_counts": {
     "0": 9753,

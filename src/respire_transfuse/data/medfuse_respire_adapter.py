@@ -247,8 +247,7 @@ class RespireMedFuseDataset(Dataset):
 
         m = np.clip(m, 0.0, 1.0)
 
-        observed = m.sum(axis=-1) > 0
-        seq_length = int(max(1, observed.sum()))
+        seq_length = int(x.shape[0])
 
         x = np.concatenate([x, m], axis=-1).astype(np.float32)
 

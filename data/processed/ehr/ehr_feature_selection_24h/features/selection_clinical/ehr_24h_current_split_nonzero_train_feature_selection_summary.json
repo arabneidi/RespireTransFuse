@@ -1,0 +1,56 @@
+{
+  "npz_path": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_feature_selection_24h/tensors/ehr_24h_current_split_nonzero_train.npz",
+  "shape": [
+    11339,
+    24,
+    67
+  ],
+  "train_n": 8020,
+  "val_n": 1624,
+  "test_n": 1695,
+  "train_label_counts": {
+    "0": 6898,
+    "1": 1122
+  },
+  "train_prevalence": 0.1399002493765586,
+  "summary_modes": [
+    "mean",
+    "last",
+    "max",
+    "min",
+    "std",
+    "observed_fraction",
+    "last_minus_first",
+    "slope"
+  ],
+  "corr_threshold": 0.85,
+  "lambda_redundancy": 0.5,
+  "n_bootstraps": 80,
+  "random_state": 42,
+  "subsample_fraction": 0.75,
+  "run_rfecv": false,
+  "recommendation_counts": {
+    "strong": 24,
+    "review": 18,
+    "core": 17,
+    "reject_or_review_sparse": 8
+  },
+  "outputs": {
+    "all_modes": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_feature_selection_24h/features/selection_clinical/ehr_24h_current_split_nonzero_train_all_modes_train_only.csv",
+    "best_summary": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_feature_selection_24h/features/selection_clinical/ehr_24h_current_split_nonzero_train_best_summary_per_feature_train_only.csv",
+    "correlation_matrix_npy": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_feature_selection_24h/features/selection_clinical/ehr_24h_current_split_nonzero_train_feature_correlation_matrix_train_only.npy",
+    "covariance_matrix_npy": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_feature_selection_24h/features/selection_clinical/ehr_24h_current_split_nonzero_train_feature_covariance_matrix_train_only.npy",
+    "correlation_clusters": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_feature_selection_24h/features/selection_clinical/ehr_24h_current_split_nonzero_train_correlation_clusters_train_only.csv",
+    "mrmr_ranked": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_feature_selection_24h/features/selection_clinical/ehr_24h_current_split_nonzero_train_mrmr_ranked_train_only.csv",
+    "mrmr_all": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_feature_selection_24h/features/selection_clinical/ehr_24h_current_split_nonzero_train_mrmr_all_features_train_only.csv",
+    "elasticnet_stability": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_feature_selection_24h/features/selection_clinical/ehr_24h_current_split_nonzero_train_elasticnet_stability_train_only.csv",
+    "rfecv": null,
+    "consensus": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_feature_selection_24h/features/selection_clinical/ehr_24h_current_split_nonzero_train_consensus_feature_evidence_train_only.csv",
+    "recommended_core": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_feature_selection_24h/features/selection_clinical/ehr_24h_current_split_nonzero_train_recommended_core_features.csv",
+    "recommended_core_plus_strong": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_feature_selection_24h/features/selection_clinical/ehr_24h_current_split_nonzero_train_recommended_core_plus_strong_features.csv",
+    "review": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_feature_selection_24h/features/selection_clinical/ehr_24h_current_split_nonzero_train_review_features.csv",
+    "recommendation_by_category": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_feature_selection_24h/features/selection_clinical/ehr_24h_current_split_nonzero_train_recommendation_by_category_summary.csv",
+    "feature_metadata": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_feature_selection_24h/features/selection_clinical/ehr_24h_current_split_nonzero_train_feature_metadata_train_only.csv",
+    "top_consensus_preview": null
+  }
+}

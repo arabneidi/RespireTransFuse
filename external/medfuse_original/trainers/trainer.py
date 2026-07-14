@@ -195,17 +195,57 @@ class Trainer():
         else:
             return torch.from_numpy(y_ehr).float()
 
-    def save_checkpoint(self, prefix='best'):
-        path = f'{self.args.save_dir}/{prefix}_checkpoint.pth.tar'
+    def save_checkpoint(
+        self,
+        prefix="best",
+    ):
+        path = (
+            f"{self.args.save_dir}/"
+            f"{prefix}_checkpoint.pth.tar"
+        )
+
         torch.save(
             {
-            'epoch': self.epoch, 
-            'state_dict': self.model.state_dict(), 
-            'best_auroc': self.best_auroc, 
-            'optimizer' : self.optimizer.state_dict(),
-            'epochs_stats': self.epochs_stats
-            }, path)
-        print(f"saving {prefix} checkpoint at epoch {self.epoch}")
+                "epoch": int(self.epoch),
+                "state_dict": (
+                    self.model.state_dict()
+                ),
+                "best_auroc": float(
+                    self.best_auroc
+                ),
+                "best_score": float(
+                    getattr(
+                        self,
+                        "best_score",
+                        self.best_auroc,
+                    )
+                ),
+                "best_epoch": getattr(
+                    self,
+                    "best_epoch",
+                    None,
+                ),
+                "monitor_metric": str(
+                    getattr(
+                        self.args,
+                        "monitor_metric",
+                        "auroc",
+                    )
+                ).lower(),
+                "optimizer": (
+                    self.optimizer.state_dict()
+                ),
+                "epochs_stats": (
+                    self.epochs_stats
+                ),
+            },
+            path,
+        )
+
+        print(
+            f"saving {prefix} checkpoint "
+            f"at epoch {self.epoch}"
+        )
 
     def plot_stats(self, key='loss', filename='training_stats.pdf'):
         for loss in self.epochs_stats:

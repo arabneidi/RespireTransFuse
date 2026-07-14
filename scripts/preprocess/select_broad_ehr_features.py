@@ -1763,6 +1763,7 @@ def main():
         "corr_threshold": args.corr_threshold,
         "lambda_redundancy": args.lambda_redundancy,
         "n_bootstraps": args.n_bootstraps,
+        "random_state": int(args.random_state),
         "elastic_top_k": args.elastic_top_k,
         "subsample_fraction": args.subsample_fraction,
         "run_rfecv": bool(args.run_rfecv),

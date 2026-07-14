@@ -1,0 +1,27 @@
+{
+  "output_npz": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_feature_selection_24h/tensors/ehr_24h_current_split.npz",
+  "cohort_csv": "/content/drive/MyDrive/respire-transfuse/data/processed/cohorts/cohort.csv",
+  "features_csv": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_feature_selection_24h/features/ehr_24h_current_split_candidate_features.csv",
+  "coverage_csv": "/content/drive/MyDrive/respire-transfuse/data/processed/ehr/ehr_feature_selection_24h/features/ehr_24h_current_split_feature_coverage.csv",
+  "shape": [
+    11339,
+    24,
+    76
+  ],
+  "window_hours": 24,
+  "observed_fraction": 0.07421013712882996,
+  "y_counts": {
+    "0": 9753,
+    "1": 1586
+  },
+  "split_counts": {
+    "test": 1695,
+    "train": 8020,
+    "val": 1624
+  },
+  "n_chartevents_added": 1277163,
+  "n_labevents_added": 403730,
+  "strict_feature_rules": false,
+  "current_rules": true,
+  "forced_feature_count": false
+}
