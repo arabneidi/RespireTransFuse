@@ -54,29 +54,31 @@ For GPU training, install the PyTorch build that matches your CUDA environment i
 The full preprocessing stage is controlled by:
 
 ```text
-run_preprocessing_before_training.sh
+start_preprocessing.py
 ```
 
 It runs the main data preparation steps in sequence:
 
-1. Build a CXR-indexed cohort from MIMIC metadata and ICU/hospital tables.
-2. Build 24-hour EHR tensors aligned to each sample's index time.
-3. Remove EHR features with zero observations in the training split.
-4. Run clinical EHR feature selection.
-5. Build a broader EHR candidate tensor and run stricter broad feature selection.
-6. Combine selected evidence into the final EHR feature list.
-7. Normalize train-ready EHR tensors using train-only statistics.
+1. Check that the required MIMIC-CXR and MIMIC-IV input files are present.
+2. Build a CXR-indexed cohort from MIMIC metadata and ICU/hospital tables.
+3. Build 24-hour EHR tensors aligned to each sample's index time.
+4. Remove EHR features with zero observations in the training split.
+5. Run clinical EHR feature selection.
+6. Build a broader EHR candidate tensor and run stricter broad feature selection.
+7. Combine selected evidence into the final EHR feature list.
+8. Normalize train-ready EHR tensors using train-only statistics.
+9. Verify the expected cohort and EHR output files.
 
-You can run it directly:
+Run it from the repository root:
 
 ```bash
-bash run_preprocessing_before_training.sh
+python start_preprocessing.py
 ```
 
-Or use the Python launcher, which sets `BASE` to the repository root automatically:
+The lower-level bash helper remains available for environments that prefer shell scripts:
 
 ```bash
-python run_preprocessing.py
+bash scripts/preprocess/run_preprocessing_before_training.sh
 ```
 
 The preprocessing pipeline writes generated files under:
