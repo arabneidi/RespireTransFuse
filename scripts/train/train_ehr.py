@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Train and evaluate the EHR-only Transformer risk model."""
 
 import argparse
 import json

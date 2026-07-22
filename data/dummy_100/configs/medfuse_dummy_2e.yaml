@@ -1,43 +1,98 @@
+# Configure two-epoch MedFuse smoke tests for the dummy dataset.
 project_root: .
+
 runs:
+  uni_cxr:
+    script: scripts/train/train_medfuse.py
+    args:
+      cohort_csv: data/dummy_100/cohort_dummy_100.csv
+      ehr_npz: data/dummy_100/ehr_dummy_100.npz
+      output_root: .
+      save_dir: outputs/dummy_100/medfuse_cxr_2e
+
+      fusion_type: uni_cxr
+      labels_set: respire
+      num_classes: 1
+      vision_num_classes: 1
+
+      epochs: 2
+      patience: 2
+      lr: 3.0e-04
+      batch_size: 16
+      dropout: 0.3
+      beta_2: 0.999
+      weight_decay: 1.0e-04
+      monitor_metric: auprc
+      grad_clip: 5.0
+
+      vision-backbone: resnet34
+      no_pretrained: true
+      image_size: 224
+
+      freeze_cxr_backbone: true
+      cxr_trainable_scope: classifier
+      cxr_prior_init: true
+
+      num_workers: 2
+      seed: 42
+
   uni_ehr:
     script: scripts/train/train_medfuse.py
     args:
       cohort_csv: data/dummy_100/cohort_dummy_100.csv
       ehr_npz: data/dummy_100/ehr_dummy_100.npz
       output_root: .
-      save_dir: outputs/dummy_100/medfuse_uni_ehr_2e
+      save_dir: outputs/dummy_100/medfuse_ehr_2e
+
       fusion_type: uni_ehr
+      labels_set: respire
+      num_classes: 1
+      vision_num_classes: 1
+
       epochs: 2
       patience: 2
       lr: 5.0e-05
       batch_size: 64
       dropout: 0.0
       beta_2: 0.999
-      weight_decay: 0.0001
+      weight_decay: 1.0e-04
       monitor_metric: auprc
       grad_clip: 5.0
+
+      no_pretrained: true
       num_workers: 2
       seed: 42
 
-  lstm:
+  multimodal_lstm:
     script: scripts/train/train_medfuse.py
     args:
       cohort_csv: data/dummy_100/cohort_dummy_100.csv
       ehr_npz: data/dummy_100/ehr_dummy_100.npz
       output_root: .
-      save_dir: outputs/dummy_100/medfuse_lstm_2e
+      save_dir: outputs/dummy_100/medfuse_multimodal_lstm_2e
+
       fusion_type: lstm
+      labels_set: respire
+      num_classes: 1
+      vision_num_classes: 1
+
       epochs: 2
       patience: 2
-      lr: 5.0e-05
-      batch_size: 24
-      dropout: 0.0
+      lr: 2.0e-06
+      batch_size: 16
       beta_2: 0.999
-      weight_decay: 0.001
+      weight_decay: 1.0e-05
       monitor_metric: auprc
-      grad_clip: 5.0
+      grad_clip: 1.0
+
       vision-backbone: resnet34
+      no_pretrained: true
       image_size: 224
+
+      load_state_ehr: outputs/dummy_100/medfuse_ehr_2e/best_checkpoint.pth.tar
+      load_state_cxr: outputs/dummy_100/medfuse_cxr_2e/best_checkpoint.pth.tar
+      freeze_loaded_ehr: true
+      freeze_loaded_cxr: true
+
       num_workers: 2
       seed: 42

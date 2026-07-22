@@ -1,3 +1,5 @@
+"""Train and evaluate image-only and multimodal models with shared metrics."""
+
 import math
 
 import numpy as np
@@ -426,17 +428,10 @@ def compute_multimodal_loss(out, labels, criterion, loss_cfg):
     ehr_bce = criterion(out["ehr_logit"].float().view(-1), labels)
     image_bce = criterion(out["image_logit"].float().view(-1), labels)
 
-    fusion_delta = out["fusion_delta_logit"].float().view(-1)
-
-    fusion_delta_l2 = fusion_delta.pow(2).mean()
-    fusion_delta_mean_l2 = fusion_delta.mean().pow(2)
-
     loss = (
         float(loss_cfg["fusion_bce_weight"]) * fusion_bce
         + float(loss_cfg["ehr_aux_weight"]) * ehr_bce
         + float(loss_cfg["image_aux_weight"]) * image_bce
-        + float(loss_cfg["fusion_delta_l2_weight"]) * fusion_delta_l2
-        + float(loss_cfg["fusion_delta_mean_l2_weight"]) * fusion_delta_mean_l2
     )
 
     return {
@@ -444,8 +439,6 @@ def compute_multimodal_loss(out, labels, criterion, loss_cfg):
         "fusion_bce": fusion_bce,
         "ehr_bce": ehr_bce,
         "image_bce": image_bce,
-        "fusion_delta_l2": fusion_delta_l2,
-        "fusion_delta_mean_l2": fusion_delta_mean_l2,
     }
 
 
@@ -532,7 +525,11 @@ def train_multimodal_one_epoch(
         all_image_logits.extend(out["image_logit"].detach().float().cpu().numpy().tolist())
         all_sample_ids.extend(sample_ids)
 
-        pbar.set_postfix(loss=f"{float(loss.detach().cpu()):.4f}")
+        pbar.set_postfix(
+            fusion_bce=(
+                f"{float(losses['fusion_bce'].detach().cpu()):.4f}"
+            )
+        )
 
     logits_np = np.asarray(all_logits, dtype=float)
     labels_np = np.asarray(all_labels, dtype=int)

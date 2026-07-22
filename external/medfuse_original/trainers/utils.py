@@ -1,3 +1,5 @@
+"""Compute evaluation metrics and confidence intervals for MedFuse runs."""
+
 import numpy as np
 from sklearn.metrics import roc_auc_score, average_precision_score
 

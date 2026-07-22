@@ -1,3 +1,5 @@
+"""Generate training-history plots from saved experiment metrics."""
+
 from pathlib import Path
 
 import pandas as pd

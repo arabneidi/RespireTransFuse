@@ -1,3 +1,5 @@
+"""Train and evaluate the DAFT fusion baseline."""
+
 from __future__ import absolute_import
 from __future__ import print_function
 
@@ -199,4 +201,3 @@ class DAFTTrainer(Trainer):
 
         
     
-

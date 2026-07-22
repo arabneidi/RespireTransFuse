@@ -1,3 +1,4 @@
+# Preserve the bundled MedFuse dummy-run defaults.
 project_root: .
 runs:
   uni_ehr:

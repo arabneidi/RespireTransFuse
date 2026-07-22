@@ -1,34 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""
-03_build_ehr_tensor_from_source_24h_current_split.py
-
-Clean 24h EHR candidate tensor builder.
-
-This uses the strict source-feature idea from the old 03 script, but:
-  - keeps 24h window
-  - uses current final cohort and current split
-  - does NOT use old NPZ files
-  - does NOT manually force 26 features
-  - does NOT create a new split
-  - outputs candidate tensor for train-only feature selection
-
-Input:
-  final_resp48_stable72_no_prior_cxr_cohort.csv
-
-Output:
-  X_raw:     [N, 24, F], NaN where missing
-  X:         [N, 24, F], zero-filled raw values
-  mask:      [N, 24, F]
-  y:         [N]
-  sample_id: [N]
-  split:     [N]
-  variables: [F]
-  labels:    [F]
-  sources:   [F]
-  itemids:   [F]
-"""
+"""Aggregate selected chart and laboratory events into aligned 24-hour EHR tensors."""
 
 import argparse
 import json
@@ -138,10 +111,8 @@ def should_keep_chartevent(row):
         "extub",
     ]
 
-    # CURRENT RUN:
-    # Allow pre-index respiratory support intensity variables.
-    # These are not future leakage if they occur before prediction_time,
-    # but they are clinically close to the respiratory escalation outcome.
+    # Pre-index respiratory support intensity variables are eligible but remain
+    # clinically close to the respiratory escalation outcome.
     support_allowed_terms = [
         "fio2",
         "inspired o2 fraction",

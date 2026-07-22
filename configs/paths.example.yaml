@@ -1,3 +1,4 @@
+# Example project paths for local data, outputs, and checkpoints.
 project_root: .
 data:
   cohort_csv: data/processed/cohorts/final_cohort.csv

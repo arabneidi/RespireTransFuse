@@ -1,3 +1,4 @@
+# Configure the EHR-only Transformer experiment.
 experiment:
   name: ehr_only
   model: ehr_only
@@ -26,7 +27,7 @@ training:
   num_workers: 2
   lr: 4.0e-5
   weight_decay: 1.0e-3
-  warmup_epochs: 3
+  warmup_epochs: 0
   min_lr_factor: 0.05
   grad_clip: 1.0
   use_amp: false

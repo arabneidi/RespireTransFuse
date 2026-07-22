@@ -1,3 +1,5 @@
+"""Train and evaluate the MMTM fusion baseline."""
+
 from __future__ import absolute_import
 from __future__ import print_function
 
@@ -272,4 +274,3 @@ class MMTMTrainer(Trainer):
 
         
     
-

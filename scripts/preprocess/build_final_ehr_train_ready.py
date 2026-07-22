@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+"""Normalize the final 30-feature EHR tensor using training-partition statistics."""
+
 import argparse
 import json
 from pathlib import Path

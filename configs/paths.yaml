@@ -1,3 +1,4 @@
+# Define the active project paths used by training entry points.
 project_root: .
 data:
   cohort_csv: data/processed/cohorts/cohort.csv

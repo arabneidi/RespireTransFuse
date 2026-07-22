@@ -1,4 +1,6 @@
 
+"""Define the MedFuse recurrent multimodal fusion model."""
+
 import torch.nn as nn
 import torchvision
 import torch

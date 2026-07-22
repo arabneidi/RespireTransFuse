@@ -1,3 +1,5 @@
+"""Train and evaluate the token-fusion MedFuse baseline."""
+
 from __future__ import absolute_import
 from __future__ import print_function
 
@@ -302,4 +304,3 @@ class FusionTokensTrainer(Trainer):
 
         
     
-

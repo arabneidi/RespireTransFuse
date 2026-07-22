@@ -1,3 +1,4 @@
+"""Define token-based MedFuse fusion components."""
 
 import torch.nn as nn
 import torchvision
@@ -10,7 +11,7 @@ import torch.nn.functional as F
 
 class FusionTokens(nn.Module):
     def __init__(self, args, ehr_model, cxr_model):
-	
+
         super(FusionTokens, self).__init__()
         self.args = args
         self.ehr_model = ehr_model
@@ -22,7 +23,7 @@ class FusionTokens(nn.Module):
         lstm_out = self.cxr_model.feats_dim
         projection_in = self.cxr_model.feats_dim
 
-        
+
 
         if self.args.labels_set == 'radiology':
             target_classes = self.args.vision_num_classes
@@ -55,14 +56,14 @@ class FusionTokens(nn.Module):
             lstm_in, lstm_out,
             batch_first=True,
             dropout = 0.0)
-   
+
     def forward_uni_cxr(self, x, seq_lengths=None, img=None ):
         cxr_preds, _ , feats = self.cxr_model(img)
         return {
             'uni_cxr': cxr_preds,
             'cxr_feats': feats
             }
-    # 
+    #
     def forward(self, x, seq_lengths=None, img=None, pairs=None ):
         if self.args.fusion_type == 'uni_cxr':
             return self.forward_uni_cxr(x, seq_lengths=seq_lengths, img=img)
@@ -71,7 +72,7 @@ class FusionTokens(nn.Module):
         elif self.args.fusion_type == 'uni_ehr':
             return self.forward_uni_ehr(x, seq_lengths=seq_lengths, img=img)
         elif self.args.fusion_type == 'lstm_with_token':
-            
+
             return self.forward_lstm_fused_with_tokens(x, seq_lengths=seq_lengths, img=img, pairs=pairs )
 
         elif self.args.fusion_type == 'lstm':
@@ -100,25 +101,24 @@ class FusionTokens(nn.Module):
             projected[list(~np.array(pairs))] = 0
         elif self.args.missing_token == 'learnable':
             projected[list(~np.array(pairs))] = self.missing_token
-        
+
 
         feats = torch.cat([ehr_feats, projected], dim=1)
         fused_preds = self.fused_cls(feats)
 
         late_avg = (cxr_preds + ehr_preds)/2
         return {
-            'early': fused_preds, 
-            'joint': fused_preds, 
+            'early': fused_preds,
+            'joint': fused_preds,
             'late_avg': late_avg,
             'align_loss': loss,
             'ehr_feats': ehr_feats,
             'cxr_feats': projected,
             }
-    
     def forward_lstm_fused(self, x, seq_lengths=None, img=None, pairs=None ):
         if self.args.labels_set == 'radiology':
             _ , ehr_feats = self.ehr_model(x, seq_lengths)
-            
+
             _, _ , cxr_feats = self.cxr_model(img)
 
             feats = cxr_feats[:,None,:]
@@ -130,8 +130,8 @@ class FusionTokens(nn.Module):
         else:
 
             _ , ehr_feats = self.ehr_model(x, seq_lengths)
-            # if 
-            
+            # if
+
             _, _ , cxr_feats = self.cxr_model(img)
             cxr_feats = self.projection(cxr_feats)
 
@@ -146,13 +146,13 @@ class FusionTokens(nn.Module):
                 feats = torch.cat([feats, cxr_feats[:,None,:]], dim=1)
         seq_lengths = np.array([1] * len(seq_lengths))
         seq_lengths[pairs] = 2
-        
+
         feats = torch.nn.utils.rnn.pack_padded_sequence(feats, seq_lengths, batch_first=True, enforce_sorted=False)
 
         x, (ht, _) = self.lstm_fusion_layer(feats)
 
         out = ht.squeeze()
-        
+
         fused_preds = self.lstm_fused_cls(out)
 
         return {
@@ -160,26 +160,25 @@ class FusionTokens(nn.Module):
             'ehr_feats': ehr_feats,
             'cxr_feats': cxr_feats,
         }
-    
     def forward_lstm_ehr(self, x, seq_lengths=None, img=None, pairs=None ):
         _ , ehr_feats = self.ehr_model(x, seq_lengths)
         feats = ehr_feats[:,None,:]
-        
-        
+
+
         seq_lengths = np.array([1] * len(seq_lengths))
-        
+
         feats = torch.nn.utils.rnn.pack_padded_sequence(feats, seq_lengths, batch_first=True, enforce_sorted=False)
 
         x, (ht, _) = self.lstm_fusion_layer(feats)
 
         out = ht.squeeze()
-        
+
         fused_preds = self.lstm_fused_cls(out)
 
         return {
             'uni_ehr_lstm': fused_preds,
         }
-    
+
     def forward_lstm_fused_with_tokens(self, x, seq_lengths=None, img=None, pairs=None ):
         _ , ehr_feats = self.ehr_model(x, seq_lengths)
         _, _ , cxr_feats = self.cxr_model(img)
@@ -193,22 +192,22 @@ class FusionTokens(nn.Module):
             # feats = torch.cat([feats, cxr_feats[:,None,:]], dim=1)
         else:
             feats = ehr_feats[:,None,:]
-        
+
         spe = self.sep_token.expand(feats.shape[0], feats.shape[1], -1)
         cls_ = self.cls_token.expand(feats.shape[0], feats.shape[1], -1)
 
         feats = torch.cat([feats, spe, cxr_feats[:,None,:], cls_], dim=1)
-        
+
         seq_lengths = np.array([1] * len(seq_lengths))
         seq_lengths[pairs] = 2 + 1
         seq_lengths = seq_lengths + 1
-        
+
         feats = torch.nn.utils.rnn.pack_padded_sequence(feats, seq_lengths, batch_first=True, enforce_sorted=False)
 
         x, (ht, _) = self.lstm_fusion_layer(feats)
 
         out = ht.squeeze()
-        
+
         fused_preds = self.lstm_fused_cls(out)
 
         return {
@@ -216,5 +215,5 @@ class FusionTokens(nn.Module):
             'ehr_feats': ehr_feats,
             'cxr_feats': cxr_feats,
         }
-    
-    
+
+

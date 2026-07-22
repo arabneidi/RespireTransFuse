@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Run the five primary project training entry points in sequence.
+
 set -euo pipefail
 
 python -u scripts/train/train_ehr.py --config configs/experiments/ehr_only.yaml

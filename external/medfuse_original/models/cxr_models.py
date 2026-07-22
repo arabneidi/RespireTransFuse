@@ -1,3 +1,4 @@
+"""Define the MedFuse chest X-ray encoder and classification head."""
 
 import torch.nn as nn
 import torchvision
@@ -43,6 +44,3 @@ class CXRModels(nn.Module):
             lossvalue_bce = self.bce_loss(preds, labels)
 
         return preds, lossvalue_bce, visual_feats
-    
-
-  

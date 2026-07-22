@@ -1,3 +1,5 @@
+"""Provide binary, ranking, focal, and soft average-precision EHR objectives."""
+
 import torch
 import torch.nn.functional as F
 

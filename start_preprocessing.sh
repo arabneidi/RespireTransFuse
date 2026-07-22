@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Forward shell-based preprocessing runs to the cross-platform Python launcher.
+
 set -euo pipefail
 
 SCRIPT_DIR="$(

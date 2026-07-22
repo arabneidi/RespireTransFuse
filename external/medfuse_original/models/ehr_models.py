@@ -1,3 +1,5 @@
+"""Define the recurrent EHR encoder used by the MedFuse baselines."""
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F

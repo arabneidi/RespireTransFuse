@@ -1,79 +1,6 @@
-
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
-"""
-04_consensus_ehr_feature_selection.py
-
-Master train-only EHR feature-selection pipeline for RespireTransFuse.
-
-This script is designed for thesis-quality feature selection.
-
-It DOES NOT hard-code top-K.
-It DOES NOT use validation/test rows for selection.
-It DOES NOT modify the NPZ tensor.
-It creates ranked evidence tables so the final feature count can be chosen defensibly.
-
-Input:
-    outputs/tensors/ehr_48h_clean_source_paired.npz
-or:
-    outputs/tensors/ehr_48h_clean_source_ehr_full.npz
-
-Expected NPZ keys:
-    X_raw:     [N, 48, F], NaN where missing
-    mask:      [N, 48, F]
-    y:         [N]
-    split:     [N]
-    variables: [F]
-    labels:    [F]
-    sources:   [F]
-    itemids:   [F]
-
-Methods:
-    1. Leakage/static/noise flags
-    2. Temporal summary extraction:
-        mean, last, max, min, std, observed_fraction, last_minus_first, slope
-    3. Train-only univariate relevance:
-        point-biserial correlation
-        AUROC
-        AUPRC
-        AUPRC lift over prevalence
-        mutual information
-        mean difference
-    4. Train-only redundancy analysis:
-        feature-feature correlation matrix
-        covariance matrix diagonal = variance
-        correlation clusters
-    5. mRMR-style ranking:
-        maximize relevance, minimize redundancy
-    6. Elastic Net stability selection:
-        repeated train-only subsampling
-        class-weighted logistic regression
-    7. Optional RFECV confirmation:
-        class-weighted logistic regression
-        average precision scoring
-    8. Consensus score and final recommendation labels:
-        core
-        strong
-        review
-        reject_or_noise
-
-Outputs:
-    outputs/features/<stem>_all_modes_train_only.csv
-    outputs/features/<stem>_best_summary_per_feature_train_only.csv
-    outputs/features/<stem>_correlation_clusters_train_only.csv
-    outputs/features/<stem>_mrmr_ranked_train_only.csv
-    outputs/features/<stem>_elasticnet_stability_train_only.csv
-    outputs/features/<stem>_consensus_feature_evidence_train_only.csv
-    outputs/features/<stem>_recommended_core_features.csv
-    outputs/features/<stem>_recommended_strong_features.csv
-    outputs/features/<stem>_review_features.csv
-    outputs/features/<stem>_feature_selection_summary.json
-
-Important:
-    This is feature selection for the EHR temporal branch.
-    Static demographic features should be built separately later.
-"""
+"""Rank clinically constrained EHR candidates using training-only evidence."""
 
 import argparse
 import json
@@ -253,8 +180,7 @@ def possible_leakage_flag(variable, label, source):
         r"\bventilation\b",
         r"\bvent mode\b",
         r"\bpeep\b",
-        # CURRENT RUN:
-        # FiO2 / inspired O2 are allowed as pre-index respiratory support intensity variables.
+        # FiO2 and inspired O2 are eligible pre-index measures of support intensity.
         r"\btidal\b",
         r"\bminute volume\b",
         r"\bairway\b",

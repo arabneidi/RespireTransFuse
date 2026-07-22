@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+"""Merge clinical and broad selection evidence into the final 30-feature tensor."""
+
 import argparse
 import json
 from pathlib import Path

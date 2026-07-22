@@ -1,3 +1,4 @@
+# Configure cohort construction and EHR preprocessing parameters.
 seed: 1337
 
 cohort:

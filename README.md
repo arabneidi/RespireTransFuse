@@ -1,162 +1,195 @@
 # RespireTransFuse
 
-RespireTransFuse is a multimodal deep learning project for respiratory deterioration prediction. It combines chest X-ray imaging with 24-hour pre-index EHR time-series features and compares unimodal, early-fusion, MedFuse-style, and cross-attention fusion models.
+**Bidirectional cross-attention fusion of chest X-rays and longitudinal EHR data for respiratory deterioration prediction.**
 
-The repository is organized so that the full MIMIC-IV/MIMIC-CXR preprocessing pipeline and a small local smoke test can both be run from a fresh checkout.
+RespireTransFuse is a multimodal research model that combines a chest X-ray acquired during an ICU stay with the preceding 24 hours of structured clinical measurements. An EfficientNet image branch and a mask-aware Transformer EHR branch produce spatial and temporal tokens, which interact through reciprocal cross-attention before risk prediction.
 
-## Repository Contents
+<p align="center">
+  <img src="docs/assets/respiretransfuse_architecture.jpg" alt="RespireTransFuse model architecture" width="820">
+</p>
 
-- `src/respire_transfuse/` - reusable model, dataset, training, metric, and utility code.
-- `scripts/preprocess/` - cohort construction, EHR tensor building, feature filtering, feature selection, and final train-ready tensor creation.
-- `scripts/train/` - training entry points for EHR-only, image-only, early fusion, RespireTransFuse, and MedFuse baselines.
-- `configs/` - preprocessing and experiment YAML files.
-- `data/dummy_100/` - a small committed smoke-test pack with 100 sample rows, EHR tensors, image files, and 2-epoch run configs.
-- `external/medfuse_original/` - adapted MedFuse baseline code used by the MedFuse training entry point.
+## Study task
 
-## External Resources
+The prediction index is an eligible frontal chest radiograph from MIMIC-CXR linked to a MIMIC-IV ICU stay. EHR observations from the 24 hours ending at the image time form the temporal input.
 
-Large clinical data and model assets are not stored directly in GitHub.
+- **Positive:** first qualifying respiratory-support event occurs within 48 hours after the index image.
+- **Negative:** no qualifying event occurs through 72 hours.
+- **Excluded:** a qualifying intervention occurred at or before the index, or the first future event occurs between 48 and 72 hours.
+- **Split policy:** all samples from the same patient remain in one partition.
 
-Required data folder:
+The final analytic cohort contains 11,339 paired samples. The patient-exclusive partitions preserve an overall positive prevalence of approximately 13.99%.
 
-[Download required MIMIC data folders from Google Drive](https://drive.google.com/drive/folders/1l-LYWFxiVTThrFozhGGk8xNpNA8jbJlt?usp=sharing)
+<p align="center">
+  <img src="docs/assets/cohort_split_balance.png" alt="Cohort class balance across the patient-level splits" width="900">
+</p>
 
-CXR image model folder:
+## Held-out results
 
-[Download CXR image model resources from Google Drive](https://drive.google.com/drive/folders/1PeLDVnkaq7b-tPSXCB-zGD6pHQpzsqEv?usp=sharing)
+All seven models were selected without using the held-out test labels and evaluated on the same 1,695 test samples, including 237 positive cases. Because the outcome is imbalanced, both AUROC and AUPRC are reported; the no-skill AUPRC is approximately 0.1398.
 
-After downloading the required data, place or mount the raw folders so the project can see this structure:
+| Model | Modality | Test AUROC | Test AUPRC |
+| --- | --- | ---: | ---: |
+| Image-Only CNN | CXR | 0.66625 | 0.25764 |
+| MedFuse Uni-CXR | CXR | 0.67019 | 0.23330 |
+| MedFuse Uni-EHR | EHR | 0.71035 | 0.35697 |
+| Early Fusion | CXR + EHR | 0.72946 | 0.38592 |
+| EHR-Only Transformer | EHR | 0.73603 | 0.36742 |
+| MedFuse Multimodal LSTM | CXR + EHR | 0.74535 | 0.34305 |
+| **RespireTransFuse** | **CXR + EHR** | **0.75919** | **0.40738** |
+
+<p align="center">
+  <img src="docs/assets/seven_model_precision_recall.jpg" alt="Held-out precision-recall curves for the seven evaluated models" width="820">
+</p>
+
+RespireTransFuse achieved the highest observed AUROC and AUPRC in this internal evaluation. The EHR-only Transformer was the strongest unimodal model and had the best reported calibration, while the multimodal comparison indicates that the radiograph contributes complementary information when it is integrated with the temporal EHR representation.
+
+## Model design
+
+The project contains four thesis-developed models and three adapted MedFuse baselines:
+
+1. **Image-Only CNN:** EfficientNet-B0 with global and focused spatial pooling.
+2. **EHR-Only Transformer:** a mask-aware 24-step encoder with local temporal processing and multi-view aggregation.
+3. **Early Fusion:** concatenation of projected image and EHR summaries.
+4. **RespireTransFuse:** four image tokens and 24 EHR tokens projected to a shared width of 48, followed by one four-head attention block in each direction.
+5. **MedFuse Uni-CXR:** adapted ResNet-34 image baseline.
+6. **MedFuse Uni-EHR:** adapted recurrent EHR baseline.
+7. **MedFuse Multimodal LSTM:** adapted recurrent CXR-EHR fusion baseline.
+
+RespireTransFuse concatenates the projected image summary, projected EHR summary, EHR-conditioned image summary, and image-conditioned EHR summary. The resulting 192-dimensional representation is passed to the fusion prediction head. See [`docs/models.md`](docs/models.md) for a compact comparison.
+
+## External resources
+
+Large data and image-model assets are stored outside the repository:
+
+- [Required MIMIC-IV and MIMIC-CXR project data](https://drive.google.com/drive/folders/1l-LYWFxiVTThrFozhGGk8xNpNA8jbJlt?usp=sharing)
+- [CXR image-model resources](https://drive.google.com/drive/folders/1PeLDVnkaq7b-tPSXCB-zGD6pHQpzsqEv?usp=sharing)
+
+Place or mount the downloaded folders so the repository has the following layout:
 
 ```text
-data/raw/mimic_cxr/metadata/
-data/raw/mimic_cxr/images/
-data/raw/mimiciv/icu/
-data/raw/mimiciv/hosp/
+data/raw/
+|-- mimic_cxr/
+|   |-- metadata/
+|   `-- images/
+`-- mimiciv/
+    |-- hosp/
+    `-- icu/
 ```
 
-The dummy 100 test already includes its small sample images and tensors, so it can be used before downloading the full raw data.
+MIMIC data use remains subject to the applicable PhysioNet credentialing and data-use requirements.
 
-## Setup
+## Installation
 
-Create a Python environment and install the dependencies:
+Python 3.10 or newer is recommended. Create an isolated environment and install the dependencies from the repository root:
 
 ```bash
 python -m venv .venv
+```
+
+Activate the environment on macOS or Linux:
+
+```bash
 source .venv/bin/activate
-pip install --upgrade pip
-pip install -r requirements.txt
 ```
 
-For GPU training, install the PyTorch build that matches your CUDA environment if the default `pip install` does not provide CUDA support.
+Activate it on Windows PowerShell:
 
-## Full Preprocessing Pipeline
-
-The full preprocessing stage is controlled by:
-
-```text
-start_preprocessing.py
+```powershell
+.venv\Scripts\Activate.ps1
 ```
 
-It runs the main data preparation steps in sequence:
-
-1. Check that the required MIMIC-CXR and MIMIC-IV input files are present.
-2. Build a CXR-indexed cohort from MIMIC metadata and ICU/hospital tables.
-3. Build 24-hour EHR tensors aligned to each sample's index time.
-4. Remove EHR features with zero observations in the training split.
-5. Run clinical EHR feature selection.
-6. Build a broader EHR candidate tensor and run stricter broad feature selection.
-7. Combine selected evidence into the final EHR feature list.
-8. Normalize train-ready EHR tensors using train-only statistics.
-9. Verify the expected cohort and EHR output files.
-
-Run it from the repository root:
+Then install the project packages:
 
 ```bash
-python start_preprocessing.py
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 ```
 
-The lower-level bash helper remains available for environments that prefer shell scripts:
+For GPU training, install the PyTorch build that matches the local CUDA environment.
 
-```bash
-bash scripts/preprocess/run_preprocessing_before_training.sh
-```
+## Quick smoke test
 
-The preprocessing pipeline writes generated files under:
-
-```text
-data/processed/cohorts/
-data/processed/ehr/
-```
-
-## Training
-
-Run all main model experiments:
-
-```bash
-bash run_all.sh
-```
-
-`run_all.sh` launches:
-
-1. EHR-only Transformer
-2. Image-only CXR model
-3. Early fusion model
-4. MedFuse baseline
-5. RespireTransFuse
-
-The primary training outputs are saved under `outputs/`, including model checkpoints, predictions, histories, summaries, and configuration snapshots.
-
-Individual models can also be run directly. For example:
-
-```bash
-python -u scripts/train/train_ehr.py --config configs/experiments/ehr_only_natural_sampling.yaml
-python -u scripts/train/train_image.py --config configs/experiments/image_only.yaml
-python -u scripts/train/train_respire_transfuse.py --config configs/experiments/respire_transfuse.yaml
-```
-
-## Dummy 100 Smoke Test
-
-The next recommended stage after setup is the dummy 100 test. This is a fast check that the repository can load data, instantiate the models, run training loops, and write outputs.
-
-The shell script is:
-
-```text
-data/dummy_100/run_2epoch_6_models.sh
-```
-
-It runs 2-epoch versions of:
-
-1. EHR-only
-2. Image-only
-3. RespireTransFuse
-4. Early fusion
-5. MedFuse EHR-only baseline
-6. MedFuse multimodal baseline
-
-Run it directly:
-
-```bash
-bash data/dummy_100/run_2epoch_6_models.sh
-```
-
-Or use the local Python launcher, which runs the same steps without requiring bash:
+The committed dummy pack contains 100 paired samples, a 24 x 30 EHR tensor, and the corresponding small image set. It checks data loading, all seven model configurations, two-epoch training, checkpoint creation, and output writing without requiring Bash:
 
 ```bash
 python start_dummy_test.py
 ```
 
-Dummy outputs are written to:
+This is the recommended command on Windows, macOS, and Linux. To inspect the commands without running training:
 
-```text
-outputs/dummy_100/
+```bash
+python start_dummy_test.py --dry-run
 ```
 
-The dummy test is only a smoke test. Do not report its metrics as scientific results.
+Unix-like environments can run the equivalent shell launcher:
 
-## Model Summary
+```bash
+bash data/dummy_100/run_2epoch_7_models.sh
+```
 
-- **EHR-only**: Transformer encoder over 24 hourly EHR time steps, with observation masks and attention pooling.
-- **Image-only**: EfficientNet-based CXR classifier with conservative regularization and optional EMA.
-- **Early fusion**: Concatenates projected image and EHR representations.
-- **MedFuse baselines**: Runs adapted original MedFuse-style EHR-only and multimodal baselines.
-- **RespireTransFuse**: A multimodal bidirectional cross-attention model that connects image tokens and EHR tokens, then predicts a bounded residual around the EHR risk logit.
+Dummy outputs are written to `outputs/dummy_100/`. These short runs verify execution only and are not intended for scientific interpretation.
+
+## Preprocessing
+
+The cross-platform preprocessing entry point is [`start_preprocessing.py`](start_preprocessing.py):
+
+```bash
+python start_preprocessing.py
+```
+
+<p align="center">
+  <img src="docs/assets/preprocessing_pipeline.jpg" alt="RespireTransFuse preprocessing pipeline" width="820">
+</p>
+
+The launcher performs and validates the following stages:
+
+1. Check the required MIMIC-CXR and MIMIC-IV source files.
+2. Build the temporally eligible, CXR-indexed cohort and patient-level splits.
+3. Aggregate chart and laboratory events into 24 hourly EHR bins.
+4. Remove variables with no training-partition observations.
+5. Rank clinically constrained candidates using training-only evidence.
+6. Build and screen a broader candidate tensor.
+7. Merge both evidence streams into the final 30-variable registry.
+8. Normalize the final tensor with training-only statistics.
+9. Verify cohort integrity, tensor alignment, metadata, and output files.
+
+Generated cohorts are written under `data/processed/cohorts/`; candidate and train-ready EHR files are written under `data/processed/ehr/`. The lower-level Unix helper remains available at `scripts/preprocess/run_preprocessing_before_training.sh`.
+
+## Training
+
+Update `configs/paths.yaml` for the local data location, then run an experiment from the repository root:
+
+```bash
+python scripts/train/train_ehr.py --config configs/experiments/ehr_only.yaml
+python scripts/train/train_image.py --config configs/experiments/image_only.yaml
+python scripts/train/train_early_fusion.py --config configs/experiments/early_fusion.yaml
+python scripts/train/train_respire_transfuse.py --config configs/experiments/respire_transfuse.yaml
+python scripts/train/train_medfuse.py --config configs/experiments/medfuse.yaml
+```
+
+On macOS, Linux, WSL, or Git Bash, `bash run_all.sh` launches the five primary training entry points in sequence. Experiment outputs under `outputs/` include checkpoints, prediction tables, histories, calibration artifacts, summaries, and saved configurations.
+
+## Evaluation
+
+Post-training analysis scripts are grouped under `scripts/eval/`. They generate model-specific learning curves, held-out discrimination plots, cohort summaries, calibration comparisons, and predicted-risk analyses. The figure scripts currently use a `BASE` path near the top of each file; set it to the local repository path before running outside the original Colab environment.
+
+## Repository structure
+
+```text
+RespireTransFuse/
+|-- configs/                 Experiment, path, and preprocessing settings
+|-- data/dummy_100/          Cross-platform seven-model smoke-test pack
+|-- docs/                    Model, pipeline, experiment, and figure documentation
+|-- external/medfuse_original/
+|                            Bundled MedFuse baseline implementation
+|-- scripts/preprocess/      Cohort and EHR preparation stages
+|-- scripts/train/           Training entry points
+|-- scripts/eval/            Analysis and plotting scripts
+|-- src/respire_transfuse/   Reusable datasets, models, training, and utilities
+|-- start_preprocessing.py   Validated preprocessing launcher
+`-- start_dummy_test.py      Validated seven-model dummy launcher
+```
+
+## Research scope
+
+The reported results are a retrospective internal evaluation on linked MIMIC-IV and MIMIC-CXR data. They do not establish clinical readiness. External, temporal, and prospective validation are required before probability estimates or model outputs could be considered for clinical use.

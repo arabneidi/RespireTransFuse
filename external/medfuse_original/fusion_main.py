@@ -1,3 +1,5 @@
+"""Run the bundled MedFuse unimodal and multimodal training workflows."""
+
 from __future__ import absolute_import
 from __future__ import print_function
 

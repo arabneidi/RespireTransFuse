@@ -1,3 +1,4 @@
+"""Provide auxiliary divergence, ranking, and cosine losses for MedFuse."""
 
 from __future__ import print_function
 
@@ -57,4 +58,3 @@ class CosineLoss(nn.Module):
         return loss
 
         
-

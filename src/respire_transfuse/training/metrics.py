@@ -1,3 +1,5 @@
+"""Compute robust binary classification metrics and probability summaries."""
+
 import math
 
 import numpy as np

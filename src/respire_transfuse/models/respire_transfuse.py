@@ -1,3 +1,5 @@
+"""Define the bidirectional cross-attention architecture for CXR and EHR fusion."""
+
 import torch
 import torch.nn as nn
 
@@ -126,9 +128,6 @@ class RespireTransFuse(nn.Module):
         dim_feedforward=96,
         dropout=0.45,
         residual_scale=0.40,
-        delta_bound=3.0,
-        delta_scale_start=0.12,
-        delta_scale_end=0.35,
         detach_ehr_fusion_features=False,
         image_token_grid_size=2,
     ):
@@ -138,10 +137,6 @@ class RespireTransFuse(nn.Module):
         self.ehr_branch = ehr_branch
 
         self.fusion_dim = int(fusion_dim)
-        self.delta_bound = float(delta_bound)
-        self.delta_scale_start = float(delta_scale_start)
-        self.delta_scale_end = float(delta_scale_end)
-        self.current_delta_scale = float(delta_scale_start)
         self.detach_ehr_fusion_features = bool(detach_ehr_fusion_features)
         self.image_token_grid_size = int(image_token_grid_size)
 
@@ -196,25 +191,6 @@ class RespireTransFuse(nn.Module):
             nn.Dropout(float(dropout)),
             nn.Linear(self.fusion_dim // 2, 1),
         )
-
-    def set_delta_scale(self, value):
-        self.current_delta_scale = float(value)
-
-    def initialize_fusion_prior(self, prevalence):
-        prevalence = float(prevalence)
-        prevalence = min(max(prevalence, 1e-5), 1.0 - 1e-5)
-
-        last = self.fusion_head[-1]
-
-        if isinstance(last, nn.Linear):
-            nn.init.normal_(last.weight, mean=0.0, std=1e-4)
-            nn.init.constant_(last.bias, 0.0)
-
-        return {
-            "prevalence": float(prevalence),
-            "fusion_delta_bias": 0.0,
-            "reason": "ehr_anchored_residual_delta_starts_near_zero",
-        }
 
     def forward(self, image, ehr_x, ehr_m, return_all=False, return_attention=False):
         image_out = self.image_branch(image, return_all=True)
@@ -272,20 +248,14 @@ class RespireTransFuse(nn.Module):
             dim=-1,
         )
 
-        fusion_delta_raw_logit = self.fusion_head(fusion_vector).squeeze(-1)
-        fusion_delta_logit = self.delta_bound * torch.tanh(
-            fusion_delta_raw_logit / self.delta_bound
-        )
-
-        fusion_anchor_logit = ehr_logit.detach()
-        fusion_logit = fusion_anchor_logit + self.current_delta_scale * fusion_delta_logit
+        fusion_logit = self.fusion_head(
+            fusion_vector
+        ).squeeze(-1)
 
         out = {
             "fusion_logit": fusion_logit,
             "image_logit": image_logit,
             "ehr_logit": ehr_logit,
-            "fusion_delta_logit": fusion_delta_logit,
-            "fusion_delta_raw_logit": fusion_delta_raw_logit,
         }
 
         if return_all or return_attention:
@@ -340,9 +310,6 @@ def build_respire_transfuse_from_config(cfg, n_ehr_features):
         dim_feedforward=int(model_cfg.get("dim_feedforward", 96)),
         dropout=float(model_cfg["dropout"]),
         residual_scale=float(model_cfg.get("residual_scale", 0.40)),
-        delta_bound=float(model_cfg.get("delta_bound", 3.0)),
-        delta_scale_start=float(model_cfg.get("delta_scale_start", 0.12)),
-        delta_scale_end=float(model_cfg.get("delta_scale_end", 0.35)),
         detach_ehr_fusion_features=bool(model_cfg.get("detach_ehr_fusion_features", False)),
         image_token_grid_size=int(model_cfg.get("image_token_grid_size", 2)),
     )

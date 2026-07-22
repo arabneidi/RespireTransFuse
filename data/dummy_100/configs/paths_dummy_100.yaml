@@ -1,3 +1,4 @@
+# Point project training scripts to the committed dummy cohort and EHR tensor.
 project_root: .
 data:
   cohort_csv: data/dummy_100/cohort_dummy_100.csv

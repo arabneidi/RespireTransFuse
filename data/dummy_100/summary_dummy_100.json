@@ -150,6 +150,6 @@
     "/content/drive/MyDrive/respire-transfuse/data/dummy_100/configs/cross_attention_dummy_100.yaml",
     "/content/drive/MyDrive/respire-transfuse/data/dummy_100/configs/early_fusion_dummy_100.yaml"
   ],
-  "run_script": "/content/drive/MyDrive/respire-transfuse/data/dummy_100/run_2epoch_6_models.sh",
+  "run_script": "data/dummy_100/run_2epoch_7_models.sh",
   "readme": "/content/drive/MyDrive/respire-transfuse/data/dummy_100/README.md"
 }

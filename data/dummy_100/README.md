@@ -1,47 +1,42 @@
-# Respire dummy 100-sample pack
+# Dummy 100 smoke-test pack
 
-This folder is for a fast code-smoke test of the RespireTransFuse training scripts.
-It creates a real 100-row subset from your existing cohort CSV and EHR NPZ instead of random synthetic data. The subset keeps:
+This folder contains a committed 100-sample subset for checking the complete training workflow before using the full MIMIC data. It preserves the cohort schema, 24 x 30 EHR tensor shape, patient-level split labels, outcome distribution, and paired chest X-ray paths used by the main experiments.
 
-- the same CSV schema as the original cohort;
-- the same EHR NPZ keys, including `X`, `M`, `y`, `sample_id`, `split`, and `feature_names`;
-- the same EHR time/feature shape as the original NPZ;
-- approximately the same split/label percentages using strata = `split × label`;
-- image rows only, so EHR-only, image-only, multimodal, and MedFuse can all read it.
-
-## Created files after running the generator
+## Included files
 
 ```text
-data/dummy_100/cohort_dummy_100.csv
-data/dummy_100/ehr_dummy_100.npz
-data/dummy_100/summary_dummy_100.json
-data/dummy_100/configs/*.yaml
-data/dummy_100/run_2epoch_6_models.sh
+cohort_dummy_100.csv
+ehr_dummy_100.npz
+real_images/
+configs/paths_dummy_100.yaml
+configs/medfuse_dummy_2e.yaml
+check_dummy_requirements.py
+run_medfuse_dummy_yaml.py
+run_2epoch_7_models.sh
 ```
 
-## Colab start cell
+## Run from Python
 
-```python
-BASE = "/content/drive/MyDrive/respire-transfuse"
-
-!cd "$BASE" && python -u data/dummy_100/make_dummy_100.py   --base "$BASE"   --cohort_csv "$BASE/data/processed/cohorts/cohort.csv"   --ehr_npz "$BASE/data/processed/ehr/ehr_final_24h_train_ready/ehr_24h_final_train_ready_current_split.npz"   --output_dir "$BASE/data/dummy_100"   --n_samples 1000   --seed 42
-```
-
-## Run all models for 2 epochs
-
-```python
-BASE = "/content/drive/MyDrive/respire-transfuse"
-!bash "$BASE/data/dummy_100/run_2epoch_6_models.sh"
-```
-
-## Important notes
-
-1. This is a smoke test only. Do not report the metrics as results.
-2. The generator subsets your existing real EHR arrays, so the 30-feature structure remains unchanged.
-3. The multimodal/image scripts read the image paths from `verified_image_path`; this pack does not copy images.
-4. The generated run script uses the current config-style training scripts: paths come from `--config`, and MedFuse paths are passed directly through CLI flags.
-5. For MedFuse multimodal, set `MEDFUSE_SRC` if the original MedFuse folder is not at the default path:
+From the repository root, install the project requirements and run:
 
 ```bash
-export MEDFUSE_SRC="/content/drive/MyDrive/MedFuse-data/MedFuse-main-unzipped/MedFuse-main"
+python start_dummy_test.py
 ```
+
+The Python launcher works on Windows, macOS, and Linux. It verifies the data pack, runs all seven model configurations for two epochs, checks the intermediate MedFuse checkpoints, and stops immediately if a command fails.
+
+Use `--dry-run` to inspect the commands without training:
+
+```bash
+python start_dummy_test.py --dry-run
+```
+
+## Run from a Unix shell
+
+The equivalent shell launcher is available for macOS, Linux, WSL, and Git Bash:
+
+```bash
+bash data/dummy_100/run_2epoch_7_models.sh
+```
+
+Outputs are written to `outputs/dummy_100/`. The two-epoch runs are intended only to verify data loading, model construction, optimization, checkpointing, and output generation; their metrics are not scientific results.

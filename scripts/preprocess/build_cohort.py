@@ -1,3 +1,5 @@
+"""Construct the temporally eligible CXR-indexed cohort and patient-level splits."""
+
 from pathlib import Path
 import argparse
 import re
@@ -10,10 +12,6 @@ import numpy as np
 import pandas as pd
 from tqdm.auto import tqdm
 
-
-# ============================================================
-# Build clean CXR-indexed respiratory support escalation cohort
-# ============================================================
 
 DEFAULT_RANDOM_SEED = 42
 

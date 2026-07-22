@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Train and evaluate the summary-level early-fusion baseline."""
 
 import argparse
 import json

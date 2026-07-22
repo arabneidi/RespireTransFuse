@@ -1,3 +1,5 @@
+"""Train and evaluate MedFuse unimodal and recurrent fusion configurations."""
+
 from __future__ import absolute_import
 from __future__ import print_function
 
@@ -159,7 +161,69 @@ class FusionTrainer(Trainer):
         if 'uni_ehr' in self.args.fusion_type:
             self.freeze(self.model.cxr_model)
         elif 'uni_cxr' in self.args.fusion_type:
-            self.freeze(self.model.ehr_model)
+            # Uni-CXR must train only the requested CXR scope.
+            self.freeze(self.model)
+
+            scope = str(
+                getattr(
+                    self.args,
+                    "cxr_trainable_scope",
+                    "classifier",
+                )
+            )
+
+            for name, param in self.model.cxr_model.named_parameters():
+                if scope == "full":
+                    param.requires_grad = True
+
+                elif scope == "classifier":
+                    if name.startswith("classifier"):
+                        param.requires_grad = True
+
+                elif scope == "layer4_bn":
+                    if (
+                        name.startswith("classifier")
+                        or (
+                            name.startswith(
+                                "vision_backbone.layer4"
+                            )
+                            and ".bn" in name
+                        )
+                    ):
+                        param.requires_grad = True
+
+                elif scope == "layer4_proj":
+                    if (
+                        name.startswith("classifier")
+                        or name.startswith(
+                            "vision_backbone.layer4.0.downsample"
+                        )
+                    ):
+                        param.requires_grad = True
+
+                elif scope == "layer4_last":
+                    if (
+                        name.startswith("classifier")
+                        or name.startswith(
+                            "vision_backbone.layer4.2"
+                        )
+                    ):
+                        param.requires_grad = True
+
+                elif scope == "layer4":
+                    if (
+                        name.startswith("classifier")
+                        or name.startswith(
+                            "vision_backbone.layer4"
+                        )
+                    ):
+                        param.requires_grad = True
+
+                else:
+                    raise ValueError(
+                        "Unknown cxr_trainable_scope: "
+                        f"{scope}"
+                    )
         elif 'late' in self.args.fusion_type:
             self.freeze(self.model)
         elif 'early' in self.args.fusion_type:
@@ -175,6 +239,24 @@ class FusionTrainer(Trainer):
 
     def train_epoch(self):
         print(f'starting train epoch {self.epoch}')
+
+        if (
+            bool(
+                getattr(
+                    self.args,
+                    "freeze_cxr_backbone",
+                    False,
+                )
+            )
+            and str(
+                getattr(
+                    self.args,
+                    "cxr_trainable_scope",
+                    "classifier",
+                )
+            ) == "classifier"
+        ):
+            self.model.cxr_model.vision_backbone.eval()
 
         if bool(getattr(self.args, "freeze_loaded_ehr", False)):
             self.model.ehr_model.eval()
@@ -971,4 +1053,3 @@ class FusionTrainer(Trainer):
                 self.best_stats,
                 isbest=True,
             )
-

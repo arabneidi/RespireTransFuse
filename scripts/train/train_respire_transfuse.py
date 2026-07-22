@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Train and evaluate RespireTransFuse with bidirectional cross-attention."""
 
 import argparse
 import json
@@ -411,45 +412,6 @@ def set_group_lrs(
     return current
 
 
-def delta_scale_for_epoch(
-    epoch,
-    total_epochs,
-    start,
-    end,
-):
-    epoch = int(epoch)
-    total_epochs = int(
-        total_epochs
-    )
-
-    if total_epochs <= 1:
-        return float(end)
-
-    progress = (
-        epoch - 1
-    ) / max(
-        total_epochs - 1,
-        1,
-    )
-
-    progress = min(
-        max(
-            progress,
-            0.0,
-        ),
-        1.0,
-    )
-
-    return (
-        float(start)
-        + progress
-        * (
-            float(end)
-            - float(start)
-        )
-    )
-
-
 def remove_unsaved_metrics(
     obj,
 ):
@@ -621,6 +583,22 @@ def parse_args():
     )
 
     parser.add_argument(
+        "--optimizer",
+        type=str,
+        choices=[
+            "adamw",
+            "adam",
+        ],
+        default=None,
+    )
+
+    parser.add_argument(
+        "--warmup_epochs",
+        type=int,
+        default=None,
+    )
+
+    parser.add_argument(
         "--seed",
         type=int,
         default=None,
@@ -631,6 +609,19 @@ def parse_args():
         type=str,
         default=None,
     )
+
+    parser.add_argument(
+        "--cohort_csv",
+        type=str,
+        default=None,
+    )
+
+    parser.add_argument(
+        "--ehr_npz",
+        type=str,
+        default=None,
+    )
+
 
     parser.add_argument(
         "--dry_run",
@@ -657,6 +648,21 @@ def main():
             args.config
         ),
     )
+
+    if args.cohort_csv is not None:
+        cfg["data"]["cohort_csv"] = str(
+            args.cohort_csv
+        )
+
+    if args.ehr_npz is not None:
+        cfg["data"]["ehr_npz"] = str(
+            args.ehr_npz
+        )
+
+    if args.warmup_epochs is not None:
+        cfg["training"]["warmup_epochs"] = int(
+            args.warmup_epochs
+        )
 
     if args.epochs is not None:
         cfg[
@@ -764,6 +770,24 @@ def main():
             "dropout"
         ] = float(
             args.fusion_dropout
+        )
+
+    if args.optimizer is not None:
+        cfg[
+            "training"
+        ][
+            "optimizer"
+        ] = str(
+            args.optimizer
+        ).lower()
+
+    if args.warmup_epochs is not None:
+        cfg[
+            "training"
+        ][
+            "warmup_epochs"
+        ] = int(
+            args.warmup_epochs
         )
 
     if args.seed is not None:
@@ -1199,7 +1223,26 @@ def main():
         )
     )
 
-    optimizer = torch.optim.AdamW(
+    optimizer_name = str(
+        train_cfg.get(
+            "optimizer",
+            "adamw",
+        )
+    ).lower()
+
+    optimizer_classes = {
+        "adamw": torch.optim.AdamW,
+        "adam": torch.optim.Adam,
+    }
+
+    if optimizer_name not in optimizer_classes:
+        raise RuntimeError(
+            f"Unsupported optimizer: {optimizer_name}"
+        )
+
+    optimizer = optimizer_classes[
+        optimizer_name
+    ](
         parameter_groups
     )
 
@@ -1354,7 +1397,7 @@ def main():
     )
 
     print(
-        "RespireTransFuse clean scratch training"
+        "RespireTransFuse training"
     )
 
     print(
@@ -1369,6 +1412,20 @@ def main():
     print(
         "use_amp:",
         use_amp,
+    )
+
+    print(
+        "optimizer:",
+        optimizer_name,
+    )
+
+    print(
+        "warmup_epochs:",
+        int(
+            train_cfg[
+                "warmup_epochs"
+            ]
+        ),
     )
 
     print(
@@ -1640,31 +1697,6 @@ def main():
             )
         )
 
-        current_delta_scale = (
-            delta_scale_for_epoch(
-                epoch=epoch,
-                total_epochs=total_epochs,
-                start=float(
-                    cfg[
-                        "model"
-                    ][
-                        "delta_scale_start"
-                    ]
-                ),
-                end=float(
-                    cfg[
-                        "model"
-                    ][
-                        "delta_scale_end"
-                    ]
-                ),
-            )
-        )
-
-        model.set_delta_scale(
-            current_delta_scale
-        )
-
         train_stats = (
             train_multimodal_one_epoch(
                 model=model,
@@ -1724,12 +1756,14 @@ def main():
                     0.0,
                 )
             ),
-            "delta_scale": float(
-                current_delta_scale
+            "train_total_objective": float(
+                train_stats[
+                    "loss"
+                ]
             ),
             "train_loss": float(
                 train_stats[
-                    "loss"
+                    "fusion_bce"
                 ]
             ),
             "train_fusion_bce": float(
@@ -1762,9 +1796,14 @@ def main():
                     "log_loss"
                 ]
             ),
-            "val_loss": float(
+            "val_total_objective": float(
                 val_stats[
                     "loss"
+                ]
+            ),
+            "val_loss": float(
+                val_stats[
+                    "fusion_bce"
                 ]
             ),
             "val_fusion_bce": float(
@@ -2070,7 +2109,7 @@ def main():
             threshold
         ),
         "model_variant": (
-            "respire_transfuse_non_gated"
+            "respire_transfuse"
         ),
         "training_mode": (
             "scratch_without_unimodal_checkpoints"

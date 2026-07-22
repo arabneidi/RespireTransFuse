@@ -1,3 +1,4 @@
+# Configure the summary-level early-fusion experiment.
 model:
   name: early_fusion
   fusion_type: normalized_feature_concatenation

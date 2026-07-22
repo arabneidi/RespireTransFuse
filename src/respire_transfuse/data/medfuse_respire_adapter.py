@@ -1,3 +1,4 @@
+"""Adapt RespireTransFuse cohort and tensor files to the MedFuse data interface."""
 
 from pathlib import Path
 import numpy as np

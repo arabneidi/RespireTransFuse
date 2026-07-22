@@ -1,3 +1,4 @@
+"""Adapt the bundled MedFuse models to the RespireTransFuse cohort and outcome."""
 
 import argparse
 import json

@@ -1,3 +1,5 @@
+"""Load chest X-ray cohorts and define image preprocessing for model training."""
+
 from pathlib import Path
 
 import pandas as pd

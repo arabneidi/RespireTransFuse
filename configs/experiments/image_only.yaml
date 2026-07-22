@@ -1,3 +1,4 @@
+# Configure the EfficientNet-based image-only experiment.
 model:
   name: image_only
   backbone: tf_efficientnet_b0.ns_jft_in1k
@@ -20,7 +21,7 @@ training:
   use_amp: true
   lr: 2.0e-05
   weight_decay: 0.001
-  warmup_epochs: 2
+  warmup_epochs: 0
   min_lr_factor: 0.05
   grad_clip: 1.0
   patience: 10

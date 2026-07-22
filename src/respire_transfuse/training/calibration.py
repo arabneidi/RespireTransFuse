@@ -1,3 +1,5 @@
+"""Fit and apply validation-derived temperature and bias calibration."""
+
 import math
 
 import numpy as np

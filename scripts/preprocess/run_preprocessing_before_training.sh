@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Execute the preprocessing stages in their required order for Unix-like systems.
+
 set -euo pipefail
 
 SCRIPT_DIR="$(

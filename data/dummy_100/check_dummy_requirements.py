@@ -1,43 +1,118 @@
+"""Verify that the dummy cohort, EHR tensor, images, and MedFuse code are available."""
+
 from pathlib import Path
 import sys
 
 import pandas as pd
 
-root = Path(__file__).resolve().parents[2]
 
-cohort_csv = root / "data" / "dummy_100" / "cohort_dummy_100.csv"
-ehr_npz = root / "data" / "dummy_100" / "ehr_dummy_100.npz"
+ROOT = Path(__file__).resolve().parents[2]
 
-missing = []
+COHORT_PATH = (
+    ROOT
+    / "data"
+    / "dummy_100"
+    / "cohort_dummy_100.csv"
+)
 
-for p in [cohort_csv, ehr_npz]:
-    if not p.exists():
-        missing.append(str(p.relative_to(root)))
+EHR_PATH = (
+    ROOT
+    / "data"
+    / "dummy_100"
+    / "ehr_dummy_100.npz"
+)
 
-if cohort_csv.exists():
-    df = pd.read_csv(cohort_csv)
-    image_col = None
+MEDFUSE_ROOT = (
+    ROOT
+    / "external"
+    / "medfuse_original"
+)
 
-    for col in ["verified_image_path", "image_path", "cxr_path", "path"]:
-        if col in df.columns:
-            image_col = col
-            break
+REQUIRED_PATHS = [
+    COHORT_PATH,
+    EHR_PATH,
+    MEDFUSE_ROOT,
+]
 
-    if image_col is None:
-        missing.append("dummy cohort image path column")
-    else:
-        for raw in df[image_col].astype(str).tolist():
-            p = Path(raw)
-            if not p.is_absolute():
-                p = root / p
-            if not p.exists():
-                missing.append(str(p.relative_to(root)))
-                break
 
-if missing:
-    print("Missing required dummy-run files:")
-    for p in missing:
-        print(f"  - {p}")
-    sys.exit(1)
+def display_path(path):
+    try:
+        return str(path.relative_to(ROOT))
+    except ValueError:
+        return str(path)
 
-print("Dummy requirements check passed.")
+
+def main():
+    errors = [
+        display_path(path)
+        for path in REQUIRED_PATHS
+        if not path.exists()
+    ]
+
+    if COHORT_PATH.exists():
+        cohort = pd.read_csv(COHORT_PATH)
+
+        required_columns = {
+            "sample_id",
+            "label",
+            "split",
+        }
+
+        missing_columns = sorted(
+            required_columns.difference(cohort.columns)
+        )
+
+        if missing_columns:
+            errors.append(
+                "Missing cohort columns: "
+                + ", ".join(missing_columns)
+            )
+
+        image_column = next(
+            (
+                column
+                for column in [
+                    "verified_image_path",
+                    "image_path",
+                    "cxr_path",
+                    "path",
+                ]
+                if column in cohort.columns
+            ),
+            None,
+        )
+
+        if image_column is None:
+            errors.append(
+                "Missing cohort image-path column"
+            )
+        else:
+            for raw_path in (
+                cohort[image_column]
+                .dropna()
+                .astype(str)
+            ):
+                image_path = Path(raw_path)
+
+                if not image_path.is_absolute():
+                    image_path = ROOT / image_path
+
+                if not image_path.exists():
+                    errors.append(
+                        display_path(image_path)
+                    )
+                    break
+
+    if errors:
+        print("Missing or invalid resources:")
+
+        for error in errors:
+            print(f"  - {error}")
+
+        sys.exit(1)
+
+    print("Dummy-run requirements verified.")
+
+
+if __name__ == "__main__":
+    main()
