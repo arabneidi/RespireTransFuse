@@ -1,4 +1,10 @@
-"""Plot training, validation, and calibration results for MedFuse Uni-CXR."""
+"""Build the diagnostic and calibration report for MedFuse Uni-CXR.
+
+The script reads the bundled trainer's histories and prediction outputs, derives
+consistent validation and held-out summaries, and calculates the calibration
+table used in the project comparison. It saves the supporting CSV reports and a
+publication-ready figure in PNG and PDF formats alongside the model outputs.
+"""
 
 from pathlib import Path
 

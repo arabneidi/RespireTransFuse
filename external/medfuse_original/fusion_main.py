@@ -1,4 +1,11 @@
-"""Run the bundled MedFuse unimodal and multimodal training workflows."""
+"""Dispatch the original MedFuse training and evaluation workflows.
+
+This entry point parses legacy arguments, prepares the requested EHR and CXR data
+readers, constructs the selected unimodal or fusion model, and hands execution to
+the matching trainer. RespireTransFuse normally reaches it through the adapter in
+``scripts/train/train_medfuse.py``, which supplies project-specific data loaders
+while preserving the original model and optimization paths.
+"""
 
 from __future__ import absolute_import
 from __future__ import print_function

@@ -1,4 +1,11 @@
-"""Adapt RespireTransFuse cohort and tensor files to the MedFuse data interface."""
+"""Bridge RespireTransFuse data artifacts to the bundled MedFuse trainers.
+
+This module standardizes EHR tensor orientation, validates cohort labels and
+sample alignment, applies the image preprocessing expected by MedFuse, and wraps
+paired or unimodal examples in its legacy batch structure. Loader builders and a
+custom collate function let the original trainers use the project's established cohort
+and patient-level splits without rewriting their model code.
+"""
 
 from pathlib import Path
 import numpy as np

@@ -1,4 +1,10 @@
-"""Define the recurrent EHR encoder used by the MedFuse baselines."""
+"""Define the recurrent EHR branch used by the MedFuse baselines.
+
+The LSTM module encodes sequential clinical measurements, applies the configured
+dropout and recurrent depth, and maps the final representation to a binary output.
+It can return hidden features as well as predictions so fusion architectures can
+combine the EHR state with chest X-ray embeddings.
+"""
 
 import torch
 import torch.nn as nn

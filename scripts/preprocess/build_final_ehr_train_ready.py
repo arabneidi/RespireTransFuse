@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
-"""Normalize the final 30-feature EHR tensor using training-partition statistics."""
+"""Convert the final 30-feature tensor into train-ready EHR arrays.
+
+For each feature, the script estimates mean and standard deviation from observed
+training values only, standardizes observed entries across every split, and keeps
+missing positions masked and zero-filled. The normalized NPZ is accompanied by
+the ordered feature table, normalization statistics, and a JSON summary needed
+to reproduce the exact model input transformation.
+"""
 
 import argparse
 import json

@@ -1,4 +1,11 @@
-"""Compute and persist epoch-level metrics, predictions, and calibration bins."""
+"""Create detailed, reproducible records for each evaluated epoch.
+
+The module converts logits or probabilities into binary performance summaries,
+finds the best F1 threshold, and calculates equal-width and adaptive calibration
+bins with associated error measures. It can append compact metric histories and
+save per-epoch prediction and calibration CSV files for later diagnostic plots
+and model comparisons.
+"""
 
 from pathlib import Path
 

@@ -1,4 +1,10 @@
-"""Define command-line options for the bundled MedFuse training code."""
+"""Define the command-line interface expected by the bundled MedFuse code.
+
+The parser collects dataset, architecture, fusion, optimization, checkpoint, and
+runtime settings used by the original entry point and trainer classes. The local
+RespireTransFuse adapter supplies the same namespace so upstream model code can
+run against the project cohort with minimal behavioral changes.
+"""
 
 import argparse
 

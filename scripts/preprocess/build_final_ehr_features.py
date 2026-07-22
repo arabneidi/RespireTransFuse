@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
-"""Merge clinical and broad selection evidence into the final 30-feature tensor."""
+"""Assemble the final 30-feature EHR representation for model development.
+
+The script combines the prespecified clinical variables with the selected broad
+candidates, resolves each feature against its source tensor, and preserves cohort
+row and hourly-bin alignment. It writes the merged value and mask arrays, ordered
+feature registries for both branches, and a JSON summary that records provenance
+and validates the expected feature count.
+"""
 
 import argparse
 import json

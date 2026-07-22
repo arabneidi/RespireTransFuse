@@ -1,4 +1,11 @@
-"""Build a broad 24-hour EHR candidate tensor from chart and laboratory events."""
+"""Build the broad, data-driven 24-hour EHR candidate tensor.
+
+The script streams MIMIC-IV chart and laboratory measurements observed before
+each cohort radiograph, estimates candidate coverage from the training partition,
+and optionally excludes administrative or outcome-leaking concepts. Retained
+measurements are aggregated into aligned hourly value and mask arrays, with
+candidate registries, coverage statistics, and a manifest written beside the NPZ.
+"""
 
 from pathlib import Path
 import argparse

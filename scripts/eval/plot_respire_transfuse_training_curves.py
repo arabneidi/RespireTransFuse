@@ -1,4 +1,10 @@
-"""Plot training, validation, and calibration results for RespireTransFuse."""
+"""Build the full diagnostic figure for the RespireTransFuse experiment.
+
+The script assembles epoch history, validation predictions, calibration artifacts,
+and final test metrics into panels covering optimization, discrimination,
+probability quality, and operating-point behavior. It works entirely from saved
+run outputs and writes the publication-ready model summary figure.
+"""
 
 from pathlib import Path
 

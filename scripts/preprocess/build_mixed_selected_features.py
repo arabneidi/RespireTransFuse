@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Assemble a mixed clinical and data-driven EHR feature registry."""
+"""Create a feature registry that combines clinical and algorithmic choices.
+
+The script reads a consensus ranking table, matches named clinical variables,
+adds the highest-ranked remaining data-driven candidates, and records the source
+of every retained feature. The resulting CSV is an ordered, duplicate-free input
+registry for tensor construction workflows that use the mixed selection scheme.
+"""
 
 import argparse
 from pathlib import Path

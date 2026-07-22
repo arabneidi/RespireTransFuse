@@ -1,4 +1,10 @@
-"""Plot held-out precision-recall and ROC curves for all seven models."""
+"""Compare held-out discrimination for all seven evaluated models.
+
+The script loads each model's test labels and probabilities, verifies that the
+prediction cohorts are compatible, and calculates AUROC and average precision on
+the common held-out set. It saves separate publication-ready ROC and
+precision-recall figures together with a CSV table of the plotted summary values.
+"""
 
 from pathlib import Path
 

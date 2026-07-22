@@ -1,4 +1,10 @@
-"""Train and evaluate MedFuse unimodal and recurrent fusion configurations."""
+"""Train and evaluate the recurrent MedFuse model configurations.
+
+The trainer handles Uni-EHR, Uni-CXR, joint, and weighted late-fusion objectives,
+including paired-sample masking and modality-specific losses. It selects and saves
+validation checkpoints, records epoch histories and predictions, and evaluates
+the requested output on the validation and held-out test loaders.
+"""
 
 from __future__ import absolute_import
 from __future__ import print_function

@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
-# Run two-epoch smoke tests for all seven evaluated model configurations.
+# Exercise all seven evaluated model configurations on the 100-sample test cohort.
+# The script validates dummy inputs, runs each model for two epochs, and checks the
+# unimodal MedFuse checkpoints required by its multimodal LSTM stage. Outputs are
+# separated under outputs/dummy_100 so the smoke test does not replace full runs.
 
 set -euo pipefail
 

@@ -1,4 +1,10 @@
-"""Plot training, validation, and calibration results for the image-only model."""
+"""Build the full diagnostic figure for the image-only experiment.
+
+Saved training history, validation outputs, calibration statistics, and test
+metrics are assembled into a consistent view of optimization, discrimination,
+probability quality, and threshold performance. The script reads existing run
+artifacts and saves the publication-ready figure without modifying model results.
+"""
 
 from pathlib import Path
 

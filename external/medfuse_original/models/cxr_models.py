@@ -1,4 +1,10 @@
-"""Define the MedFuse chest X-ray encoder and classification head."""
+"""Define the convolutional chest X-ray branch used by MedFuse.
+
+The module wraps a torchvision ResNet encoder, exposes intermediate image
+features for fusion variants, and attaches the binary classification head used
+by the Uni-CXR baseline. Its forward paths support both standalone predictions
+and feature exchange with the recurrent multimodal models.
+"""
 
 import torch.nn as nn
 import torchvision

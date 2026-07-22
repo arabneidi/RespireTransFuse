@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
-# Forward shell-based preprocessing runs to the cross-platform Python launcher.
+# Provide a small Unix shell entry point for the preprocessing workflow.
+# The wrapper resolves the repository location, accepts optional BASE and SEED
+# environment overrides, and forwards all additional arguments to the cross-platform
+# Python launcher so validation and resume options behave identically.
 
 set -euo pipefail
 

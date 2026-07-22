@@ -1,4 +1,10 @@
-"""Load, merge, and save YAML configuration files."""
+"""Manage path and experiment YAML configuration files.
+
+The module loads YAML documents with clear missing-file errors, recursively merges
+nested path settings with model-specific overrides, and writes resolved run
+configurations in stable key order. Training entry points use these helpers to
+capture the exact settings applied to an experiment.
+"""
 
 from pathlib import Path
 import yaml

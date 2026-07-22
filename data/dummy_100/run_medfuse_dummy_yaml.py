@@ -1,4 +1,11 @@
-"""Run one MedFuse dummy experiment from the shared YAML configuration."""
+"""Launch one MedFuse smoke-test configuration from the shared YAML file.
+
+This adapter reads the requested Uni-CXR, Uni-EHR, or multimodal LSTM run,
+translates its YAML settings into arguments accepted by ``train_medfuse.py``,
+and executes that trainer from the repository root. Environment variables and
+relative paths are preserved so the same command works on Windows, macOS, and
+Linux through the Python dummy-test launcher.
+"""
 
 import argparse
 import os

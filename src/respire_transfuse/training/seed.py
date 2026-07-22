@@ -1,4 +1,9 @@
-"""Seed Python, NumPy, and PyTorch for repeatable experiment setup."""
+"""Configure repeatable random state for project experiments.
+
+The public helper seeds Python, NumPy, and CPU or CUDA PyTorch generators and sets
+the backend flags used for deterministic execution where supported. Training
+entry points call it before constructing datasets, samplers, and model weights.
+"""
 
 import random
 

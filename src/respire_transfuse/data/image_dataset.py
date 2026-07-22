@@ -1,4 +1,11 @@
-"""Load chest X-ray cohorts and define image preprocessing for model training."""
+"""Prepare chest X-ray records and image transforms for unimodal training.
+
+The module validates binary outcomes and patient-level splits, checks that each
+cohort image exists and can be decoded, and exposes a PyTorch dataset returning
+images with labels and sample identifiers. Training and evaluation transform
+builders provide the resizing, augmentation, and normalization expected by the
+image encoder.
+"""
 
 from pathlib import Path
 

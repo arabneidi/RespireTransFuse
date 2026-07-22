@@ -1,4 +1,10 @@
-"""Verify that the dummy cohort, EHR tensor, images, and MedFuse code are available."""
+"""Validate the files required by the seven-model dummy smoke test.
+
+The check confirms that the 100-row cohort, aligned EHR arrays, referenced chest
+X-rays, model configurations, and bundled MedFuse source files are present and
+internally consistent. It exits with a clear error before training starts when a
+required path, array key, sample identifier, or image is missing.
+"""
 
 from pathlib import Path
 import sys

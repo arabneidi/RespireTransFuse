@@ -1,4 +1,10 @@
-"""Define EfficientNet-based chest X-ray models and backbone training controls."""
+"""Define the chest X-ray encoders used for unimodal and fusion experiments.
+
+The module wraps a timm EfficientNet backbone with spatial attention, projection,
+and binary risk heads, and also provides a conservative classification variant.
+Helper functions control backbone freezing and maintain an exponential moving
+average copy used by the image training workflow and downstream fusion models.
+"""
 
 import copy
 import math

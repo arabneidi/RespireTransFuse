@@ -1,4 +1,10 @@
-"""Load aligned EHR tensors and provide datasets and balanced batch sampling."""
+"""Load and validate the sequential EHR inputs used by model training.
+
+This module aligns cohort rows with NPZ value and observation-mask arrays,
+standardizes supported tensor layouts, checks binary labels and split metadata,
+and exposes PyTorch datasets for the 24-hour sequences. It also provides a
+balanced binary batch sampler for training under the project's class imbalance.
+"""
 
 from pathlib import Path
 

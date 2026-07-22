@@ -1,4 +1,11 @@
-"""Align EHR tensors with chest X-rays for multimodal training and evaluation."""
+"""Construct paired chest X-ray and EHR datasets for fusion models.
+
+The loader joins cohort records to the train-ready NPZ by sample identifier,
+validates labels, splits, tensor shapes, and image availability, and returns
+consistently ordered train, validation, and test frames. The dataset applies image
+transforms while returning aligned EHR values, masks, outcomes, and identifiers
+for Early Fusion and RespireTransFuse training.
+"""
 
 from pathlib import Path
 

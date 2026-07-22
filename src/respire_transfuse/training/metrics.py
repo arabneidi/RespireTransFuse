@@ -1,4 +1,10 @@
-"""Compute robust binary classification metrics and probability summaries."""
+"""Compute the common binary prediction metrics used across experiments.
+
+The helpers convert logits to probabilities, guard AUROC, AUPRC, log-loss, and
+Brier calculations against degenerate inputs, select an F1 operating threshold
+from validation data, and summarize threshold-dependent performance. A recursive
+converter also makes NumPy and path values safe for JSON result files.
+"""
 
 import math
 

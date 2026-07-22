@@ -1,5 +1,13 @@
 #!/usr/bin/env python3
-"""Train and evaluate the EHR-only Transformer risk model."""
+"""Train, calibrate, and evaluate the EHR-only Transformer baseline.
+
+The entry point merges path and experiment YAML files, loads the aligned 24-hour
+EHR tensors, builds balanced data loaders, and optimizes the mask-aware temporal
+model with the configured binary and ranking objectives. Validation predictions
+determine checkpoint selection, probability calibration, and the decision
+threshold; histories, metrics, checkpoints, plots, and held-out predictions are
+saved in the experiment directory.
+"""
 
 import argparse
 import json

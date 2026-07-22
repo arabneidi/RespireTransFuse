@@ -1,4 +1,10 @@
-"""Train and evaluate the token-fusion MedFuse baseline."""
+"""Train and evaluate the token-based MedFuse fusion model.
+
+This specialized trainer optimizes the token interaction architecture together
+with its unimodal and joint classification terms, tracks validation performance,
+and persists the best and final checkpoints. Evaluation writes modality-specific,
+late-fusion, and joint predictions in the legacy MedFuse result format.
+"""
 
 from __future__ import absolute_import
 from __future__ import print_function

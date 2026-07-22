@@ -1,6 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Rank clinically constrained EHR candidates using training-only evidence."""
+"""Select a stable subset from the clinically constrained EHR candidates.
+
+The analysis summarizes each temporal feature, evaluates univariate relevance,
+redundancy, mutual information, cross-validated logistic selection, and bootstrap
+stability using training samples only. It combines those signals into consensus
+rankings and saves selected-feature registries, diagnostic tables, and a JSON
+audit for the later final-feature assembly step.
+"""
 
 import argparse
 import json

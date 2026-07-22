@@ -1,4 +1,11 @@
-"""Train, evaluate, and export predictions for the EHR-only model."""
+"""Provide the optimization loop for the EHR-only temporal model.
+
+The module handles device transfer, mixed precision, composite loss evaluation,
+gradient clipping, learning-rate scheduling, and metric aggregation for training
+and validation epochs. Evaluation returns labels, logits, probabilities, and
+sample identifiers, while the export helper writes calibrated or raw per-sample
+predictions with an optional operating threshold.
+"""
 
 from contextlib import nullcontext
 from pathlib import Path

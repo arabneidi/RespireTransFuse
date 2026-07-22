@@ -1,4 +1,10 @@
-"""Define the MMTM channel-recalibration fusion baseline."""
+"""Define the MMTM channel-recalibration fusion variant from MedFuse.
+
+The module exchanges global summary information between recurrent EHR features
+and convolutional CXR channels, then learns modality-specific gates that rescale
+both streams. It returns branch, late-fusion, and joint outputs used by the MMTM
+trainer to compare cross-modal recalibration with the other fusion strategies.
+"""
 
 import torch.nn as nn
 import torchvision

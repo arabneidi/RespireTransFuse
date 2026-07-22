@@ -1,4 +1,10 @@
-"""Plot cohort composition and timing of positive respiratory events."""
+"""Describe cohort composition and the timing of positive outcomes.
+
+Using the final cohort and its respiratory-event timestamps, the script reports
+how samples are distributed across outcome groups and when qualifying future
+events occur relative to the index radiograph. It produces matching PNG and PDF
+figures for the data-descriptive section of the project results.
+"""
 
 from pathlib import Path
 
