@@ -7,6 +7,7 @@ tqdm
 pyyaml
 pillow
 opencv-python
+openpyxl
 torch
 torchvision
 torchaudio
