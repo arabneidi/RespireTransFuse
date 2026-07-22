@@ -41,6 +41,10 @@ All seven models were selected without using the held-out test labels and evalua
   <img src="docs/assets/seven_model_precision_recall.jpg" alt="Held-out precision-recall curves for the seven evaluated models" width="820">
 </p>
 
+<p align="center">
+  <img src="docs/assets/seven_model_roc.jpg" alt="Held-out receiver operating characteristic curves for the seven evaluated models" width="820">
+</p>
+
 RespireTransFuse achieved the highest observed AUROC and AUPRC in this internal evaluation. The EHR-only Transformer was the strongest unimodal model and had the best reported calibration, while the multimodal comparison indicates that the radiograph contributes complementary information when it is integrated with the temporal EHR representation.
 
 ## Model design
