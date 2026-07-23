@@ -1,12 +1,4 @@
-"""Construct the CXR-indexed prediction cohort used throughout the project.
-
-The script links local frontal MIMIC-CXR studies to MIMIC-IV ICU stays, derives
-the respiratory-deterioration outcome from procedure events, and applies the
-configured temporal eligibility rules around each radiograph. It then searches
-for reproducible patient-level train, validation, and test assignments with
-closely matched prevalence and writes the cohort, audit tables, split registry,
-and preprocessing manifest to ``data/processed/cohorts``.
-"""
+"""Construct the temporally eligible CXR-indexed cohort and patient-level splits."""
 
 from pathlib import Path
 import argparse

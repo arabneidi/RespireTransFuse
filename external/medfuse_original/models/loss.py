@@ -1,10 +1,4 @@
-"""Provide the auxiliary objectives used by MedFuse fusion models.
-
-The module implements divergence, ranking, and cosine-similarity terms that align
-or separate modality representations in addition to the primary classification
-loss. Trainer classes select these functions according to the configured fusion
-strategy and weighting scheme.
-"""
+"""Provide auxiliary divergence, ranking, and cosine losses for MedFuse."""
 
 from __future__ import print_function
 

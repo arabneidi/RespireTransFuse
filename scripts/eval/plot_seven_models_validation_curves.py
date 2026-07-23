@@ -1,10 +1,4 @@
-"""Compare validation behavior and calibration across all seven models.
-
-The script harmonizes native and MedFuse run artifacts, extracts comparable epoch
-metrics and validation predictions, and places learning and calibration curves in
-a shared multi-model layout. The resulting figure is saved under the model
-comparison outputs and can be regenerated without training any model.
-"""
+"""Compare validation histories and calibration curves across seven models."""
 
 from pathlib import Path
 

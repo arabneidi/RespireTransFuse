@@ -1,13 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Build a train-ready EHR dataset from a selected-feature registry.
-
-The script subsets a candidate NPZ to the approved ordered features, calculates
-normalization statistics from observed training values only, and applies those
-statistics consistently to train, validation, and test rows. It exports the
-normalized tensor, aligned cohort metadata, feature list, scaling table, and a
-JSON summary under the requested output name.
-"""
+"""Select approved EHR features and normalize them with training-only statistics."""
 
 import argparse
 import json

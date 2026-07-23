@@ -1,11 +1,4 @@
-"""Provide shared optimization loops for image and multimodal experiments.
-
-This module implements robust binary metrics, threshold selection, composite
-image and fusion losses, warmup and cosine learning-rate schedules, mixed-precision
-training, gradient control, and optional image-model EMA updates. Its evaluation
-and export routines return consistent statistics and per-sample prediction files
-for the image-only, Early Fusion, and RespireTransFuse entry points.
-"""
+"""Train and evaluate image-only and multimodal models with shared metrics."""
 
 import math
 

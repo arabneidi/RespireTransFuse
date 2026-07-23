@@ -1,11 +1,4 @@
-"""Analyze probability quality and clinical risk separation across seven models.
-
-The script standardizes held-out prediction files, verifies labels and sample
-alignment, and computes discrimination, Brier score, calibration error, and
-uncertainty intervals. It also derives risk tertiles and observed event rates,
-then exports detailed CSV tables plus publication-ready probability-distribution,
-calibration, and risk-stratification figures for the complete model comparison.
-"""
+"""Compare probability quality, calibration, and risk strata across seven models."""
 
 from pathlib import Path
 

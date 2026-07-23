@@ -1,12 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Filter unusable features from a candidate EHR tensor without data leakage.
-
-The script measures observation coverage using training rows only, removes
-features that are never observed there, and applies the same retained columns to
-all cohort splits. It writes the reduced NPZ, a per-feature retention report, and
-a JSON summary while preserving the original sample order and metadata arrays.
-"""
+"""Remove EHR features with no observations in the training partition."""
 
 import argparse
 import json

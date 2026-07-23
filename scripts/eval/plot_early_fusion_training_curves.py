@@ -1,10 +1,4 @@
-"""Build the full diagnostic figure for the Early Fusion experiment.
-
-The script reads the run history, validation predictions, calibration summaries,
-and held-out metrics produced during training. It presents optimization behavior,
-discrimination, probability quality, and threshold performance in the same layout
-used for the other models and saves the resulting publication-ready figure.
-"""
+"""Plot training, validation, and calibration results for Early Fusion."""
 
 from pathlib import Path
 

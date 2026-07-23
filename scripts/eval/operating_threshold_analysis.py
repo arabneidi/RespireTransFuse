@@ -1,12 +1,5 @@
 #!/usr/bin/env python3
-"""Evaluate validation-selected operating points for all seven models.
-
-For each model, the script selects a probability threshold on the validation set
-by maximizing Youden's J and applies that unchanged threshold to the held-out test
-set. It calculates sensitivity, specificity, positive and negative predictive
-values with stratified patient-cluster bootstrap intervals, then saves detailed
-CSV, NPZ, JSON, and LaTeX outputs for the comparative analysis.
-"""
+"""Validation-selected operating points with clustered confidence intervals."""
 
 from __future__ import annotations
 

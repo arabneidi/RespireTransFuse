@@ -1,10 +1,4 @@
-"""Define the Early Fusion baseline built from pretrained unimodal branches.
-
-The model projects the chest X-ray and EHR summary embeddings, concatenates them,
-and predicts risk through a compact shared head. Factory and configuration helpers
-restore branch checkpoints, validate dimensions, and control which encoders or
-fusion layers remain trainable during each experiment stage.
-"""
+"""Define the summary-level fusion model and its trainability controls."""
 
 import torch
 import torch.nn as nn

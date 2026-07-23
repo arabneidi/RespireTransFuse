@@ -1,11 +1,4 @@
-"""Define the mask-aware temporal encoder for 24-hour EHR sequences.
-
-The architecture projects values and observation masks into a shared embedding,
-adds positional and local temporal context, and uses Transformer layers with
-attention pooling to summarize the observed trajectory. Its risk head returns a
-binary logit and reusable token-level or summary representations for multimodal
-fusion.
-"""
+"""Define the mask-aware Transformer model for 24-hour EHR sequences."""
 
 import math
 

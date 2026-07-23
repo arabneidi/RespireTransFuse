@@ -1,13 +1,5 @@
 #!/usr/bin/env python3
-"""Train and evaluate the summary-level CXR and EHR fusion baseline.
-
-The script loads the paired multimodal cohort, restores the configured unimodal
-branch checkpoints, and concatenates projected image and EHR summaries before a
-shared prediction head. It manages branch freezing and fine-tuning, chooses the
-best model and classification threshold from validation performance, and saves
-configuration snapshots, histories, plots, checkpoints, metrics, and test-set
-predictions in the selected run directory.
-"""
+"""Train and evaluate the summary-level early-fusion baseline."""
 
 import argparse
 import json

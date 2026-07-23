@@ -1,10 +1,4 @@
-"""Build the diagnostic figure for the MedFuse multimodal LSTM baseline.
-
-The script reconciles the training logs and prediction artifacts produced by the
-adapted MedFuse workflow, then summarizes optimization, validation performance,
-calibration, and held-out discrimination in the common project style. It saves a
-publication-ready figure without rerunning the baseline.
-"""
+"""Plot results for the adapted MedFuse multimodal LSTM baseline."""
 
 from pathlib import Path
 

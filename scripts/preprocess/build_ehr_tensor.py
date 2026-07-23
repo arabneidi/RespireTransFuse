@@ -1,15 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""Build the clinically constrained 24-hour EHR candidate tensor.
-
-Using the cohort radiograph time as the prediction anchor, the script streams
-MIMIC-IV chart and laboratory events from the preceding observation window,
-applies clinical source filters, and aggregates measurements into hourly bins.
-It saves values, observation masks, labels, split metadata, and sample identifiers
-in an aligned NPZ together with feature, coverage, and manifest audit files for
-the downstream clinical feature-selection stage.
-"""
+"""Aggregate selected chart and laboratory events into aligned 24-hour EHR tensors."""
 
 import argparse
 import json

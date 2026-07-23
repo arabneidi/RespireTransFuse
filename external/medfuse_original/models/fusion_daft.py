@@ -1,11 +1,5 @@
 
-"""Define the DAFT feature-conditioning fusion variant from MedFuse.
-
-This architecture uses the EHR representation to generate affine parameters that
-adapt intermediate chest X-ray features before classification. It retains the
-unimodal branch outputs required by the original training objective and exposes
-joint predictions for evaluation by the dedicated DAFT trainer.
-"""
+"""Define the DAFT-conditioned multimodal fusion baseline."""
 
 import torch.nn as nn
 import torchvision

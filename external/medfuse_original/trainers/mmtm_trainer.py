@@ -1,10 +1,4 @@
-"""Train and evaluate the MMTM channel-recalibration baseline.
-
-The trainer coordinates EHR, CXR, late-fusion, and joint objectives for the MMTM
-model, applies paired-sample handling, and selects checkpoints from validation
-performance. It reports each output branch separately on validation and test data
-so cross-modal recalibration can be compared with unimodal predictions.
-"""
+"""Train and evaluate the MMTM fusion baseline."""
 
 from __future__ import absolute_import
 from __future__ import print_function

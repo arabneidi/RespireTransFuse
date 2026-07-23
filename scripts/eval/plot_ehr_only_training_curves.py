@@ -1,10 +1,4 @@
-"""Build the full diagnostic figure for the EHR-only experiment.
-
-The script combines the saved epoch history, validation predictions, calibration
-artifacts, and final test metrics to show optimization, discrimination, probability
-quality, and operating-point behavior. It writes a publication-ready summary
-figure to the EHR-only output directory without retraining the model.
-"""
+"""Plot training, validation, and calibration results for the EHR-only model."""
 
 from pathlib import Path
 

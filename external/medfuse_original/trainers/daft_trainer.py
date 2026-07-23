@@ -1,10 +1,4 @@
-"""Train and evaluate the DAFT-conditioned MedFuse baseline.
-
-The trainer optimizes EHR-conditioned affine adaptation of chest X-ray features,
-tracks joint validation performance, and manages best and final checkpoints.
-Its evaluation routines calculate and persist validation and test predictions in
-the same format used by the other bundled MedFuse variants.
-"""
+"""Train and evaluate the DAFT fusion baseline."""
 
 from __future__ import absolute_import
 from __future__ import print_function

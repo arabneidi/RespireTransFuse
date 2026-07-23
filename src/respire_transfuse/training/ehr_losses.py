@@ -1,10 +1,4 @@
-"""Define the composite objectives available to the EHR training workflow.
-
-The module implements differentiable average-precision, pairwise ranking, hard
-negative ranking, and focal binary losses. ``compute_ehr_loss`` combines these
-terms with the configured base criterion and weights, returning both the scalar
-objective and component values for epoch-level reporting.
-"""
+"""Provide binary, ranking, focal, and soft average-precision EHR objectives."""
 
 import torch
 import torch.nn.functional as F

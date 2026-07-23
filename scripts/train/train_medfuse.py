@@ -1,11 +1,4 @@
-"""Train the bundled MedFuse baselines on RespireTransFuse inputs.
-
-This compatibility entry point maps the project cohort, 24-hour EHR tensor, and
-chest X-rays onto the data interface expected by the original MedFuse code. It
-constructs the requested unimodal or recurrent multimodal trainer, applies the
-shared outcome and split definitions, controls reproducibility, and records the
-resolved arguments and run summary alongside MedFuse checkpoints and predictions.
-"""
+"""Adapt the bundled MedFuse models to the RespireTransFuse cohort and outcome."""
 
 import argparse
 import json

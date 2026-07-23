@@ -1,12 +1,5 @@
 
-"""Define the recurrent late-fusion architecture from MedFuse.
-
-The model combines an LSTM EHR representation with a ResNet chest X-ray feature,
-supports paired and partially paired examples, and produces unimodal, joint, or
-weighted late-fusion predictions according to the selected mode. These outputs
-are consumed by ``FusionTrainer`` for the Uni-EHR, Uni-CXR, and multimodal LSTM
-baseline runs in this repository.
-"""
+"""Define the MedFuse recurrent multimodal fusion model."""
 
 import torch.nn as nn
 import torchvision

@@ -1,10 +1,4 @@
-"""Estimate and apply post-hoc calibration for binary model logits.
-
-The module fits a positive temperature and additive bias by minimizing binary
-cross-entropy on validation predictions with LBFGS. Companion functions transform
-new logits with the fitted parameters and return calibrated probabilities for
-held-out evaluation without changing the trained model weights.
-"""
+"""Fit and apply validation-derived temperature and bias calibration."""
 
 import math
 

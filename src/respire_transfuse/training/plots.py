@@ -1,10 +1,4 @@
-"""Generate standard optimization plots from an experiment history table.
-
-The plotting helper reads the per-epoch CSV emitted by a trainer and writes
-consistent loss, AUROC, AUPRC, learning-rate, and related diagnostic curves for
-the metrics available in that run. Missing optional columns are skipped so the
-same routine can serve unimodal and multimodal experiments.
-"""
+"""Generate training-history plots from saved experiment metrics."""
 
 from pathlib import Path
 

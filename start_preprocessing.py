@@ -1,12 +1,5 @@
 #!/usr/bin/env python3
-"""Coordinate the complete cohort and EHR preprocessing workflow.
-
-This cross-platform launcher checks the required MIMIC-IV and MIMIC-CXR inputs,
-runs each cohort construction and feature-engineering stage in dependency order,
-and validates the schema, split integrity, and sample alignment of every output.
-Command-line options support clean rebuilds, resumable runs, and validation-only
-checks while keeping all generated artifacts under the selected repository root.
-"""
+"""Run and validate the complete cohort and EHR preprocessing workflow."""
 
 import argparse
 import gc

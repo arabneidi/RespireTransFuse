@@ -1,11 +1,5 @@
 #!/usr/bin/env python3
-"""Run the complete seven-model smoke test on the bundled dummy cohort.
-
-The launcher verifies the local test data, dispatches the native Python training
-entry points, and runs the MedFuse variants through their shared YAML adapter.
-It also checks prerequisite checkpoints between dependent runs and places each
-two-epoch experiment in its own directory under ``outputs/dummy_100``.
-"""
+"""Run the seven-model dummy-data smoke-test suite."""
 
 from __future__ import annotations
 

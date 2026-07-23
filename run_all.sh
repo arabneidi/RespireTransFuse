@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
-# Train the five primary project model families with their standard configurations.
-# The commands run sequentially from the repository root and stop at the first
-# failure, leaving each trainer responsible for its own checkpoints, metrics,
-# predictions, and plots under the configured output directory.
+# Run the five primary project training entry points in sequence.
 
 set -euo pipefail
 

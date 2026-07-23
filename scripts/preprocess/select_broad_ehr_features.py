@@ -1,13 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Select robust predictors from the broad EHR candidate tensor.
-
-Training samples alone are used to score temporal summaries for predictive
-relevance, missingness behavior, redundancy, mutual information, elastic-model
-support, and bootstrap stability. The resulting consensus tables and strict
-feature registry provide the data-driven branch consumed by final EHR assembly,
-while detailed CSV and JSON outputs preserve the full selection audit trail.
-"""
+"""Rank the broad EHR candidate set using training-only relevance and stability."""
 
 import argparse
 import json

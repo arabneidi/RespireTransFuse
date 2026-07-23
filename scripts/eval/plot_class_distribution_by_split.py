@@ -1,10 +1,4 @@
-"""Summarize class balance across the patient-level data partitions.
-
-The script reads the processed cohort, counts positive and negative outcomes in
-the training, validation, and test splits, and compares split prevalence with the
-overall cohort rate. It saves the underlying summary table and a publication-ready
-two-panel figure in both PNG and PDF formats under the thesis figure directory.
-"""
+"""Plot class counts and positive prevalence for each patient-level split."""
 
 from pathlib import Path
 

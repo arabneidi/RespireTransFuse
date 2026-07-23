@@ -1,10 +1,4 @@
-"""Compute standardized evaluation summaries for MedFuse predictions.
-
-The helpers clean prediction frames, calculate AUROC and average precision, and
-estimate uncertainty across bootstrap or grouped result samples where requested.
-Trainer classes use the returned dictionaries for console reporting, result files,
-and checkpoint comparisons.
-"""
+"""Compute evaluation metrics and confidence intervals for MedFuse runs."""
 
 import numpy as np
 from sklearn.metrics import roc_auc_score, average_precision_score

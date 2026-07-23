@@ -1,10 +1,4 @@
-"""Define the token-based multimodal fusion variant from MedFuse.
-
-The architecture converts EHR and chest X-ray representations into a shared token
-space, applies learned token interactions, and produces modality-specific and
-joint binary predictions. Its output structure matches the legacy token-fusion
-trainer and supports the same missing-modality evaluation paths as MedFuse.
-"""
+"""Define token-based MedFuse fusion components."""
 
 import torch.nn as nn
 import torchvision
@@ -221,4 +215,3 @@ class FusionTokens(nn.Module):
             'ehr_feats': ehr_feats,
             'cxr_feats': cxr_feats,
         }
-

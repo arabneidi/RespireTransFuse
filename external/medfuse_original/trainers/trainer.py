@@ -1,10 +1,4 @@
-"""Provide shared training infrastructure for MedFuse experiments.
-
-The base trainer manages device placement, optimization, checkpoint persistence,
-epoch logging, validation-based model selection, and prediction export. It also
-contains the unimodal EHR and CXR training paths inherited or reused by the
-specialized fusion trainers bundled with the repository.
-"""
+"""Provide the base MedFuse trainer for unimodal experiments."""
 
 from __future__ import absolute_import
 from __future__ import print_function

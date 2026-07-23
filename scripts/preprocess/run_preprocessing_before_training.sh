@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
-# Build the complete cohort and EHR dataset on Unix-like systems.
-# The script fixes reproducibility-related environment settings, runs all clinical
-# and broad feature stages in dependency order, and produces the final normalized
-# 30-feature tensor expected by the training configurations. Any failed stage stops
-# the workflow before a dependent artifact can be created.
+# Execute the preprocessing stages in their required order for Unix-like systems.
 
 set -euo pipefail
 

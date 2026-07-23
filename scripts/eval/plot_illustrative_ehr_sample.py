@@ -1,10 +1,4 @@
-"""Create an interpretable example of the 24-hour EHR representation.
-
-The script ranks cohort rows for informative temporal coverage, selects a
-representative sample, and visualizes its observed measurements and standardized
-values across hourly bins. It writes the leading sample candidates plus PNG and
-PDF versions of the final figure so the choice and visualization are reproducible.
-"""
+"""Visualize the temporal coverage and values of a representative EHR sample."""
 
 from pathlib import Path
 

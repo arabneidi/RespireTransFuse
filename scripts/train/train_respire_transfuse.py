@@ -1,13 +1,5 @@
 #!/usr/bin/env python3
-"""Train and evaluate the RespireTransFuse multimodal risk model.
-
-The entry point loads paired chest X-rays and 24-hour EHR sequences, initializes
-the unimodal branches from their configured checkpoints, and trains bidirectional
-cross-attention with the requested branch-freezing schedule. Validation metrics
-control checkpoint selection and the operating threshold; the run directory
-receives resolved configuration files, epoch histories, diagnostic plots, model
-checkpoints, final metrics, and per-sample test predictions.
-"""
+"""Train and evaluate RespireTransFuse with bidirectional cross-attention."""
 
 import argparse
 import json

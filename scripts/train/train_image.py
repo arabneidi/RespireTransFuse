@@ -1,13 +1,5 @@
 #!/usr/bin/env python3
-"""Train and evaluate the chest X-ray-only risk prediction baseline.
-
-This entry point reads the cohort and experiment configuration, applies the
-training and evaluation image transforms, and optimizes the EfficientNet-based
-classifier with staged backbone control and optional exponential moving averages.
-It selects the best validation checkpoint, derives the operating threshold from
-validation data, and writes training histories, metrics, plots, checkpoints, and
-per-sample predictions for the held-out split.
-"""
+"""Train and evaluate the EfficientNet-based chest X-ray risk model."""
 
 import argparse
 import json

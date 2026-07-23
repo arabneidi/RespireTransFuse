@@ -1,12 +1,5 @@
 #!/usr/bin/env python3
-"""Estimate uncertainty in held-out discrimination for all seven models.
-
-The script aligns each model's test predictions with the common patient-level
-cohort and performs a stratified patient-cluster bootstrap so repeated samples
-from one patient remain together. It reports percentile confidence intervals for
-AUROC and AUPRC, paired differences between RespireTransFuse and each comparator,
-and exports the point estimates, bootstrap draws, metadata, and formatted tables.
-"""
+"""Calculate paired bootstrap confidence intervals for seven models."""
 
 from __future__ import annotations
 

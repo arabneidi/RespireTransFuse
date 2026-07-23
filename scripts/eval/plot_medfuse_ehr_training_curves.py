@@ -1,10 +1,4 @@
-"""Build the full diagnostic figure for the MedFuse Uni-EHR baseline.
-
-The script normalizes the artifacts emitted by the bundled trainer, combines its
-epoch history and prediction files with calibration and held-out metrics, and
-presents the results in the common project plotting style. The completed figure
-is saved with the MedFuse EHR experiment outputs for direct model comparison.
-"""
+"""Plot training, validation, and calibration results for MedFuse Uni-EHR."""
 
 from pathlib import Path
 

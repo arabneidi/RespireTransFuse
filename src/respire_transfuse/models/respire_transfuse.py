@@ -1,11 +1,4 @@
-"""Define the bidirectional multimodal RespireTransFuse architecture.
-
-The model projects spatial image tokens and mask-aware EHR tokens into a common
-space, then updates each modality with multi-head cross-attention to the other.
-Projected unimodal summaries and both cross-conditioned summaries are combined
-by the final risk head. Builder and trainability helpers connect the architecture
-to pretrained branches and staged optimization settings.
-"""
+"""Define the bidirectional cross-attention architecture for CXR and EHR fusion."""
 
 import torch
 import torch.nn as nn
