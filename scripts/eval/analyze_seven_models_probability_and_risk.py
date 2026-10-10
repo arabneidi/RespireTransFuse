@@ -1,4 +1,4 @@
-"""Compare probability quality, calibration, and risk strata across seven models."""
+"""Analyze probability quality and predicted-risk distributions for seven models."""
 
 from pathlib import Path
 
@@ -21,7 +21,7 @@ BASE = Path("/content/drive/MyDrive/respire-transfuse")
 OUTPUT_DIR = (
     BASE
     / "outputs"
-    / "seven_model_probability_and_risk_analysis"
+    / "seven_model_probability_and_risk_analysis_respire_calibrated"
 )
 
 OUTPUT_DIR.mkdir(
@@ -45,16 +45,17 @@ MODEL_SPECS = {
     "EHR-Only": {
         "run_dir": BASE / "outputs/ehr_only",
         "probability_columns": [
-            "calibrated_prob",
-            "prob_calibrated",
-            "calibrated_probability",
-            "probability_calibrated",
-            "prob_cal",
             "prob",
             "ehr_prob",
             "probability",
             "raw_prob",
             "prob_raw",
+
+            "calibrated_prob",
+            "prob_calibrated",
+            "calibrated_probability",
+            "probability_calibrated",
+            "prob_cal",
         ],
         "logit_columns": [
             "ehr_logit",
@@ -89,7 +90,7 @@ MODEL_SPECS = {
         ],
     },
     "MedFuse Uni-CXR": {
-        "run_dir": BASE / "outputs/medfuse_cxr_only_resnet34",
+        "run_dir": BASE / "outputs/medfuse_uni_cxr_linear_probe_513",
         "probability_columns": [
             "prob",
             "probability",
@@ -106,7 +107,7 @@ MODEL_SPECS = {
     "MedFuse Multimodal LSTM": {
         "run_dir": (
             BASE
-            / "outputs/medfuse_multimodal_lstm"
+            / "outputs/medfuse_multimodal_lstm_26f_lr9e7_wd1e3_bs32"
         ),
         "probability_columns": [
             "prob",
@@ -123,14 +124,17 @@ MODEL_SPECS = {
     },
     "RespireTransFuse": {
         "run_dir": BASE / "outputs/respire_transfuse",
+
+        "prediction_file": "test_predictions_calibrated.csv",
+
+        "require_probability_column": True,
+
         "probability_columns": [
-            "fusion_prob",
-            "prob",
-            "probability",
+            "fusion_prob_calibrated",
         ],
+
         "logit_columns": [
-            "fusion_logit",
-            "logit",
+            "fusion_logit_calibrated",
         ],
     },
 }
@@ -265,7 +269,10 @@ def load_test_predictions(
 ):
     prediction_path = (
         spec["run_dir"]
-        / "test_predictions.csv"
+        / spec.get(
+            "prediction_file",
+            "test_predictions.csv",
+        )
     )
 
     if not prediction_path.exists():
@@ -294,6 +301,20 @@ def load_test_predictions(
     )
 
     if probability_column is None:
+        if bool(
+            spec.get(
+                "require_probability_column",
+                False,
+            )
+        ):
+            raise RuntimeError(
+                f"{model_name}: required probability "
+                f"column not found. Expected one of "
+                f"{spec['probability_columns']}. "
+                f"Available columns: "
+                f"{frame.columns.tolist()}"
+            )
+
         probability_column = next(
             (
                 column
@@ -1232,7 +1253,6 @@ for axis, model_name in zip(
             fontweight="bold",
         )
 
-# Seven models occupy seven of the eight panels.
 axes[7].axis("off")
 
 for axis in [

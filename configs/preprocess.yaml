@@ -1,9 +1,8 @@
 # Configure cohort construction and EHR preprocessing parameters.
-seed: 1337
+seed: 42
 
 cohort:
   output_csv: "data/processed/cohorts/cohort.csv"
-  paired_output_csv: "data/processed/cohorts/cohort_paired.csv"
   label_col: "label"
   sample_id_col: "sample_id"
   split_col: "split"
@@ -12,14 +11,20 @@ cohort:
   stable_negative_hours: 72
   exclude_prior_support: true
   exclude_ambiguous_48_72h: true
+  require_full_72h_hospital_observation_for_negatives: true
+  exclude_death_before_72h: true
+  exclude_discharge_before_72h: true
+  future_event_scope: same_hospitalization
 
 ehr:
   window_hours: 24
   time_bins: 24
   candidate_npz: "data/processed/ehr/ehr_candidates_24h.npz"
   nonzero_npz: "data/processed/ehr/ehr_candidates_24h_nonzero.npz"
-  final_npz: "data/processed/ehr/ehr_final_24h_train_ready.npz"
-  selected_features_csv: "data/processed/ehr/ehr_final_selected_features.csv"
+  final_npz: "data/processed/ehr/ehr_final_24h_train_ready/ehr_24h_final_train_ready_current_split.npz"
+  selected_features_csv: "data/processed/ehr/ehr_final_24h_train_ready/ehr_24h_final_train_ready_features.csv"
+  final_feature_count: 26
+  require_lab_storetime_before_index: true
   allow_support_intensity_features: true
   chunksize: 750000
   max_chart_features: 80

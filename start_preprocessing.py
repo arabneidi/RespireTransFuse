@@ -24,6 +24,7 @@ MAX_PREVALENCE_GAP = 0.0025
 MAX_SPLIT_SIZE_DEVIATION = 0.01
 
 EHR_WINDOW_HOURS = 24
+FINAL_EHR_FEATURES = 26
 EHR_CHUNKSIZE = 750000
 MAX_CHART_FEATURES = 80
 MAX_LAB_FEATURES = 80
@@ -80,6 +81,11 @@ def preflight_inputs(base):
             base
             / "data/raw/mimiciv/icu"
             / "procedureevents.csv.gz"
+        ),
+        "Hospital admissions": (
+            base
+            / "data/raw/mimiciv/hosp"
+            / "admissions.csv.gz"
         ),
         "Chart events": (
             base
@@ -446,6 +452,87 @@ def validate_cohort(
 
     cohort = load_cohort(base)
 
+    strict_columns = [
+        "dischtime",
+        "horizon_72h",
+        "full_72h_observation",
+        "followup_72h_status",
+        "hours_to_future_resp_event",
+    ]
+    missing_strict_columns = [
+        column
+        for column in strict_columns
+        if column not in cohort.columns
+    ]
+
+    if missing_strict_columns:
+        raise RuntimeError(
+            "Cohort is missing strict follow-up columns: "
+            f"{missing_strict_columns}"
+        )
+
+    allowed_statuses = {
+        "POSITIVE_EVENT_0_48H",
+        "SOLID_NEGATIVE_FULL_72H",
+    }
+    actual_statuses = set(
+        cohort["followup_72h_status"].astype(str).unique()
+    )
+
+    if not actual_statuses.issubset(allowed_statuses):
+        raise RuntimeError(
+            "Excluded follow-up statuses remain in the final cohort: "
+            f"{sorted(actual_statuses.difference(allowed_statuses))}"
+        )
+
+    positive_rows = cohort["label"] == 1
+    negative_rows = cohort["label"] == 0
+    hours_to_event = pd.to_numeric(
+        cohort["hours_to_future_resp_event"],
+        errors="coerce",
+    )
+
+    if not cohort.loc[
+        positive_rows,
+        "followup_72h_status",
+    ].eq("POSITIVE_EVENT_0_48H").all():
+        raise RuntimeError(
+            "Positive labels do not match the strict follow-up status."
+        )
+
+    if not (
+        (hours_to_event.loc[positive_rows] > 0)
+        & (hours_to_event.loc[positive_rows] <= 48)
+    ).all():
+        raise RuntimeError(
+            "A positive sample falls outside the 0-to-48-hour endpoint."
+        )
+
+    if not cohort.loc[
+        negative_rows,
+        "followup_72h_status",
+    ].eq("SOLID_NEGATIVE_FULL_72H").all():
+        raise RuntimeError(
+            "Negative labels do not match the strict follow-up status."
+        )
+
+    if not cohort.loc[
+        negative_rows,
+        "full_72h_observation",
+    ].astype(bool).all():
+        raise RuntimeError(
+            "A negative sample lacks complete 72-hour observation."
+        )
+
+    negative_event_hours = hours_to_event.loc[negative_rows]
+    if not (
+        negative_event_hours.isna()
+        | (negative_event_hours > 72)
+    ).all():
+        raise RuntimeError(
+            "A negative sample has an event within 72 hours."
+        )
+
     expected_splits = {
         "train",
         "val",
@@ -588,6 +675,20 @@ def validate_cohort(
         "split_algorithm",
         {},
     )
+
+    manifest_counts = manifest.get("counts", {})
+    expected_counts = {
+        "cohort_rows": int(len(cohort)),
+        "positive": int(positive_rows.sum()),
+        "negative": int(negative_rows.sum()),
+    }
+
+    for key, expected in expected_counts.items():
+        if int(manifest_counts.get(key, -1)) != expected:
+            raise RuntimeError(
+                f"Manifest count {key} does not match the cohort: "
+                f"{manifest_counts.get(key)} vs {expected}."
+            )
 
     manifest_hash = algorithm.get(
         "subject_assignments_sha256"
@@ -1181,20 +1282,21 @@ def validate_final_features(base):
             "time bins instead of 24."
         )
 
-    if shape[2] != 30:
+    if shape[2] != FINAL_EHR_FEATURES:
         raise RuntimeError(
             f"Final EHR tensor has {shape[2]} "
-            "features instead of 30."
+            f"features instead of {FINAL_EHR_FEATURES}."
         )
 
     features = pd.read_csv(
         features_csv
     )
 
-    if len(features) != 30:
+    if len(features) != FINAL_EHR_FEATURES:
         raise RuntimeError(
             f"Final selected feature CSV has "
-            f"{len(features)} rows instead of 30."
+            f"{len(features)} rows instead of "
+            f"{FINAL_EHR_FEATURES}."
         )
 
     if (
@@ -1309,10 +1411,11 @@ def validate_train_ready(base):
             f"{shape[1]} time bins instead of 24."
         )
 
-    if shape[2] != 30:
+    if shape[2] != FINAL_EHR_FEATURES:
         raise RuntimeError(
             f"Final train-ready tensor has "
-            f"{shape[2]} features instead of 30."
+            f"{shape[2]} features instead of "
+            f"{FINAL_EHR_FEATURES}."
         )
 
     validate_npz_alignment(
@@ -1912,7 +2015,7 @@ def main():
         ),
         (
             7,
-            "Build final 30-feature EHR tensor",
+            f"Build final {FINAL_EHR_FEATURES}-feature EHR tensor",
             [
                 python,
                 "-u",

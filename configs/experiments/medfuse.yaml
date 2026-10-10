@@ -1,31 +1,89 @@
-# Configure the adapted MedFuse baseline experiment.
-experiment_name: "medfuse_baseline"
-seed: 1337
-device: "cuda"
-use_amp: true
+# Configure the three adapted MedFuse baselines.
+project_root: .
 
-data:
-  cohort_csv: "data/processed/cohorts/cohort_paired.csv"
-  image_dir: "data/raw/mimic_cxr/images"
-  ehr_npz: "data/processed/ehr/ehr_final_24h_train_ready.npz"
-  label_col: "label"
-  split_col: "split"
+runs:
+  uni_cxr:
+    script: scripts/train/train_medfuse.py
+    args:
+      cohort_csv: data/processed/cohorts/cohort.csv
+      ehr_npz: data/processed/ehr/ehr_final_24h_train_ready/ehr_24h_final_train_ready_current_split.npz
+      output_root: .
+      save_dir: outputs/medfuse_uni_cxr_linear_probe_513
+      fusion_type: uni_cxr
+      labels_set: respire
+      num_classes: 1
+      vision_num_classes: 1
+      epochs: 20
+      patience: 20
+      lr: 3.0e-05
+      batch_size: 32
+      dropout: 0.3
+      weight_decay: 1.0e-04
+      monitor_metric: auprc
+      grad_clip: 5.0
+      dim: 256
+      layers: 2
+      vision-backbone: resnet34
+      pretrained: true
+      image_size: 224
+      freeze_cxr_backbone: true
+      cxr_trainable_scope: classifier
+      cxr_prior_init: true
+      num_workers: 2
+      seed: 42
 
-model:
-  name: "medfuse"
-  image_size: 224
-  ehr_input_dim: 35
-  ehr_time_steps: 24
-  hidden_dim: 128
-  dropout: 0.1
+  uni_ehr:
+    script: scripts/train/train_medfuse.py
+    args:
+      cohort_csv: data/processed/cohorts/cohort.csv
+      ehr_npz: data/processed/ehr/ehr_final_24h_train_ready/ehr_24h_final_train_ready_current_split.npz
+      output_root: .
+      save_dir: outputs/medfuse_ehr
+      fusion_type: uni_ehr
+      labels_set: respire
+      num_classes: 1
+      vision_num_classes: 1
+      epochs: 20
+      patience: 15
+      lr: 1.0e-05
+      batch_size: 64
+      dropout: 0.7
+      weight_decay: 3.0e-04
+      monitor_metric: auprc
+      grad_clip: 5.0
+      dim: 256
+      layers: 2
+      no_pretrained: true
+      num_workers: 2
+      seed: 42
 
-train:
-  epochs: 20
-  batch_size: 32
-  lr: 0.0001
-  weight_decay: 0.00001
-  num_workers: 4
-  grad_clip: 5.0
-
-output:
-  run_dir: "outputs/runs/medfuse_baseline"
+  multimodal_lstm:
+    script: scripts/train/train_medfuse.py
+    args:
+      cohort_csv: data/processed/cohorts/cohort.csv
+      ehr_npz: data/processed/ehr/ehr_final_24h_train_ready/ehr_24h_final_train_ready_current_split.npz
+      output_root: .
+      save_dir: outputs/medfuse_multimodal_lstm_26f_lr9e7_wd1e3_bs32
+      fusion_type: lstm
+      labels_set: respire
+      num_classes: 1
+      vision_num_classes: 1
+      epochs: 20
+      patience: 18
+      lr: 9.0e-06
+      batch_size: 32
+      dropout: 0.3
+      weight_decay: 1.0e-03
+      monitor_metric: auprc
+      grad_clip: 1.0
+      dim: 256
+      layers: 2
+      vision-backbone: resnet34
+      pretrained: true
+      image_size: 224
+      load_state_ehr: outputs/medfuse_ehr/best_checkpoint.pth.tar
+      load_state_cxr: external/medfuse_original/checkpoints/cxr_rad_full/best_checkpoint.pth.tar
+      freeze_loaded_ehr: true
+      freeze_loaded_cxr: true
+      num_workers: 2
+      seed: 42

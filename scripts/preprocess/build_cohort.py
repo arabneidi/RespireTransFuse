@@ -674,6 +674,7 @@ def main():
     ICUSTAYS = ICU_DIR / "icustays.csv.gz"
     D_ITEMS = ICU_DIR / "d_items.csv.gz"
     PROCEDUREEVENTS = ICU_DIR / "procedureevents.csv.gz"
+    ADMISSIONS = REPO_ROOT / "data/raw/mimiciv/hosp/admissions.csv.gz"
 
     OUT_DIR = Path(args.output_dir) if args.output_dir else (
         REPO_ROOT / "data/processed/cohorts"
@@ -703,6 +704,7 @@ def main():
         "ICUSTAYS": ICUSTAYS,
         "D_ITEMS": D_ITEMS,
         "PROCEDUREEVENTS": PROCEDUREEVENTS,
+        "ADMISSIONS": ADMISSIONS,
     }.items():
         print(f"{name}: {path} | exists={path.exists()}")
         require(path)
@@ -713,17 +715,20 @@ def main():
     icu = pd.read_csv(ICUSTAYS)
     d_items = pd.read_csv(D_ITEMS)
     proc = pd.read_csv(PROCEDUREEVENTS)
+    adm = pd.read_csv(ADMISSIONS)
 
     print("CXR metadata:", meta.shape)
     print("ICU stays:", icu.shape)
     print("d_items:", d_items.shape)
     print("procedureevents:", proc.shape)
+    print("admissions:", adm.shape)
 
     section("3) Normalize IDs and times")
 
     meta = normalize_int_id(meta, ["subject_id", "study_id"])
     icu = normalize_int_id(icu, ["subject_id", "hadm_id", "stay_id"])
     proc = normalize_int_id(proc, ["subject_id", "hadm_id", "stay_id", "itemid"])
+    adm = normalize_int_id(adm, ["subject_id", "hadm_id"])
     d_items = normalize_int_id(d_items, ["itemid"])
 
     if "dicom_id" not in meta.columns:
@@ -734,6 +739,10 @@ def main():
 
     icu["intime"] = pd.to_datetime(icu["intime"], errors="coerce")
     icu["outtime"] = pd.to_datetime(icu["outtime"], errors="coerce")
+
+    for column in ["admittime", "dischtime", "deathtime"]:
+        if column in adm.columns:
+            adm[column] = pd.to_datetime(adm[column], errors="coerce")
 
     if "starttime" in proc.columns:
         proc["event_time"] = pd.to_datetime(proc["starttime"], errors="coerce")
@@ -882,6 +891,38 @@ def main():
     print("Unique stays:", cxr_icu["stay_id"].nunique())
     print("Unique dicoms:", cxr_icu["dicom_id"].nunique())
 
+    admission_columns = [
+        column
+        for column in [
+            "hadm_id",
+            "admittime",
+            "dischtime",
+            "deathtime",
+            "hospital_expire_flag",
+            "discharge_location",
+        ]
+        if column in adm.columns
+    ]
+
+    admission_data = (
+        adm[admission_columns]
+        .drop_duplicates("hadm_id")
+        .copy()
+    )
+
+    cxr_icu = cxr_icu.merge(
+        admission_data,
+        on="hadm_id",
+        how="left",
+        validate="many_to_one",
+    )
+
+    print(
+        "CXR rows with hospital discharge time:",
+        int(cxr_icu["dischtime"].notna().sum())
+        if "dischtime" in cxr_icu.columns else 0,
+    )
+
     section("7) Select respiratory intervention events")
 
     item_label_col = None
@@ -951,14 +992,28 @@ def main():
 
     events_by_stay = {
         int(stay_id): g.sort_values("event_time")
-        for stay_id, g in tqdm(resp_events.groupby("stay_id"), desc="Grouping events")
+        for stay_id, g in tqdm(
+            resp_events.groupby("stay_id"),
+            desc="Grouping respiratory events by ICU stay",
+        )
+    }
+
+    events_by_hadm = {
+        int(hadm_id): g.sort_values("event_time")
+        for hadm_id, g in tqdm(
+            resp_events[
+                resp_events["hadm_id"].notna()
+            ].groupby("hadm_id"),
+            desc="Grouping respiratory events by hospital admission",
+        )
     }
 
     def get_event_timing(row):
         stay_id = row["stay_id"]
+        hadm_id = row["hadm_id"]
         t = row["study_datetime"]
 
-        if pd.isna(stay_id) or pd.isna(t):
+        if pd.isna(t):
             return pd.Series({
                 "had_prior_resp_event": False,
                 "first_prior_resp_event_time": pd.NaT,
@@ -966,21 +1021,29 @@ def main():
                 "hours_to_future_resp_event": np.nan,
             })
 
-        ev = events_by_stay.get(int(stay_id), None)
+        prior_time = pd.NaT
+        had_prior = False
 
-        if ev is None or len(ev) == 0:
-            return pd.Series({
-                "had_prior_resp_event": False,
-                "first_prior_resp_event_time": pd.NaT,
-                "first_future_resp_event_time": pd.NaT,
-                "hours_to_future_resp_event": np.nan,
-            })
+        if pd.notna(stay_id):
+            prior_events = events_by_stay.get(int(stay_id))
 
-        prior = ev[ev["event_time"] <= t]
-        future = ev[ev["event_time"] > t]
+            if prior_events is not None and len(prior_events) > 0:
+                prior = prior_events[prior_events["event_time"] <= t]
 
-        prior_time = prior["event_time"].min() if len(prior) else pd.NaT
-        future_time = future["event_time"].min() if len(future) else pd.NaT
+                if len(prior) > 0:
+                    prior_time = prior["event_time"].min()
+                    had_prior = True
+
+        future_time = pd.NaT
+
+        if pd.notna(hadm_id):
+            future_events = events_by_hadm.get(int(hadm_id))
+
+            if future_events is not None and len(future_events) > 0:
+                future = future_events[future_events["event_time"] > t]
+
+                if len(future) > 0:
+                    future_time = future["event_time"].min()
 
         if pd.isna(future_time):
             hours = np.nan
@@ -988,7 +1051,7 @@ def main():
             hours = (future_time - t).total_seconds() / 3600.0
 
         return pd.Series({
-            "had_prior_resp_event": bool(len(prior) > 0),
+            "had_prior_resp_event": bool(had_prior),
             "first_prior_resp_event_time": prior_time,
             "first_future_resp_event_time": future_time,
             "hours_to_future_resp_event": hours,
@@ -1013,13 +1076,69 @@ def main():
     for window in [12, 24, 48, 72]:
         cxr_icu[f"label_event_{window}h"] = ((h > 0) & (h <= window)).astype(int)
 
+    horizon_72h = cxr_icu["study_datetime"] + pd.Timedelta(hours=72)
+
+    death_before_72h = (
+        cxr_icu["deathtime"].notna()
+        & (cxr_icu["deathtime"] > cxr_icu["study_datetime"])
+        & (cxr_icu["deathtime"] < horizon_72h)
+    )
+
+    discharge_before_72h = (
+        cxr_icu["dischtime"].notna()
+        & (cxr_icu["dischtime"] > cxr_icu["study_datetime"])
+        & (cxr_icu["dischtime"] < horizon_72h)
+    )
+
+    full_72h_observation = (
+        cxr_icu["dischtime"].notna()
+        & (cxr_icu["dischtime"] >= horizon_72h)
+        & (~death_before_72h)
+    )
+
+    cxr_icu["horizon_72h"] = horizon_72h
+    cxr_icu["death_before_72h"] = death_before_72h
+    cxr_icu["discharge_before_72h"] = discharge_before_72h
+    cxr_icu["full_72h_observation"] = full_72h_observation
+
+    positive_48h = (h > 0) & (h <= 48)
+    ambiguous_48_72h = (h > 48) & (h <= 72)
+    no_event_through_72h = h.isna() | (h > 72)
+
     cxr_icu["label_48h_stable72h"] = np.nan
-    cxr_icu.loc[(h > 0) & (h <= 48), "label_48h_stable72h"] = 1
-    cxr_icu.loc[h.isna() | (h > 72), "label_48h_stable72h"] = 0
+    cxr_icu.loc[positive_48h, "label_48h_stable72h"] = 1
+    cxr_icu.loc[
+        no_event_through_72h & full_72h_observation,
+        "label_48h_stable72h",
+    ] = 0
 
     cxr_icu["label_24h_stable72h"] = np.nan
     cxr_icu.loc[(h > 0) & (h <= 24), "label_24h_stable72h"] = 1
-    cxr_icu.loc[h.isna() | (h > 72), "label_24h_stable72h"] = 0
+    cxr_icu.loc[
+        no_event_through_72h & full_72h_observation,
+        "label_24h_stable72h",
+    ] = 0
+
+    cxr_icu["followup_72h_status"] = np.select(
+        [
+            positive_48h,
+            ambiguous_48_72h,
+            death_before_72h,
+            discharge_before_72h,
+            no_event_through_72h & full_72h_observation,
+        ],
+        [
+            "POSITIVE_EVENT_0_48H",
+            "EXCLUDE_EVENT_48_72H",
+            "EXCLUDE_DEATH_BEFORE_72H",
+            "EXCLUDE_HOSPITAL_DISCHARGE_BEFORE_72H",
+            "SOLID_NEGATIVE_FULL_72H",
+        ],
+        default="EXCLUDE_UNCERTAIN_72H_FOLLOWUP",
+    )
+
+    print("\nStrict 72-hour follow-up status:")
+    print(cxr_icu["followup_72h_status"].value_counts(dropna=False))
 
     if EXCLUDE_PRIOR_RESP_EVENT:
         cxr_clean = cxr_icu[~cxr_icu["had_prior_resp_event"]].copy()
@@ -1257,10 +1376,13 @@ def main():
     cohort["prediction_window_hours"] = 48
     cohort["stable_negative_window_hours"] = 72
     cohort["label_definition"] = (
-        "1=selected_respiratory_intervention_within_48h_after_CXR; "
-        "0=no_selected_respiratory_intervention_within_72h_after_CXR; "
+        "1=selected_respiratory_intervention_within_48h_after_CXR_across_same_hospitalization; "
+        "0=no_selected_respiratory_intervention_through_72h_with_complete_hospital_observation; "
         "prior_event_CXRs_excluded; "
-        "events_between_48h_and_72h_excluded"
+        "events_between_48h_and_72h_excluded; "
+        "death_before_72h_excluded; "
+        "hospital_discharge_before_72h_excluded; "
+        "uncertain_72h_followup_excluded"
     )
 
     front_cols = [
@@ -1280,6 +1402,13 @@ def main():
         "study_datetime",
         "intime",
         "outtime",
+        "dischtime",
+        "deathtime",
+        "horizon_72h",
+        "death_before_72h",
+        "discharge_before_72h",
+        "full_72h_observation",
+        "followup_72h_status",
         "hours_to_future_resp_event",
         "first_future_resp_event_time",
         "had_prior_resp_event",
@@ -1390,9 +1519,9 @@ def main():
             ),
         },
         "label": "label_48h_stable72h renamed to label",
-        "positive": "selected respiratory intervention within 48h after CXR",
-        "negative": "no selected respiratory intervention within 72h after CXR",
-        "excluded": "prior-event CXR rows and ambiguous 48-72h future-event rows",
+        "positive": "selected respiratory intervention within 48h after CXR across the same hospitalization",
+        "negative": "no selected respiratory intervention through 72h after CXR with complete hospital observation through the full 72h horizon",
+        "excluded": "prior-event CXR rows; first respiratory event 48-72h; death before 72h; hospital discharge before 72h; uncertain 72h follow-up",
         "counts": {
             "cohort_rows": int(len(cohort)),
             "positive": int((cohort["label"] == 1).sum()),
@@ -1423,7 +1552,7 @@ def main():
 
     print("\nRuntime minutes:", round((time.time() - t_start) / 60.0, 2))
 
-    del meta, icu, d_items, proc, proc_labeled
+    del meta, icu, adm, d_items, proc, proc_labeled
     gc.collect()
 
 

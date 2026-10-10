@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Normalize the final 30-feature EHR tensor using training-partition statistics."""
+"""Normalize the selected EHR tensor using training-partition statistics."""
 
 import argparse
 import json
@@ -139,11 +139,78 @@ def main():
     if X_raw.shape != mask.shape:
         raise RuntimeError(f"X_raw shape {X_raw.shape} does not match mask shape {mask.shape}")
 
-    if X_raw.shape[-1] != 30:
-        raise RuntimeError(f"Expected 30 final features, got {X_raw.shape[-1]}")
+    n_features = int(X_raw.shape[-1])
 
-    if len(features) != 30:
-        raise RuntimeError(f"Expected 30 rows in features CSV, got {len(features)}")
+    if n_features <= 0:
+        raise RuntimeError(
+            f"Final EHR tensor has invalid feature dimension: {X_raw.shape}"
+        )
+
+    if len(features) != n_features:
+        raise RuntimeError(
+            "Feature-count mismatch between final NPZ and features CSV: "
+            f"tensor has {n_features} features but CSV has {len(features)} rows."
+        )
+
+    identity_columns = ["source", "itemid", "label"]
+    missing_identity_columns = [
+        column
+        for column in identity_columns
+        if column not in features.columns
+    ]
+
+    if missing_identity_columns:
+        raise RuntimeError(
+            "Features CSV is missing required identity columns: "
+            f"{missing_identity_columns}"
+        )
+
+    csv_sources = features["source"].astype(str).to_numpy()
+    csv_itemids = features["itemid"].astype(str).to_numpy()
+    csv_labels = features["label"].astype(str).to_numpy()
+
+    npz_sources = sources.astype(str)
+    npz_itemids = itemids.astype(str)
+    npz_labels = labels.astype(str)
+
+    identity_match = (
+        np.array_equal(csv_sources, npz_sources)
+        and np.array_equal(csv_itemids, npz_itemids)
+        and np.array_equal(csv_labels, npz_labels)
+    )
+
+    if not identity_match:
+        mismatches = []
+
+        for index in range(n_features):
+            csv_identity = (
+                str(csv_sources[index]),
+                str(csv_itemids[index]),
+                str(csv_labels[index]),
+            )
+            npz_identity = (
+                str(npz_sources[index]),
+                str(npz_itemids[index]),
+                str(npz_labels[index]),
+            )
+
+            if csv_identity != npz_identity:
+                mismatches.append(
+                    {
+                        "index": index,
+                        "csv": csv_identity,
+                        "npz": npz_identity,
+                    }
+                )
+
+            if len(mismatches) >= 10:
+                break
+
+        raise RuntimeError(
+            "Feature identity/order mismatch between final NPZ and "
+            "features CSV. First mismatches: "
+            f"{mismatches}"
+        )
 
     X, feature_mean, feature_std = normalize_train_only(X_raw, mask, split)
 
@@ -182,7 +249,8 @@ def main():
     payload["value_sources"] = value_sources.astype(str)
     payload["feature_mean"] = feature_mean.astype(np.float32)
     payload["feature_std"] = feature_std.astype(np.float32)
-    payload["source"] = "final_30_feature_train_ready_current_split"
+    payload["source"] = "final_selected_feature_train_ready_current_split"
+    payload["n_features"] = np.array([n_features], dtype=np.int64)
 
     np.savez_compressed(output_npz, **payload)
 

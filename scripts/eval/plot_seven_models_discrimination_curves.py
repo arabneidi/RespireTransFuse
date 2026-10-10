@@ -1,4 +1,4 @@
-"""Plot held-out precision-recall and ROC curves for all seven models."""
+"""Plot held-out ROC and precision-recall curves for all seven models."""
 
 from pathlib import Path
 
@@ -43,16 +43,16 @@ MODEL_SPECS = {
     "EHR-Only": {
         "run_dir": BASE / "outputs/ehr_only",
         "probability_columns": [
-            "calibrated_prob",
-            "prob_calibrated",
-            "calibrated_probability",
-            "probability_calibrated",
-            "prob_cal",
             "prob",
             "ehr_prob",
             "probability",
             "raw_prob",
             "prob_raw",
+            "calibrated_prob",
+            "prob_calibrated",
+            "calibrated_probability",
+            "probability_calibrated",
+            "prob_cal",
         ],
         "logit_columns": [
             "ehr_logit",
@@ -87,7 +87,7 @@ MODEL_SPECS = {
         ],
     },
     "MedFuse Uni-CXR": {
-        "run_dir": BASE / "outputs/medfuse_cxr_only_resnet34",
+        "run_dir": BASE / "outputs/medfuse_uni_cxr_linear_probe_513",
         "probability_columns": [
             "prob",
             "probability",
@@ -104,7 +104,7 @@ MODEL_SPECS = {
     "MedFuse Multimodal LSTM": {
         "run_dir": (
             BASE
-            / "outputs/medfuse_multimodal_lstm"
+            / "outputs/medfuse_multimodal_lstm_26f_lr9e7_wd1e3_bs32"
         ),
         "probability_columns": [
             "prob",
@@ -429,10 +429,14 @@ prevalence = float(
     / reference_size
 )
 
-figure, axes = plt.subplots(
-    1,
-    2,
-    figsize=FIGSIZE,
+
+
+pr_figure, pr_axis = plt.subplots(
+    figsize=(8.5, 7)
+)
+
+roc_figure, roc_axis = plt.subplots(
+    figsize=(8.5, 7)
 )
 
 summary_rows = []
@@ -485,7 +489,7 @@ for model_name, data in loaded.items():
         else 2
     )
 
-    axes[0].plot(
+    pr_axis.plot(
         recall[::-1],
         precision[::-1],
         color=MODEL_COLORS[model_name],
@@ -497,7 +501,7 @@ for model_name, data in loaded.items():
         ),
     )
 
-    axes[1].plot(
+    roc_axis.plot(
         false_positive_rate,
         true_positive_rate,
         color=MODEL_COLORS[model_name],
@@ -524,7 +528,9 @@ for model_name, data in loaded.items():
         }
     )
 
-axes[0].axhline(
+
+
+pr_axis.axhline(
     prevalence,
     color="black",
     linestyle="--",
@@ -535,39 +541,39 @@ axes[0].axhline(
     ),
 )
 
-axes[0].set_title(
-    "Precision–Recall Curves",
-    fontsize=PLOT_TEXT_FONT_SIZE,
+pr_axis.set_title(
+    "Precision-Recall Curves",
+    fontsize=MAIN_TITLE_FONT_SIZE,
     fontweight="bold",
 )
 
-axes[0].set_xlabel(
+pr_axis.set_xlabel(
     "Recall",
     fontsize=PLOT_TEXT_FONT_SIZE,
     fontweight="bold",
 )
 
-axes[0].set_ylabel(
+pr_axis.set_ylabel(
     "Precision",
     fontsize=PLOT_TEXT_FONT_SIZE,
     fontweight="bold",
 )
 
-axes[0].set_xlim(
+pr_axis.set_xlim(
     0.0,
     1.0,
 )
 
-axes[0].set_ylim(
+pr_axis.set_ylim(
     0.0,
     1.0,
 )
 
-axes[0].grid(
+pr_axis.grid(
     alpha=GRID_ALPHA,
 )
 
-axes[0].legend(
+pr_axis.legend(
     loc="upper right",
     prop={
         "size": LEGEND_FONT_SIZE,
@@ -576,10 +582,14 @@ axes[0].legend(
 )
 
 set_tick_style(
-    axes[0]
+    pr_axis
 )
 
-axes[1].plot(
+pr_figure.tight_layout()
+
+
+
+roc_axis.plot(
     [0.0, 1.0],
     [0.0, 1.0],
     color="black",
@@ -588,39 +598,39 @@ axes[1].plot(
     label="Random ranking",
 )
 
-axes[1].set_title(
+roc_axis.set_title(
     "Receiver Operating Characteristic Curves",
-    fontsize=PLOT_TEXT_FONT_SIZE,
+    fontsize=MAIN_TITLE_FONT_SIZE,
     fontweight="bold",
 )
 
-axes[1].set_xlabel(
+roc_axis.set_xlabel(
     "False-positive rate",
     fontsize=PLOT_TEXT_FONT_SIZE,
     fontweight="bold",
 )
 
-axes[1].set_ylabel(
+roc_axis.set_ylabel(
     "True-positive rate",
     fontsize=PLOT_TEXT_FONT_SIZE,
     fontweight="bold",
 )
 
-axes[1].set_xlim(
+roc_axis.set_xlim(
     0.0,
     1.0,
 )
 
-axes[1].set_ylim(
+roc_axis.set_ylim(
     0.0,
     1.0,
 )
 
-axes[1].grid(
+roc_axis.grid(
     alpha=GRID_ALPHA,
 )
 
-axes[1].legend(
+roc_axis.legend(
     loc="lower right",
     prop={
         "size": LEGEND_FONT_SIZE,
@@ -629,47 +639,84 @@ axes[1].legend(
 )
 
 set_tick_style(
-    axes[1]
+    roc_axis
 )
 
-figure.suptitle(
-    "Test-Set Discrimination Curves",
-    fontsize=MAIN_TITLE_FONT_SIZE,
-    fontweight="bold",
-)
+roc_figure.tight_layout()
 
-figure.tight_layout(
-    rect=[
-        0,
-        0,
-        1,
-        0.94,
-    ]
-)
 
-png_path = (
+
+pr_png_path = (
     OUTPUT_DIR
-    / "seven_models_pr_and_roc_curves.png"
+    / "seven_models_pr_curves.png"
 )
 
-pdf_path = (
+pr_jpg_path = (
     OUTPUT_DIR
-    / "seven_models_pr_and_roc_curves.pdf"
+    / "seven_models_pr_curves.jpg"
 )
 
-figure.savefig(
-    png_path,
+pr_pdf_path = (
+    OUTPUT_DIR
+    / "seven_models_pr_curves.pdf"
+)
+
+pr_figure.savefig(
+    pr_png_path,
     dpi=300,
     bbox_inches="tight",
 )
 
-figure.savefig(
-    pdf_path,
+pr_figure.savefig(
+    pr_jpg_path,
+    dpi=300,
     bbox_inches="tight",
 )
 
+pr_figure.savefig(
+    pr_pdf_path,
+    bbox_inches="tight",
+)
+
+
+
+roc_png_path = (
+    OUTPUT_DIR
+    / "seven_models_roc_curves.png"
+)
+
+roc_jpg_path = (
+    OUTPUT_DIR
+    / "seven_models_roc_curves.jpg"
+)
+
+roc_pdf_path = (
+    OUTPUT_DIR
+    / "seven_models_roc_curves.pdf"
+)
+
+roc_figure.savefig(
+    roc_png_path,
+    dpi=300,
+    bbox_inches="tight",
+)
+
+roc_figure.savefig(
+    roc_jpg_path,
+    dpi=300,
+    bbox_inches="tight",
+)
+
+roc_figure.savefig(
+    roc_pdf_path,
+    bbox_inches="tight",
+)
+
+
 plt.show()
-plt.close(figure)
+
+plt.close(pr_figure)
+plt.close(roc_figure)
 
 summary = (
     pd.DataFrame(summary_rows)
@@ -715,9 +762,16 @@ print(
 )
 
 print()
-print("Saved figure:")
-print(png_path)
-print(pdf_path)
+print("Saved Precision--Recall figure:")
+print(pr_png_path)
+print(pr_jpg_path)
+print(pr_pdf_path)
+
+print()
+print("Saved ROC figure:")
+print(roc_png_path)
+print(roc_jpg_path)
+print(roc_pdf_path)
 
 print()
 print("Saved summary:")

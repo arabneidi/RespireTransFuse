@@ -3,7 +3,7 @@ model:
   name: early_fusion
   fusion_type: normalized_feature_concatenation
   fusion_dim: 8
-  fusion_dropout: 0.0
+  fusion_dropout: 0.7
 image_branch:
   backbone: tf_efficientnet_b0.ns_jft_in1k
   pretrained: true
@@ -41,17 +41,17 @@ freeze:
   train_fusion_layers: true
 training:
   seed: 42
-  epochs: 30
+  epochs: 20
   batch_size: 32
   num_workers: 2
   use_amp: false
   lr_image_backbone: 0.0
   lr_image_head: 2.0e-05
-  lr_ehr: 4.0e-05
+  lr_ehr: 4.0e-06
   lr_fusion: 0.0001
   weight_decay_image: 0.001
-  weight_decay_ehr: 0.001
-  weight_decay_fusion: 0.001
+  weight_decay_ehr: 0.005
+  weight_decay_fusion: 0.005
   warmup_epochs: 0
   min_lr_factor: 0.1
   grad_clip: 1.0
@@ -75,5 +75,5 @@ selection:
   min_delta_auprc: 0.0001
 outputs:
   root: outputs
-  model_dir: early_fusion_simple_classic
-experiment_name: early_fusion_simple_classic
+  model_dir: early_fusion
+experiment_name: early_fusion

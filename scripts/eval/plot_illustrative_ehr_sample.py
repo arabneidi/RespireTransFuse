@@ -112,9 +112,9 @@ if X.shape != M.shape:
         f"X and mask shapes differ: {X.shape} and {M.shape}"
     )
 
-if X.shape[1:] != (24, 30):
+if X.shape[1:] != (24, 26):
     raise RuntimeError(
-        f"Expected an EHR shape of [N, 24, 30], found {X.shape}."
+        f"Expected an EHR shape of [N, 24, 26], found {X.shape}."
     )
 
 if len(y) != len(X):
@@ -188,9 +188,9 @@ for row_index in range(len(candidate_indices)):
             + 1
         )
 
-cell_score = observed_cells / float(24 * 30)
+cell_score = observed_cells / float(24 * 26)
 hour_score = distinct_hours / 24.0
-feature_score = distinct_features / 30.0
+feature_score = distinct_features / 26.0
 balance_score = balanced_third_hours / 8.0
 span_score = temporal_span / 24.0
 

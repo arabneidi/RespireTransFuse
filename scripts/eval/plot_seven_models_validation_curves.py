@@ -72,7 +72,7 @@ MODEL_SPECS = {
         ],
     },
     "MedFuse Uni-CXR": {
-        "run_dir": OUTPUTS / "medfuse_cxr_only_resnet34",
+        "run_dir": OUTPUTS / "medfuse_uni_cxr_linear_probe_513",
         "probability_columns": [
             "prob",
             "probability",
@@ -87,7 +87,10 @@ MODEL_SPECS = {
         ],
     },
     "MedFuse Multimodal LSTM": {
-        "run_dir": OUTPUTS / "medfuse_multimodal_lstm",
+        "run_dir": (
+            OUTPUTS
+            / "medfuse_multimodal_lstm_26f_lr9e7_wd1e3_bs32"
+        ),
         "probability_columns": [
             "prob",
             "probability",

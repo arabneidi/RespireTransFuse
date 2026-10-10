@@ -134,40 +134,14 @@ def main():
     print("=" * 100)
     print("Original MedFuse training on Respire data")
     print("=" * 100)
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
+    print("Fusion type:", args.fusion_type)
+    print("EHR input dimension:", args.ehr_input_dim)
+    print("Output directory:", save_dir)
 
     batch = next(iter(train_loader))
     x, img, y_ehr, y_cxr, seq_lengths, pairs = batch
-
-    pass
-    pass
-    pass
-    pass
-    pass
-    pass
+    print("First batch EHR shape:", tuple(x.shape))
+    print("First batch image shape:", tuple(img.shape))
 
     trainer = FusionTrainer(
         train_dl=train_loader,

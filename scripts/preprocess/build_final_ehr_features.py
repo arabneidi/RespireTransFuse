@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Merge clinical and broad selection evidence into the final 30-feature tensor."""
+"""Merge clinical and broad selection evidence into the final 26-feature tensor."""
 
 import argparse
 import json
@@ -7,6 +7,11 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+
+
+EXPECTED_CLINICAL_FEATURES = 18
+EXPECTED_ALGORITHMIC_FEATURES = 8
+EXPECTED_TOTAL_FEATURES = 26
 
 
 CLINICAL_SELECTED = [
@@ -20,30 +25,26 @@ CLINICAL_SELECTED = [
     ("chartevents", "223835", "Inspired O2 Fraction"),
     ("labevents", "50813", "Lactate"),
     ("labevents", "50820", "pH"),
-    ("labevents", "50802", "Base Excess"),
+    ("labevents", "50821", "pO2"),
+    ("labevents", "50818", "pCO2"),
     ("labevents", "50882", "Bicarbonate"),
     ("labevents", "50811", "Hemoglobin"),
     ("labevents", "51301", "White Blood Cells"),
     ("labevents", "50912", "Creatinine"),
-    ("labevents", "51274", "PT"),
-    ("labevents", "51237", "INR(PT)"),
     ("labevents", "50960", "Magnesium"),
-    ("labevents", "50970", "Phosphate"),
-    ("labevents", "50893", "Calcium, Total"),
+    ("labevents", "50971", "Potassium"),
 ]
 
 
 ALGORITHMIC_SELECTED = [
     ("chartevents", "225638", "Differential-Bands"),
     ("chartevents", "220224", "Arterial O2 pressure"),
-    ("labevents", "50884", "Bilirubin, Indirect"),
-    ("chartevents", "226534", "Sodium (whole blood)"),
-    ("chartevents", "226536", "Chloride (whole blood)"),
-    ("chartevents", "229357", "Absolute Count - Neuts"),
-    ("labevents", "50924", "Ferritin"),
+    ("chartevents", "220235", "Arterial CO2 Pressure"),
+    ("chartevents", "225698", "TCO2 (calc) Arterial"),
+    ("labevents", "52172", "RDW-SD"),
     ("chartevents", "220632", "LDH"),
     ("labevents", "51214", "Fibrinogen, Functional"),
-    ("labevents", "51283", "Reticulocyte Count, Automated"),
+    ("chartevents", "226536", "Chloride (whole blood)"),
 ]
 
 
@@ -257,14 +258,23 @@ def main():
     final_df = pd.concat([final_clinical, final_algorithmic], ignore_index=True)
     final_df["final_feature_order"] = np.arange(len(final_df), dtype=int)
 
-    if len(final_clinical) != 20:
-        raise RuntimeError(f"Expected 20 clinical features, got {len(final_clinical)}")
+    if len(final_clinical) != EXPECTED_CLINICAL_FEATURES:
+        raise RuntimeError(
+            f"Expected {EXPECTED_CLINICAL_FEATURES} clinical features, "
+            f"got {len(final_clinical)}"
+        )
 
-    if len(final_algorithmic) != 10:
-        raise RuntimeError(f"Expected 10 algorithmic features, got {len(final_algorithmic)}")
+    if len(final_algorithmic) != EXPECTED_ALGORITHMIC_FEATURES:
+        raise RuntimeError(
+            f"Expected {EXPECTED_ALGORITHMIC_FEATURES} algorithmic features, "
+            f"got {len(final_algorithmic)}"
+        )
 
-    if len(final_df) != 30:
-        raise RuntimeError(f"Expected 30 final features, got {len(final_df)}")
+    if len(final_df) != EXPECTED_TOTAL_FEATURES:
+        raise RuntimeError(
+            f"Expected {EXPECTED_TOTAL_FEATURES} final features, "
+            f"got {len(final_df)}"
+        )
 
     duplicate_mask = final_df.duplicated(["source", "itemid", "label"], keep=False)
     if duplicate_mask.any():
@@ -286,8 +296,11 @@ def main():
 
     payload = build_final_npz(z, broad_indices)
 
-    if payload["X_raw"].shape[2] != 30:
-        raise RuntimeError(f"Expected final feature dimension 30, got {payload['X_raw'].shape}")
+    if payload["X_raw"].shape[2] != EXPECTED_TOTAL_FEATURES:
+        raise RuntimeError(
+            f"Expected final feature dimension {EXPECTED_TOTAL_FEATURES}, "
+            f"got {payload['X_raw'].shape}"
+        )
 
     np.savez_compressed(output_npz_path, **payload)
 

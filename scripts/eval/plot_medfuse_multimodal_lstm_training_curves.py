@@ -11,7 +11,10 @@ from sklearn.metrics import brier_score_loss
 
 
 BASE = Path("/content/drive/MyDrive/respire-transfuse")
-RUN_DIR = BASE / "outputs/medfuse_multimodal_lstm"
+RUN_DIR = (
+    BASE
+    / "outputs/medfuse_multimodal_lstm_26f_lr9e7_wd1e3_bs32"
+)
 HISTORY_PATH = RUN_DIR / "history.csv"
 PREDICTIONS_PATH = RUN_DIR / "test_predictions.csv"
 SAVE_PATH = (

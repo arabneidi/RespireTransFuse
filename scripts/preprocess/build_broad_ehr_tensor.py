@@ -260,7 +260,7 @@ def scan_labevents_for_candidate_stats(
 
     reader = pd.read_csv(
         LABEVENTS,
-        usecols=["subject_id", "hadm_id", "itemid", "charttime", "valuenum"],
+        usecols=["subject_id", "hadm_id", "itemid", "charttime", "storetime", "valuenum"],
         chunksize=CHUNKSIZE_LABEVENTS,
     )
 
@@ -288,7 +288,11 @@ def scan_labevents_for_candidate_stats(
             continue
 
         chunk["charttime"] = pd.to_datetime(chunk["charttime"], errors="coerce")
-        chunk = chunk[chunk["charttime"].notna()].copy()
+        chunk["storetime"] = pd.to_datetime(chunk["storetime"], errors="coerce")
+        chunk = chunk[
+            chunk["charttime"].notna()
+            & chunk["storetime"].notna()
+        ].copy()
         if chunk.empty:
             continue
 
@@ -296,6 +300,7 @@ def scan_labevents_for_candidate_stats(
         merged = merged[
             (merged["charttime"] >= merged["window_start"])
             & (merged["charttime"] <= merged["window_end"])
+            & (merged["storetime"] <= merged["window_end"])
         ].copy()
 
         after_time += len(merged)
@@ -503,7 +508,7 @@ def fill_tensor_from_labevents(
 ):
     reader = pd.read_csv(
         LABEVENTS,
-        usecols=["subject_id", "hadm_id", "itemid", "charttime", "valuenum"],
+        usecols=["subject_id", "hadm_id", "itemid", "charttime", "storetime", "valuenum"],
         chunksize=CHUNKSIZE_LABEVENTS,
     )
 
@@ -528,7 +533,11 @@ def fill_tensor_from_labevents(
             continue
 
         chunk["charttime"] = pd.to_datetime(chunk["charttime"], errors="coerce")
-        chunk = chunk[chunk["charttime"].notna()].copy()
+        chunk["storetime"] = pd.to_datetime(chunk["storetime"], errors="coerce")
+        chunk = chunk[
+            chunk["charttime"].notna()
+            & chunk["storetime"].notna()
+        ].copy()
         if chunk.empty:
             continue
 
@@ -536,6 +545,7 @@ def fill_tensor_from_labevents(
         merged = merged[
             (merged["charttime"] >= merged["window_start"])
             & (merged["charttime"] <= merged["window_end"])
+            & (merged["storetime"] <= merged["window_end"])
         ].copy()
 
         if merged.empty:

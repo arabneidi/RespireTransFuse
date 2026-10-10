@@ -580,8 +580,19 @@ def apply_events_to_tensor(events, X_sum, X_count, feature_map, window_hours, ti
     if events.empty:
         return 0
 
-    delta_hours = (events[time_col] - events["window_start"]).dt.total_seconds() / 3600.0
-    events["hour_index"] = np.floor(delta_hours).astype("int64")
+    delta_hours = (
+        events[time_col] - events["window_start"]
+    ).dt.total_seconds() / 3600.0
+
+    hour_index = np.floor(delta_hours).astype("int64")
+    at_prediction_time = np.isclose(
+        delta_hours.to_numpy(dtype=float),
+        float(window_hours),
+        atol=1e-9,
+        rtol=0.0,
+    )
+    hour_index.loc[at_prediction_time] = int(window_hours) - 1
+    events["hour_index"] = hour_index
 
     events = events[
         (events["hour_index"] >= 0)
@@ -681,7 +692,7 @@ def process_chartevents(root, cohort_df, features, X_sum, X_count, chunksize, wi
 
         merged = merged[
             (merged["charttime"] >= merged["window_start"])
-            & (merged["charttime"] < merged["prediction_time"])
+            & (merged["charttime"] <= merged["prediction_time"])
         ].copy()
 
         if merged.empty:
@@ -736,7 +747,7 @@ def process_labevents(root, cohort_df, features, X_sum, X_count, chunksize, wind
 
         needed_hadm = set(cohort_lab["hadm_id"].astype(int).tolist())
 
-        usecols = ["subject_id", "hadm_id", "charttime", "itemid", "valuenum"]
+        usecols = ["subject_id", "hadm_id", "charttime", "storetime", "itemid", "valuenum"]
 
         print("Lab matching mode: hadm_id + time window")
         print("Cohort rows with hadm_id:", len(cohort_lab))
@@ -754,7 +765,7 @@ def process_labevents(root, cohort_df, features, X_sum, X_count, chunksize, wind
 
         needed_subjects = set(cohort_lab["subject_id"].astype(int).tolist())
 
-        usecols = ["subject_id", "hadm_id", "charttime", "itemid", "valuenum"]
+        usecols = ["subject_id", "hadm_id", "charttime", "storetime", "itemid", "valuenum"]
 
         print("Lab matching mode: subject_id + time window")
         print("Reason: cohort has no usable hadm_id")
@@ -800,10 +811,12 @@ def process_labevents(root, cohort_df, features, X_sum, X_count, chunksize, wind
             merge_cols = ["subject_id"]
 
         chunk["charttime"] = pd.to_datetime(chunk["charttime"], errors="coerce")
+        chunk["storetime"] = pd.to_datetime(chunk["storetime"], errors="coerce")
         chunk["valuenum"] = pd.to_numeric(chunk["valuenum"], errors="coerce")
 
         chunk = chunk[
             chunk["charttime"].notna()
+            & chunk["storetime"].notna()
             & np.isfinite(chunk["valuenum"])
         ].copy()
 
@@ -824,7 +837,8 @@ def process_labevents(root, cohort_df, features, X_sum, X_count, chunksize, wind
 
         merged = merged[
             (merged["charttime"] >= merged["window_start"])
-            & (merged["charttime"] < merged["prediction_time"])
+            & (merged["charttime"] <= merged["prediction_time"])
+            & (merged["storetime"] <= merged["prediction_time"])
         ].copy()
 
         if merged.empty:

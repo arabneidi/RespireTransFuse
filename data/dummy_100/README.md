@@ -1,6 +1,6 @@
 # Dummy 100 smoke-test pack
 
-This folder contains a committed 100-sample subset for checking the complete training workflow before using the full MIMIC data. It preserves the cohort schema, 24 x 30 EHR tensor shape, patient-level split labels, outcome distribution, and paired chest X-ray paths used by the main experiments.
+This folder contains a committed 100-sample execution pack for checking the complete training workflow before using the full MIMIC data. It follows the current 24 x 26 EHR input contract and includes patient-level split labels with paired chest X-ray paths.
 
 ## Included files
 
@@ -39,4 +39,4 @@ The equivalent shell launcher is available for macOS, Linux, WSL, and Git Bash:
 bash data/dummy_100/run_2epoch_7_models.sh
 ```
 
-Outputs are written to `outputs/dummy_100/`. The two-epoch runs are intended only to verify data loading, model construction, optimization, checkpointing, and output generation; their metrics are not scientific results.
+Outputs are written to `outputs/dummy_100/`. The two-epoch runs are intended only to verify data loading, model construction, optimization, checkpointing, and output generation. The compact pack is not a cohort snapshot and its metrics are not scientific results.

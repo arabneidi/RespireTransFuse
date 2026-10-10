@@ -15,7 +15,7 @@ BASE = Path("/content/drive/MyDrive/respire-transfuse")
 RUN_DIR = (
     BASE
     / "outputs"
-    / "medfuse_cxr_only_resnet34"
+    / "medfuse_uni_cxr_linear_probe_513"
 )
 
 HISTORY_PATH = (
@@ -49,7 +49,7 @@ SUMMARY_CSV_PATH = (
 )
 
 START_EPOCH = 1
-MAX_EPOCH = 30
+MAX_EPOCH = 20
 
 LOSS_YLIM = (0.3, 0.5)
 AUROC_YLIM = (0.5, 0.8)

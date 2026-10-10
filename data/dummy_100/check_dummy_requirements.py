@@ -3,6 +3,7 @@
 from pathlib import Path
 import sys
 
+import numpy as np
 import pandas as pd
 
 
@@ -102,6 +103,77 @@ def main():
                         display_path(image_path)
                     )
                     break
+
+        if len(cohort) != 100:
+            errors.append(
+                f"Expected 100 cohort rows, found {len(cohort)}"
+            )
+
+        if EHR_PATH.exists() and not missing_columns:
+            with np.load(EHR_PATH, allow_pickle=True) as ehr:
+                required_arrays = {
+                    "X",
+                    "M",
+                    "X_raw",
+                    "mask",
+                    "y",
+                    "split",
+                    "sample_id",
+                    "labels",
+                    "sources",
+                    "itemids",
+                }
+                missing_arrays = sorted(
+                    required_arrays.difference(ehr.files)
+                )
+
+                if missing_arrays:
+                    errors.append(
+                        "Missing EHR arrays: "
+                        + ", ".join(missing_arrays)
+                    )
+                else:
+                    if ehr["X"].shape != (100, 24, 26):
+                        errors.append(
+                            "Expected X shape (100, 24, 26), "
+                            f"found {ehr['X'].shape}"
+                        )
+
+                    if ehr["M"].shape != ehr["X"].shape:
+                        errors.append(
+                            "EHR value and mask shapes do not match"
+                        )
+
+                    sample_ids = cohort["sample_id"].astype(str).to_numpy()
+                    labels = cohort["label"].astype(int).to_numpy()
+                    splits = cohort["split"].astype(str).to_numpy()
+
+                    if not np.array_equal(
+                        sample_ids,
+                        ehr["sample_id"].astype(str),
+                    ):
+                        errors.append(
+                            "Cohort and EHR sample order do not match"
+                        )
+
+                    if not np.array_equal(labels, ehr["y"].astype(int)):
+                        errors.append(
+                            "Cohort and EHR labels do not match"
+                        )
+
+                    if not np.array_equal(
+                        splits,
+                        ehr["split"].astype(str),
+                    ):
+                        errors.append(
+                            "Cohort and EHR splits do not match"
+                        )
+
+                    if len(ehr["labels"]) != 26:
+                        errors.append(
+                            "Expected 26 EHR feature labels, "
+                            f"found {len(ehr['labels'])}"
+                        )
 
     if errors:
         print("Missing or invalid resources:")

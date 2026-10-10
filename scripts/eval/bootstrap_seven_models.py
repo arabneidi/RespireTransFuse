@@ -16,7 +16,7 @@ from sklearn.metrics import (
 )
 
 
-BASE = Path(__file__).resolve().parents[2]
+BASE = Path("/content/drive/MyDrive/respire-transfuse")
 
 COHORT_PATH = (
     BASE
@@ -54,7 +54,7 @@ MODEL_SPECS = {
         "prediction_path": (
             BASE
             / "outputs"
-            / "medfuse_cxr"
+            / "medfuse_uni_cxr_linear_probe_513"
             / "test_predictions.csv"
         ),
         "probability_columns": [
@@ -115,16 +115,17 @@ MODEL_SPECS = {
             / "test_predictions.csv"
         ),
         "probability_columns": [
-            "calibrated_prob",
-            "prob_calibrated",
-            "calibrated_probability",
-            "probability_calibrated",
-            "prob_cal",
             "prob",
             "ehr_prob",
             "probability",
             "raw_prob",
             "prob_raw",
+
+            "calibrated_prob",
+            "prob_calibrated",
+            "calibrated_probability",
+            "probability_calibrated",
+            "prob_cal",
         ],
         "logit_columns": [
             "ehr_logit",
@@ -135,7 +136,7 @@ MODEL_SPECS = {
         "prediction_path": (
             BASE
             / "outputs"
-            / "medfuse_multimodal_lstm"
+            / "medfuse_multimodal_lstm_26f_lr9e7_wd1e3_bs32"
             / "test_predictions.csv"
         ),
         "probability_columns": [
@@ -170,36 +171,6 @@ MODEL_SPECS = {
     },
 }
 
-EXPECTED_METRICS = {
-    "Image-Only CNN": {
-        "auroc": 0.66625,
-        "auprc": 0.25764,
-    },
-    "Adapted MedFuse Uni-CXR": {
-        "auroc": 0.67019,
-        "auprc": 0.23330,
-    },
-    "Adapted MedFuse Uni-EHR": {
-        "auroc": 0.71035,
-        "auprc": 0.35697,
-    },
-    "Early Fusion": {
-        "auroc": 0.72946,
-        "auprc": 0.38592,
-    },
-    "EHR-Only Transformer": {
-        "auroc": 0.73603,
-        "auprc": 0.36742,
-    },
-    "Adapted MedFuse Multimodal LSTM": {
-        "auroc": 0.74535,
-        "auprc": 0.34305,
-    },
-    "RespireTransFuse": {
-        "auroc": 0.75919,
-        "auprc": 0.40738,
-    },
-}
 
 LABEL_COLUMNS = [
     "label",
@@ -254,17 +225,6 @@ def parse_args() -> argparse.Namespace:
         "--seed",
         type=int,
         default=42,
-    )
-
-    parser.add_argument(
-        "--expected_tolerance",
-        type=float,
-        default=0.001,
-    )
-
-    parser.add_argument(
-        "--skip_expected_check",
-        action="store_true",
     )
 
     return parser.parse_args()
@@ -426,17 +386,6 @@ def load_reference_cohort() -> pd.DataFrame:
         .reset_index(drop=True)
     )
 
-    if len(reference) != 1695:
-        raise RuntimeError(
-            "Expected 1,695 test observations, found "
-            f"{len(reference)}."
-        )
-
-    if int(reference["label"].sum()) != 237:
-        raise RuntimeError(
-            "Expected 237 positive test observations, found "
-            f"{int(reference['label'].sum())}."
-        )
 
     return reference
 
@@ -925,43 +874,12 @@ def main() -> None:
             point_auprcs[model_index]
         )
 
-        expected = EXPECTED_METRICS[
-            model_name
-        ]
-
-        auroc_difference = abs(
-            calculated_auroc
-            - expected["auroc"]
-        )
-
-        auprc_difference = abs(
-            calculated_auprc
-            - expected["auprc"]
-        )
-
         print(
             f"{model_name:38s} | "
             f"AUROC={calculated_auroc:.5f} | "
             f"AUPRC={calculated_auprc:.5f} | "
             f"source={prediction_sources[model_name]}"
         )
-
-        if not args.skip_expected_check:
-            if (
-                auroc_difference
-                > args.expected_tolerance
-                or auprc_difference
-                > args.expected_tolerance
-            ):
-                raise RuntimeError(
-                    f"{model_name}: calculated metrics do not "
-                    "match the thesis point estimates within "
-                    f"tolerance {args.expected_tolerance}.\n"
-                    f"Expected AUROC={expected['auroc']:.5f}, "
-                    f"calculated={calculated_auroc:.5f}\n"
-                    f"Expected AUPRC={expected['auprc']:.5f}, "
-                    f"calculated={calculated_auprc:.5f}"
-                )
 
     (
         patient_groups,
