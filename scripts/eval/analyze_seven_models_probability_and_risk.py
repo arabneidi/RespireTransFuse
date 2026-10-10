@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 import numpy as np
 import pandas as pd
+import torch
 
 from scipy.stats import beta
 from sklearn.metrics import (
@@ -13,13 +14,21 @@ from sklearn.metrics import (
     roc_auc_score,
 )
 
+from compare_seven_models_raw_and_calibrated import (
+    MODEL_SPECS as RAW_MODEL_SPECS,
+    calibrated_probabilities,
+    fit_temperature_bias,
+    load_raw_predictions,
+    load_reference_split,
+)
 
-BASE = Path("/content/drive/MyDrive/respire-transfuse")
+
+BASE = Path(__file__).resolve().parents[2]
 
 OUTPUT_DIR = (
     BASE
     / "outputs"
-    / "seven_model_probability_and_risk_analysis_respire_calibrated"
+    / "seven_model_probability_and_risk_analysis_calibrated"
 )
 
 OUTPUT_DIR.mkdir(
@@ -28,123 +37,16 @@ OUTPUT_DIR.mkdir(
 )
 
 MODEL_SPECS = {
-    "Image-Only": {
-        "run_dir": BASE / "outputs/image_only",
-        "probability_columns": [
-            "image_prob",
-            "prob",
-            "probability",
-        ],
-        "logit_columns": [
-            "image_logit",
-            "logit",
-        ],
-    },
-    "EHR-Only": {
-        "run_dir": BASE / "outputs/ehr_only",
-        "probability_columns": [
-            "prob",
-            "ehr_prob",
-            "probability",
-            "raw_prob",
-            "prob_raw",
-
-            "calibrated_prob",
-            "prob_calibrated",
-            "calibrated_probability",
-            "probability_calibrated",
-            "prob_cal",
-        ],
-        "logit_columns": [
-            "ehr_logit",
-            "logit",
-        ],
-    },
-    "Early Fusion": {
-        "run_dir": BASE / "outputs/early_fusion",
-        "probability_columns": [
-            "fusion_prob",
-            "prob",
-            "probability",
-        ],
-        "logit_columns": [
-            "fusion_logit",
-            "logit",
-        ],
-    },
-    "MedFuse Uni-EHR": {
-        "run_dir": BASE / "outputs/medfuse_ehr",
-        "probability_columns": [
-            "prob",
-            "probability",
-            "medfuse_prob",
-            "fusion_prob",
-            "y_prob",
-            "score",
-        ],
-        "logit_columns": [
-            "logit",
-            "logits",
-        ],
-    },
-    "MedFuse Uni-CXR": {
-        "run_dir": BASE / "outputs/medfuse_uni_cxr_linear_probe_513",
-        "probability_columns": [
-            "prob",
-            "probability",
-            "medfuse_prob",
-            "fusion_prob",
-            "y_prob",
-            "score",
-        ],
-        "logit_columns": [
-            "logit",
-            "logits",
-        ],
-    },
-    "MedFuse Multimodal LSTM": {
-        "run_dir": (
-            BASE
-            / "outputs/medfuse_multimodal_lstm_26f_lr9e7_wd1e3_bs32"
-        ),
-        "probability_columns": [
-            "prob",
-            "probability",
-            "medfuse_prob",
-            "fusion_prob",
-            "y_prob",
-            "score",
-        ],
-        "logit_columns": [
-            "logit",
-            "logits",
-        ],
-    },
-    "RespireTransFuse": {
-        "run_dir": BASE / "outputs/respire_transfuse",
-
-        "prediction_file": "test_predictions_calibrated.csv",
-
-        "require_probability_column": True,
-
-        "probability_columns": [
-            "fusion_prob_calibrated",
-        ],
-
-        "logit_columns": [
-            "fusion_logit_calibrated",
-        ],
-    },
+    "Image-Only": RAW_MODEL_SPECS["Image-Only CNN"],
+    "EHR-Only": RAW_MODEL_SPECS["EHR-Only Transformer"],
+    "Early Fusion": RAW_MODEL_SPECS["Early Fusion"],
+    "MedFuse Uni-EHR": RAW_MODEL_SPECS["Adapted MedFuse Uni-EHR"],
+    "MedFuse Uni-CXR": RAW_MODEL_SPECS["Adapted MedFuse Uni-CXR"],
+    "MedFuse Multimodal LSTM": RAW_MODEL_SPECS[
+        "Adapted MedFuse Multimodal LSTM"
+    ],
+    "RespireTransFuse": RAW_MODEL_SPECS["RespireTransFuse"],
 }
-
-LABEL_COLUMNS = [
-    "label",
-    "labels",
-    "target",
-    "targets",
-    "y_true",
-    "gt",
-]
 
 N_CALIBRATION_BINS = 10
 N_BOOTSTRAPS = 5000
@@ -155,50 +57,6 @@ PLOT_TEXT_FONT_SIZE = 16
 LEGEND_FONT_SIZE = 17
 TICK_FONT_SIZE = 14
 ANNOTATION_FONT_SIZE = 13
-
-
-def flatten(values):
-    values = np.asarray(values)
-    values = np.squeeze(values)
-
-    if values.ndim != 1:
-        raise RuntimeError(
-            f"Expected one-dimensional values, got {values.shape}"
-        )
-
-    return values
-
-
-def sigmoid(values):
-    values = np.asarray(
-        values,
-        dtype=np.float64,
-    )
-
-    values = np.clip(
-        values,
-        -50.0,
-        50.0,
-    )
-
-    return 1.0 / (
-        1.0 + np.exp(-values)
-    )
-
-
-def find_column(frame, candidates):
-    column_lookup = {
-        str(column).strip().lower(): column
-        for column in frame.columns
-    }
-
-    for candidate in candidates:
-        candidate_key = candidate.strip().lower()
-
-        if candidate_key in column_lookup:
-            return column_lookup[candidate_key]
-
-    return None
 
 
 def set_tick_style(axis):
@@ -214,193 +72,45 @@ def set_tick_style(axis):
         label.set_fontweight("bold")
 
 
-def validate_predictions(
-    labels,
-    probabilities,
-    model_name,
-):
-    labels = flatten(
-        labels
-    ).astype(float)
-
-    probabilities = flatten(
-        probabilities
-    ).astype(float)
-
-    if len(labels) != len(probabilities):
-        raise RuntimeError(
-            f"{model_name}: labels and predictions "
-            "have different lengths."
-        )
-
-    if not np.isfinite(labels).all():
-        raise RuntimeError(
-            f"{model_name}: labels contain invalid values."
-        )
-
-    if not np.isfinite(probabilities).all():
-        raise RuntimeError(
-            f"{model_name}: predictions contain invalid values."
-        )
-
-    labels = labels.astype(int)
-
-    if not set(
-        np.unique(labels).tolist()
-    ).issubset({0, 1}):
-        raise RuntimeError(
-            f"{model_name}: labels must be binary."
-        )
-
-    probabilities = np.clip(
-        probabilities,
-        1e-7,
-        1.0 - 1e-7,
-    )
-
-    return labels, probabilities
-
-
-def load_test_predictions(
+def load_calibrated_test_predictions(
     model_name,
     spec,
+    validation_reference,
+    test_reference,
 ):
-    prediction_path = (
-        spec["run_dir"]
-        / spec.get(
-            "prediction_file",
-            "test_predictions.csv",
-        )
-    )
-
-    if not prediction_path.exists():
-        raise FileNotFoundError(
-            prediction_path
-        )
-
-    frame = pd.read_csv(
-        prediction_path
-    )
-
-    label_column = find_column(
-        frame,
-        LABEL_COLUMNS,
-    )
-
-    if label_column is None:
-        raise RuntimeError(
-            f"{model_name}: no label column found. "
-            f"Available columns: {frame.columns.tolist()}"
-        )
-
-    probability_column = find_column(
-        frame,
-        spec["probability_columns"],
-    )
-
-    if probability_column is None:
-        if bool(
-            spec.get(
-                "require_probability_column",
-                False,
-            )
-        ):
-            raise RuntimeError(
-                f"{model_name}: required probability "
-                f"column not found. Expected one of "
-                f"{spec['probability_columns']}. "
-                f"Available columns: "
-                f"{frame.columns.tolist()}"
-            )
-
-        probability_column = next(
-            (
-                column
-                for column in frame.columns
-                if "prob" in str(column).lower()
-            ),
-            None,
-        )
-
-    labels = pd.to_numeric(
-        frame[label_column],
-        errors="coerce",
-    ).to_numpy(dtype=float)
-
-    if probability_column is not None:
-        probabilities = pd.to_numeric(
-            frame[probability_column],
-            errors="coerce",
-        ).to_numpy(dtype=float)
-
-        prediction_source = probability_column
-    else:
-        logit_column = find_column(
-            frame,
-            spec["logit_columns"],
-        )
-
-        if logit_column is not None:
-            logits = pd.to_numeric(
-                frame[logit_column],
-                errors="coerce",
-            ).to_numpy(dtype=float)
-
-            probabilities = sigmoid(
-                logits
-            )
-
-            prediction_source = (
-                f"{logit_column} converted with sigmoid"
-            )
-        else:
-            prediction_column = find_column(
-                frame,
-                [
-                    "prediction",
-                    "pred",
-                ],
-            )
-
-            if prediction_column is None:
-                raise RuntimeError(
-                    f"{model_name}: no probability, logit, "
-                    "or prediction column found. "
-                    f"Available columns: "
-                    f"{frame.columns.tolist()}"
-                )
-
-            prediction_values = pd.to_numeric(
-                frame[prediction_column],
-                errors="coerce",
-            ).to_numpy(dtype=float)
-
-            if (
-                prediction_values.min() < 0.0
-                or prediction_values.max() > 1.0
-            ):
-                probabilities = sigmoid(
-                    prediction_values
-                )
-
-                prediction_source = (
-                    f"{prediction_column} "
-                    "converted with sigmoid"
-                )
-            else:
-                probabilities = prediction_values
-                prediction_source = prediction_column
-
-    labels, probabilities = validate_predictions(
-        labels,
-        probabilities,
+    validation_frame, _, _, _ = load_raw_predictions(
         model_name,
+        spec,
+        "val",
+        validation_reference,
+    )
+
+    test_frame, _, _, _ = load_raw_predictions(
+        model_name,
+        spec,
+        "test",
+        test_reference,
+    )
+
+    temperature, bias = fit_temperature_bias(
+        validation_frame["raw_logit"].to_numpy(dtype=np.float64),
+        validation_frame["label"].to_numpy(dtype=int),
+        torch.device("cpu"),
+        max_iter=200,
+    )
+
+    probabilities = calibrated_probabilities(
+        test_frame["raw_logit"].to_numpy(dtype=np.float64),
+        temperature,
+        bias,
     )
 
     return {
-        "labels": labels,
+        "labels": test_frame["label"].to_numpy(dtype=int),
         "probabilities": probabilities,
-        "source": prediction_source,
+        "source": "validation-fitted temperature+bias",
+        "temperature": float(temperature),
+        "bias": float(bias),
     }
 
 
@@ -706,10 +416,20 @@ def build_risk_tertiles(
     )
 
 
+validation_reference = load_reference_split(
+    "val"
+)
+
+test_reference = load_reference_split(
+    "test"
+)
+
 loaded = {
-    model_name: load_test_predictions(
+    model_name: load_calibrated_test_predictions(
         model_name,
         spec,
+        validation_reference,
+        test_reference,
     )
     for model_name, spec in MODEL_SPECS.items()
 }
@@ -877,6 +597,12 @@ for model_index, (
         probabilities,
     )
 
+    risk_table.insert(
+        1,
+        "Prediction state",
+        "validation-calibrated",
+    )
+
     risk_tables.append(
         risk_table
     )
@@ -908,6 +634,11 @@ for model_index, (
         {
             "Model": model_name,
             "Prediction source": data["source"],
+            "Calibration fit split": "validation",
+            "Calibration temperature": data[
+                "temperature"
+            ],
+            "Calibration bias": data["bias"],
             "Test N": int(len(labels)),
             "Test positives": int(labels.sum()),
             "Prevalence": common_prevalence,
@@ -1285,7 +1016,7 @@ figure.legend(
 )
 
 figure.suptitle(
-    "Observed Deterioration Across Predicted-Risk Tertiles",
+    "Observed Deterioration Across Validation-Calibrated Risk Tertiles",
     fontsize=MAIN_TITLE_FONT_SIZE,
     fontweight="bold",
 )
@@ -1352,12 +1083,12 @@ for separator_y in [
 
 risk_png_path = (
     OUTPUT_DIR
-    / "seven_model_risk_tertiles_4x2.png"
+    / "seven_model_calibrated_risk_tertiles_4x2.png"
 )
 
 risk_pdf_path = (
     OUTPUT_DIR
-    / "seven_model_risk_tertiles_4x2.pdf"
+    / "seven_model_calibrated_risk_tertiles_4x2.pdf"
 )
 
 figure.savefig(

@@ -48,6 +48,8 @@ All models were evaluated on the same held-out test set of 1,430 samples, includ
 
 RespireTransFuse achieved the highest observed AUROC and AUPRC in this internal comparison. Validation-fitted logistic calibration changed its mean predicted risk from 0.1316 to 0.1776, close to the 0.1741 test prevalence, while reducing the Brier score from 0.1338 to 0.1276 and expected calibration error from 0.0716 to 0.0219. Rank-based discrimination metrics are unchanged by this monotonic calibration step.
 
+For calibrated probability and risk-tertile analyses, the same post-hoc temperature-and-bias procedure is fitted independently for each of the seven models using validation predictions only, then applied unchanged to the held-out test predictions.
+
 ## Model design
 
 The repository contains four project models and three adapted MedFuse baselines:
@@ -137,7 +139,7 @@ python start_preprocessing.py
 ```
 
 <p align="center">
-  <img src="docs/assets/preprocessing_pipeline.jpg" alt="RespireTransFuse preprocessing pipeline" width="820">
+  <img src="docs/assets/preprocessing_pipeline.jpg" alt="RespireTransFuse 26-feature preprocessing pipeline" width="820">
 </p>
 
 The launcher checks source files and validates every stage:
@@ -172,7 +174,7 @@ Use `python start_training.py --help` for the complete model list or `--dry-run`
 
 ## Evaluation
 
-Post-training analysis scripts under `scripts/eval/` generate discrimination curves, bootstrap comparisons, calibration analyses, and predicted-risk summaries. The current seven-model workflow includes raw and calibrated metric comparison plus a dedicated RespireTransFuse calibration figure. Set the `BASE` path near the top of standalone figure scripts when running outside the original project environment.
+Post-training analysis scripts under `scripts/eval/` generate discrimination curves, bootstrap comparisons, calibration analyses, and predicted-risk summaries. The seven-model calibration workflow fits each model independently on validation predictions and uses those calibrated test probabilities for the risk-tertile analysis. A separate RespireTransFuse figure shows its raw and calibrated reliability curves in detail.
 
 ## Repository structure
 

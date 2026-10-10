@@ -6,9 +6,7 @@ import pandas as pd
 from matplotlib.colors import TwoSlopeNorm
 
 
-TEXT_SCALE_APPLIED = 1.5
-
-BASE = Path("/content/drive/MyDrive/respire-transfuse")
+BASE = Path(__file__).resolve().parents[2]
 
 COHORT_PATH = BASE / "data" / "processed" / "cohorts" / "cohort.csv"
 
@@ -24,17 +22,18 @@ EHR_PATH = (
 OUT_DIR = BASE / "outputs" / "thesis_figures" / "dataset_figures"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-TOP_CANDIDATES_PATH = OUT_DIR / "illustrative_ehr_sample_candidates.csv"
-PNG_PATH = OUT_DIR / "12_illustrative_ehr_sample_broad_temporal_coverage.png"
-PDF_PATH = OUT_DIR / "12_illustrative_ehr_sample_broad_temporal_coverage.pdf"
+TOP_CANDIDATES_PATH = (
+    OUT_DIR / "illustrative_ehr_test_positive_candidates_26features.csv"
+)
+PNG_PATH = OUT_DIR / "illustrative_ehr_test_positive_24x26.png"
+PDF_PATH = OUT_DIR / "illustrative_ehr_test_positive_24x26.pdf"
 
-TARGET_SPLIT = "train"
+TARGET_SPLIT = "test"
 TARGET_LABEL = 1
 
 MIN_DISTINCT_HOURS = 12
 MIN_DISTINCT_FEATURES = 14
 MIN_HOURS_PER_THIRD = 2
-MIN_ALGORITHMIC_FEATURES = 2
 
 
 def decode_text_array(values):
@@ -158,9 +157,6 @@ early_cells = candidate_observation_mask[:, 0:8, :].sum(axis=(1, 2))
 middle_cells = candidate_observation_mask[:, 8:16, :].sum(axis=(1, 2))
 late_cells = candidate_observation_mask[:, 16:24, :].sum(axis=(1, 2))
 
-clinical_features = feature_presence[:, :20].sum(axis=1)
-algorithmic_features = feature_presence[:, 20:].sum(axis=1)
-
 balanced_third_hours = np.minimum.reduce(
     [
         early_hours,
@@ -192,18 +188,12 @@ feature_score = distinct_features / 26.0
 balance_score = balanced_third_hours / 8.0
 span_score = temporal_span / 24.0
 
-branch_score = (
-    0.5 * clinical_features / 20.0
-    + 0.5 * algorithmic_features / 10.0
-)
-
 selection_score = (
-    0.25 * cell_score
+    0.30 * cell_score
     + 0.25 * hour_score
     + 0.20 * feature_score
     + 0.15 * balance_score
     + 0.10 * span_score
-    + 0.05 * branch_score
 )
 
 eligible = (
@@ -212,7 +202,6 @@ eligible = (
     & (early_hours >= MIN_HOURS_PER_THIRD)
     & (middle_hours >= MIN_HOURS_PER_THIRD)
     & (late_hours >= MIN_HOURS_PER_THIRD)
-    & (algorithmic_features >= MIN_ALGORITHMIC_FEATURES)
 )
 
 selection_rule = "Strict broad-coverage criteria"
@@ -220,11 +209,10 @@ selection_rule = "Strict broad-coverage criteria"
 if not eligible.any():
     eligible = (
         (distinct_hours >= 10)
-        & (distinct_features >= 12)
-        & (early_hours >= 2)
-        & (middle_hours >= 2)
-        & (late_hours >= 2)
-        & (algorithmic_features >= 1)
+        & (distinct_features >= 10)
+        & (early_hours >= 1)
+        & (middle_hours >= 1)
+        & (late_hours >= 1)
     )
 
     selection_rule = "Relaxed broad-coverage criteria"
@@ -255,8 +243,6 @@ candidate_table = pd.DataFrame(
         "late_cells": late_cells,
         "temporal_span": temporal_span,
         "distinct_features": distinct_features,
-        "clinical_features": clinical_features,
-        "algorithmic_features": algorithmic_features,
         "eligible": eligible,
     }
 )
@@ -367,44 +353,16 @@ normalizer = TwoSlopeNorm(
     vmax=robust_limit,
 )
 
-observed_hours_per_feature = (
-    (mask_sample > 0)
-    .sum(axis=0)
-    .astype(int)
-)
-
-outcome_text = (
-    "Positive Outcome"
-    if sample_label == 1
-    else "Negative Outcome"
-)
-
-split_text = {
-    "train": "Training Split",
-    "val": "Validation Split",
-    "test": "Test Split",
-}.get(
-    sample_split,
-    f"{sample_split.title()} Split",
-)
-
-event_text = ""
-
-if np.isfinite(event_hours):
-    event_text = (
-        f" | Event {event_hours:.1f} Hours After the Index Radiograph"
-    )
-
 plt.rcParams.update(
     {
         "font.family": "DejaVu Sans",
-        "font.size": 21,
-        "axes.titlesize": 24,
+        "font.size": 10,
+        "axes.titlesize": 13,
         "axes.titleweight": "bold",
-        "axes.labelsize": 24,
+        "axes.labelsize": 11,
         "axes.labelweight": "bold",
-        "xtick.labelsize": 21,
-        "ytick.labelsize": 21,
+        "xtick.labelsize": 10,
+        "ytick.labelsize": 10,
         "axes.edgecolor": "#111111",
         "axes.linewidth": 1.0,
         "savefig.facecolor": "white",
@@ -414,25 +372,13 @@ plt.rcParams.update(
 plt.close("all")
 
 fig = plt.figure(
-    figsize=(22, 15),
+    figsize=(14, 9),
 )
 
 fig.patch.set_facecolor("white")
 
-grid = fig.add_gridspec(
-    1,
-    2,
-    width_ratios=[5.8, 1.45],
-    wspace=0.08,
-)
-
 ax_matrix = fig.add_subplot(
-    grid[0, 0]
-)
-
-ax_availability = fig.add_subplot(
-    grid[0, 1],
-    sharey=ax_matrix,
+    111
 )
 
 image = ax_matrix.imshow(
@@ -473,7 +419,7 @@ ax_matrix.set_xticks(
 
 ax_matrix.set_xticklabels(
     major_hour_labels,
-    fontsize=21,
+    fontsize=11,
     fontweight="bold",
 )
 
@@ -483,12 +429,17 @@ ax_matrix.set_xticks(
 )
 
 ax_matrix.set_yticks(
+    np.arange(-0.5, 26, 1),
+    minor=True,
+)
+
+ax_matrix.set_yticks(
     np.arange(len(feature_names))
 )
 
 ax_matrix.set_yticklabels(
     feature_names,
-    fontsize=21,
+    fontsize=10,
     fontweight="bold",
 )
 
@@ -506,108 +457,52 @@ ax_matrix.tick_params(
 
 ax_matrix.set_xlabel(
     "Hours Before the Index Chest Radiograph",
-    fontsize=24,
+    fontsize=13,
     fontweight="bold",
 )
 
 ax_matrix.set_ylabel(
     "EHR Feature",
-    fontsize=24,
+    fontsize=13,
     fontweight="bold",
 )
 
 ax_matrix.set_title(
     "Training-Standardized Feature Values",
-    fontsize=24,
+    fontsize=14,
     fontweight="bold",
     pad=12,
 )
-
-availability_bars = ax_availability.barh(
-    np.arange(len(feature_names)),
-    observed_hours_per_feature,
-    height=0.68,
-    color="#4C78A8",
-    edgecolor="#111111",
-    linewidth=0.8,
-)
-
-ax_availability.set_xlim(
-    0,
-    26,
-)
-
-ax_availability.set_xticks(
-    [0, 6, 12, 18, 24]
-)
-
-ax_availability.set_xticklabels(
-    [0, 6, 12, 18, 24],
-    fontsize=21,
-    fontweight="bold",
-)
-
-ax_availability.set_xlabel(
-    "Observed Hourly Bins",
-    fontsize=24,
-    fontweight="bold",
-)
-
-ax_availability.set_title(
-    "Feature Availability",
-    fontsize=24,
-    fontweight="bold",
-    pad=12,
-)
-
-ax_availability.tick_params(
-    axis="y",
-    labelleft=False,
-)
-
-ax_availability.grid(
-    axis="x",
-    alpha=0.3,
-    linewidth=0.7,
-    color="#B0B0B0",
-)
-
-ax_availability.set_axisbelow(True)
-
-
 
 colorbar = fig.colorbar(
     image,
-    ax=[ax_matrix, ax_availability],
-    fraction=0.018,
-    pad=0.018,
+    ax=ax_matrix,
+    fraction=0.025,
+    pad=0.025,
 )
 
 colorbar.set_label(
     "Training-Standardized Observed Value",
-    fontsize=24,
+    fontsize=11,
     fontweight="bold",
 )
 
 colorbar.ax.tick_params(
-    labelsize=21,
+    labelsize=10,
 )
 
-for tick in colorbar.ax.get_yticklabels():
-    tick.set_fontweight("bold")
-
 fig.suptitle(
-    "Illustrative 24-Hour EHR Sample",
-    fontsize=30,
+    "Illustrative 24-Hour EHR Positive Test Sample",
+    fontsize=18,
     fontweight="bold",
     y=0.985,
 )
 
 
 fig.subplots_adjust(
-    top=0.92,
-    bottom=0.08,
-    left=0.26,
+    top=0.88,
+    bottom=0.10,
+    left=0.30,
     right=0.91,
 )
 
@@ -631,7 +526,7 @@ plt.show()
 print("Selected sample ID:", sample_id)
 print("Selected NPZ index:", sample_index)
 print("Selection rule:", selection_rule)
-print("Outcome:", outcome_text)
+print("Label:", sample_label)
 print("Split:", sample_split)
 print(
     "Observed cells:",
@@ -648,10 +543,8 @@ print(
     "Distinct observed features:",
     int(selected_candidate["distinct_features"]),
 )
-print(
-    "Algorithmic features observed:",
-    int(selected_candidate["algorithmic_features"]),
-)
+if np.isfinite(event_hours):
+    print("Hours to future respiratory event:", event_hours)
 print("Candidate table:", TOP_CANDIDATES_PATH)
 print("Saved:", PNG_PATH)
 print("Saved:", PDF_PATH)
