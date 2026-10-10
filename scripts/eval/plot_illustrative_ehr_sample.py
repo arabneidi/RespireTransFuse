@@ -1,5 +1,3 @@
-"""Visualize the temporal coverage and values of a representative EHR sample."""
-
 from pathlib import Path
 
 import matplotlib.pyplot as plt

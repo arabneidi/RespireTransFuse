@@ -1,5 +1,3 @@
-"""Construct the temporally eligible CXR-indexed cohort and patient-level splits."""
-
 from pathlib import Path
 import argparse
 import re

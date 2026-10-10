@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Assemble a mixed clinical and data-driven EHR feature registry."""
-
 import argparse
 from pathlib import Path
 

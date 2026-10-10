@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Remove EHR features with no observations in the training partition."""
-
 import argparse
 import json
 from pathlib import Path

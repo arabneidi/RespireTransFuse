@@ -1,5 +1,3 @@
-"""Compare validation histories and calibration curves across seven models."""
-
 from pathlib import Path
 
 import matplotlib.pyplot as plt

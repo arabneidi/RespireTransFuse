@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-"""Calculate paired bootstrap confidence intervals for seven models."""
-
 from __future__ import annotations
 
 import argparse

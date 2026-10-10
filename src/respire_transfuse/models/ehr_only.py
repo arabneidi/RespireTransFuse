@@ -1,5 +1,3 @@
-"""Define the mask-aware Transformer model for 24-hour EHR sequences."""
-
 import math
 
 import torch

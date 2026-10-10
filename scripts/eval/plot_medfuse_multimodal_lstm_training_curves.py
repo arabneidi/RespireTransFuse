@@ -1,5 +1,3 @@
-"""Plot results for the adapted MedFuse multimodal LSTM baseline."""
-
 from pathlib import Path
 
 import matplotlib.pyplot as plt

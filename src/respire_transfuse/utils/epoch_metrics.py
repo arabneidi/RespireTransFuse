@@ -1,5 +1,3 @@
-"""Compute and persist epoch-level metrics, predictions, and calibration bins."""
-
 from pathlib import Path
 
 import numpy as np

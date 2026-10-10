@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-"""Validation-selected operating points with clustered confidence intervals."""
-
 from __future__ import annotations
 
 import argparse

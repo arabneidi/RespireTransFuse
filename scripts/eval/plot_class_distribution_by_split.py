@@ -1,5 +1,3 @@
-"""Plot class counts and positive prevalence for each patient-level split."""
-
 from pathlib import Path
 
 import matplotlib.pyplot as plt

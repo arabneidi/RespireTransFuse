@@ -1,5 +1,3 @@
-"""Plot held-out ROC and precision-recall curves for all seven models."""
-
 from pathlib import Path
 
 import matplotlib.pyplot as plt

@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-"""Launch one or all seven project training experiments from the repository root."""
-
 from __future__ import annotations
 
 import argparse

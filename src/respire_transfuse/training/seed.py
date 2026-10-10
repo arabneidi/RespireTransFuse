@@ -1,5 +1,3 @@
-"""Seed Python, NumPy, and PyTorch for repeatable experiment setup."""
-
 import random
 
 import numpy as np

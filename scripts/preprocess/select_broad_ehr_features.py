@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Rank the broad EHR candidate set using training-only relevance and stability."""
-
 import argparse
 import json
 import math

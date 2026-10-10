@@ -1,5 +1,3 @@
-"""Define the bidirectional cross-attention architecture for CXR and EHR fusion."""
-
 import torch
 import torch.nn as nn
 

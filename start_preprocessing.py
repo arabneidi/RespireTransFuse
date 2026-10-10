@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-"""Run and validate the complete cohort and EHR preprocessing workflow."""
-
 import argparse
 import gc
 import hashlib

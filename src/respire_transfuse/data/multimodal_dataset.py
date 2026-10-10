@@ -1,5 +1,3 @@
-"""Align EHR tensors with chest X-rays for multimodal training and evaluation."""
-
 from pathlib import Path
 
 import numpy as np

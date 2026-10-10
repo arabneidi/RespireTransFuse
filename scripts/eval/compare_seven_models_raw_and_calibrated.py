@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-"""Compare raw and validation-calibrated performance for all seven models."""
-
 from __future__ import annotations
 
 import hashlib

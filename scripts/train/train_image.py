@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-"""Train and evaluate the EfficientNet-based chest X-ray risk model."""
-
 import argparse
 import json
 import logging

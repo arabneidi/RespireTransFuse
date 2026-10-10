@@ -1,5 +1,3 @@
-"""Define command-line options for the bundled MedFuse training code."""
-
 import argparse
 
 def args_parser():

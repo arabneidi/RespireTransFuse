@@ -1,5 +1,3 @@
-"""Build a broad 24-hour EHR candidate tensor from chart and laboratory events."""
-
 from pathlib import Path
 import argparse
 import json

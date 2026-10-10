@@ -1,5 +1,3 @@
-"""Load aligned EHR tensors and provide datasets and balanced batch sampling."""
-
 from pathlib import Path
 
 import numpy as np

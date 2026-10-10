@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Run two-epoch smoke tests for all seven evaluated model configurations.
 
 set -euo pipefail
 

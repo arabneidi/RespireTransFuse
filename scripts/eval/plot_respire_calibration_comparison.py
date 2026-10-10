@@ -1,5 +1,3 @@
-"""Plot raw and validation-calibrated RespireTransFuse reliability curves."""
-
 from pathlib import Path
 
 import matplotlib.pyplot as plt

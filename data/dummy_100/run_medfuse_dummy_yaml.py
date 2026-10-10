@@ -1,5 +1,3 @@
-"""Run one MedFuse dummy experiment from the shared YAML configuration."""
-
 import argparse
 import os
 import subprocess

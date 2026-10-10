@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-"""Normalize the selected EHR tensor using training-partition statistics."""
-
 import argparse
 import json
 from pathlib import Path

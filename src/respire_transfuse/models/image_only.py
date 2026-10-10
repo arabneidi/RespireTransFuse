@@ -1,5 +1,3 @@
-"""Define EfficientNet-based chest X-ray models and backbone training controls."""
-
 import copy
 import math
 

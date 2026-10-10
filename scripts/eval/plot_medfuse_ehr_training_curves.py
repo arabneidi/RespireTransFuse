@@ -1,5 +1,3 @@
-"""Plot training, validation, and calibration results for MedFuse Uni-EHR."""
-
 from pathlib import Path
 
 import matplotlib.pyplot as plt

@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-"""Run the RespireTransFuse optimizer and fusion-learning-rate sweep."""
-
 from __future__ import annotations
 
 import argparse

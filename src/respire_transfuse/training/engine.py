@@ -1,5 +1,3 @@
-"""Train and evaluate image-only and multimodal models with shared metrics."""
-
 import math
 
 import numpy as np

@@ -1,5 +1,3 @@
-"""Define the MedFuse chest X-ray encoder and classification head."""
-
 import torch.nn as nn
 import torchvision
 import torch

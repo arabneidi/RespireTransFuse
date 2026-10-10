@@ -1,5 +1,3 @@
-"""Load, merge, and save YAML configuration files."""
-
 from pathlib import Path
 import yaml
 

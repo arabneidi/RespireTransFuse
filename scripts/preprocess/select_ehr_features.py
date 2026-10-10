@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Rank clinically constrained EHR candidates using training-only evidence."""
-
 import argparse
 import json
 import math
@@ -147,24 +145,11 @@ def sigmoid01(x, center, scale):
 # ============================================================
 
 def possible_leakage_flag(variable, label, source):
-    """
-    Leakage/proxy flag.
-
-    IMPORTANT:
-        Do NOT include the source string in the searched text.
-        Source values such as "chartevents" and "labevents" contain the substring "vent",
-        which would falsely mark every feature as leakage.
-
-    Search only the human variable/label text.
-    """
     import re
 
     label_text = str(label).lower().strip()
     variable_text = str(variable).lower().strip()
 
-    # Remove the table prefix so "chartevents" / "labevents" cannot trigger "vent".
-    # Example:
-    #   chartevents::220045::Heart Rate::valuenum -> heart rate
     parts = variable_text.split("::")
     if len(parts) >= 3:
         clean_variable_text = parts[2]

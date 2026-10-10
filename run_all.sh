@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Run all seven project models in sequence.
 
 set -euo pipefail
 

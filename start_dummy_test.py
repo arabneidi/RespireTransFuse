@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-"""Run the seven-model dummy-data smoke-test suite."""
-
 from __future__ import annotations
 
 import argparse

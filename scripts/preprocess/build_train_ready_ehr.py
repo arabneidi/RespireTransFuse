@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Select approved EHR features and normalize them with training-only statistics."""
-
 import argparse
 import json
 from pathlib import Path

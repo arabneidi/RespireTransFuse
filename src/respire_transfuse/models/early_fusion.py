@@ -1,5 +1,3 @@
-"""Define the summary-level fusion model and its trainability controls."""
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F

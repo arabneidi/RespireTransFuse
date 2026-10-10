@@ -1,6 +1,4 @@
 
-"""Define the DAFT-conditioned multimodal fusion baseline."""
-
 import torch.nn as nn
 import torchvision
 import torch

@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-"""Train and evaluate RespireTransFuse with bidirectional cross-attention."""
-
 import argparse
 import json
 import shutil

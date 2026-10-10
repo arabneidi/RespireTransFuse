@@ -1,5 +1,3 @@
-"""Verify that the dummy cohort, EHR tensor, images, and MedFuse code are available."""
-
 from pathlib import Path
 import sys
 

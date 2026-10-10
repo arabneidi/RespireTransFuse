@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""Aggregate selected chart and laboratory events into aligned 24-hour EHR tensors."""
-
 import argparse
 import json
 import warnings

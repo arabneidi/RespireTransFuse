@@ -1,5 +1,3 @@
-"""Define the MMTM channel-recalibration fusion baseline."""
-
 import torch.nn as nn
 import torchvision
 import torch

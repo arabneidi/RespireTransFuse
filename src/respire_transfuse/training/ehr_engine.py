@@ -1,5 +1,3 @@
-"""Train, evaluate, and export predictions for the EHR-only model."""
-
 from contextlib import nullcontext
 from pathlib import Path
 
