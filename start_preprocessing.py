@@ -23,6 +23,12 @@ MAX_SPLIT_SIZE_DEVIATION = 0.01
 
 EHR_WINDOW_HOURS = 24
 FINAL_EHR_FEATURES = 26
+FINAL_EHR_ITEMIDS = (
+    "220045", "220210", "220277", "220179", "220180", "223761",
+    "223834", "223835", "50813", "50820", "50821", "50818", "50882",
+    "50811", "51301", "50912", "50960", "50971", "225638", "220224",
+    "220235", "225698", "52172", "220632", "51214", "226536",
+)
 EHR_CHUNKSIZE = 750000
 MAX_CHART_FEATURES = 80
 MAX_LAB_FEATURES = 80
@@ -456,6 +462,8 @@ def validate_cohort(
         "full_72h_observation",
         "followup_72h_status",
         "hours_to_future_resp_event",
+        "had_prior_resp_event",
+        "had_active_resp_support",
     ]
     missing_strict_columns = [
         column
@@ -467,6 +475,16 @@ def validate_cohort(
         raise RuntimeError(
             "Cohort is missing strict follow-up columns: "
             f"{missing_strict_columns}"
+        )
+
+    if cohort["had_prior_resp_event"].astype(bool).any():
+        raise RuntimeError(
+            "The final cohort contains an index with a prior respiratory event."
+        )
+
+    if cohort["had_active_resp_support"].astype(bool).any():
+        raise RuntimeError(
+            "The final cohort contains active respiratory support at index time."
         )
 
     allowed_statuses = {
@@ -1297,6 +1315,30 @@ def validate_final_features(base):
             f"{FINAL_EHR_FEATURES}."
         )
 
+    if "itemid" not in features.columns:
+        raise RuntimeError(
+            "Final selected feature CSV is missing the itemid column."
+        )
+
+    feature_itemids = tuple(
+        features["itemid"]
+        .astype(str)
+        .str.replace(r"\.0$", "", regex=True)
+        .tolist()
+    )
+    if feature_itemids != FINAL_EHR_ITEMIDS:
+        raise RuntimeError(
+            "Final selected feature order does not match the 26-feature registry."
+        )
+
+    with np.load(final_npz, allow_pickle=True) as data:
+        npz_itemids = tuple(data["itemids"].astype(str).tolist())
+
+    if npz_itemids != FINAL_EHR_ITEMIDS:
+        raise RuntimeError(
+            "Final EHR tensor item IDs do not match the 26-feature registry."
+        )
+
     if (
         "selection_branch"
         in features.columns
@@ -1359,6 +1401,7 @@ def validate_train_ready(base):
         "sample_id",
         "feature_mean",
         "feature_std",
+        "itemids",
     ]
 
     require_npz_keys(
@@ -1444,6 +1487,17 @@ def validate_train_ready(base):
         feature_std = data[
             "feature_std"
         ].astype(np.float64)
+
+        itemids = tuple(
+            data["itemids"]
+            .astype(str)
+            .tolist()
+        )
+
+    if itemids != FINAL_EHR_ITEMIDS:
+        raise RuntimeError(
+            "Train-ready EHR item IDs do not match the 26-feature registry."
+        )
 
     if not np.isfinite(X).all():
         raise RuntimeError(

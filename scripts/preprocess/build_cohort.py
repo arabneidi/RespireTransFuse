@@ -1,6 +1,5 @@
 from pathlib import Path
 import argparse
-import re
 import time
 import gc
 import json
@@ -10,21 +9,17 @@ import numpy as np
 import pandas as pd
 from tqdm.auto import tqdm
 
-
 DEFAULT_RANDOM_SEED = 42
-
 
 def section(title):
     print("\n" + "=" * 100)
     print(title)
     print("=" * 100)
 
-
 def require(path: Path):
     if not path.exists():
         raise FileNotFoundError(path)
     return path
-
 
 def normalize_int_id(df, cols):
     for c in cols:
@@ -32,12 +27,10 @@ def normalize_int_id(df, cols):
             df[c] = pd.to_numeric(df[c], errors="coerce").astype("Int64")
     return df
 
-
 def clean_text(x):
     if pd.isna(x):
         return ""
     return str(x).lower().strip()
-
 
 def build_cxr_datetime(df):
     if "StudyDate" in df.columns and "StudyTime" in df.columns:
@@ -57,7 +50,6 @@ def build_cxr_datetime(df):
 
     raise ValueError("No StudyDate/StudyTime or study_datetime column found in CXR metadata.")
 
-
 def summarize_label(df, label_col, cohort_name):
     s = df[label_col]
     usable = s.notna()
@@ -75,8 +67,6 @@ def summarize_label(df, label_col, cohort_name):
         "positive_rate": float(pos.sum() / max(usable.sum(), 1)),
     }
 
-
-
 def build_prevalence_balanced_patient_split(
     df,
     label_col,
@@ -84,6 +74,7 @@ def build_prevalence_balanced_patient_split(
     search_iterations,
     max_prevalence_gap,
     max_size_deviation,
+    existing_assignments_path=None,
 ):
     target_fractions = np.array(
         [0.70, 0.15, 0.15],
@@ -160,6 +151,103 @@ def build_prevalence_balanced_patient_split(
         subject_stats["positives"]
         .astype(np.int64)
     )
+
+    if existing_assignments_path is not None and Path(existing_assignments_path).is_file():
+        previous = pd.read_csv(existing_assignments_path)
+        required = {"subject_id", "split"}
+
+        if not required.issubset(previous.columns):
+            raise RuntimeError("Existing patient split file is missing required columns.")
+
+        previous = previous[["subject_id", "split"]].copy()
+        previous["subject_id"] = pd.to_numeric(
+            previous["subject_id"], errors="raise"
+        ).astype(np.int64)
+        previous["split"] = previous["split"].astype(str).str.strip().str.lower()
+
+        if previous["subject_id"].duplicated().any():
+            raise RuntimeError("Existing patient split file contains duplicate patients.")
+
+        if not previous["split"].isin(["train", "val", "test"]).all():
+            raise RuntimeError("Existing patient split file contains invalid splits.")
+
+        split_map = dict(zip(previous["subject_id"], previous["split"]))
+        new_subjects = sorted(set(subject_stats.index) - set(split_map))
+
+        for subject_id in new_subjects:
+            digest = hashlib.sha256(
+                f"{seed}:{subject_id}".encode("utf-8")
+            ).digest()
+
+            value = int.from_bytes(digest[:8], "big") / 2**64
+
+            split_map[int(subject_id)] = (
+                "train" if value < 0.70
+                else "val" if value < 0.85
+                else "test"
+            )
+
+        assignments = subject_stats.reset_index().copy()
+        assignments["negatives"] = (
+            assignments["usable_rows"] - assignments["positives"]
+        )
+        assignments["subject_prevalence"] = (
+            assignments["positives"] / assignments["usable_rows"]
+        )
+        assignments["split"] = assignments["subject_id"].map(split_map)
+
+        if assignments["split"].isna().any():
+            raise RuntimeError("Unassigned patient in current cohort.")
+
+        summary = assignments.groupby("split").agg(
+            rows=("usable_rows", "sum"),
+            positives=("positives", "sum"),
+            subjects=("subject_id", "size"),
+        ).reindex(["train", "val", "test"])
+
+        if summary.isna().any().any():
+            raise RuntimeError("An existing split is empty after cohort selection.")
+
+        summary["negatives"] = summary["rows"] - summary["positives"]
+        summary["prevalence"] = summary["positives"] / summary["rows"]
+        summary["row_fraction"] = summary["rows"] / summary["rows"].sum()
+
+        prevalence_gap = float(
+            summary["prevalence"].max() - summary["prevalence"].min()
+        )
+
+        size_deviation = float(
+            np.abs(
+                summary["row_fraction"].to_numpy() - target_fractions
+            ).max()
+        )
+
+        if prevalence_gap > max_prevalence_gap:
+            raise RuntimeError("Existing splits exceed the prevalence tolerance.")
+
+        if size_deviation > max_size_deviation:
+            raise RuntimeError("Existing splits exceed the size tolerance.")
+
+        info = {
+            "name": "patient_level_existing_assignments",
+            "label_column": str(label_col),
+            "seed": int(seed),
+            "search_iterations": 0,
+            "selected_search_iteration": 0,
+            "new_subjects_assigned": int(len(new_subjects)),
+            "overall_prevalence": float(source[label_col].mean()),
+            "maximum_prevalence_gap": prevalence_gap,
+            "maximum_row_size_deviation": size_deviation,
+            "allowed_prevalence_gap": float(max_prevalence_gap),
+            "allowed_row_size_deviation": float(max_size_deviation),
+            "target_row_fractions": {
+                "train": 0.70,
+                "val": 0.15,
+                "test": 0.15,
+            },
+        }
+
+        return split_map, summary, assignments, info
 
     subjects = (
         subject_stats.index
@@ -650,7 +738,6 @@ def parse_args():
 
     return parser.parse_args()
 
-
 def main():
     args = parse_args()
     t_start = time.time()
@@ -738,9 +825,9 @@ def main():
     icu["intime"] = pd.to_datetime(icu["intime"], errors="coerce")
     icu["outtime"] = pd.to_datetime(icu["outtime"], errors="coerce")
 
-    for column in ["admittime", "dischtime", "deathtime"]:
-        if column in adm.columns:
-            adm[column] = pd.to_datetime(adm[column], errors="coerce")
+    for c in ["admittime", "dischtime", "deathtime"]:
+        if c in adm.columns:
+            adm[c] = pd.to_datetime(adm[c], errors="coerce")
 
     if "starttime" in proc.columns:
         proc["event_time"] = pd.to_datetime(proc["starttime"], errors="coerce")
@@ -748,6 +835,11 @@ def main():
         proc["event_time"] = pd.to_datetime(proc["charttime"], errors="coerce")
     else:
         raise ValueError("procedureevents needs starttime or charttime.")
+
+    if "endtime" not in proc.columns:
+        raise ValueError("procedureevents needs endtime.")
+
+    proc["endtime"] = pd.to_datetime(proc["endtime"], errors="coerce")
 
     print("Valid CXR datetime:", int(meta["study_datetime"].notna().sum()))
     print("Valid ICU intime/outtime:", int((icu["intime"].notna() & icu["outtime"].notna()).sum()))
@@ -758,9 +850,7 @@ def main():
     image_exts = {".jpg", ".jpeg", ".png"}
 
     def extract_dicom_id_from_image_path(p: Path):
-        """
-        Extract dicom_id from original or flattened image filenames.
-        """
+
         stem = p.stem
 
         if "_" in stem:
@@ -889,9 +979,9 @@ def main():
     print("Unique stays:", cxr_icu["stay_id"].nunique())
     print("Unique dicoms:", cxr_icu["dicom_id"].nunique())
 
-    admission_columns = [
-        column
-        for column in [
+    adm_columns = [
+        c
+        for c in [
             "hadm_id",
             "admittime",
             "dischtime",
@@ -899,17 +989,17 @@ def main():
             "hospital_expire_flag",
             "discharge_location",
         ]
-        if column in adm.columns
+        if c in adm.columns
     ]
 
-    admission_data = (
-        adm[admission_columns]
+    adm_small = (
+        adm[adm_columns]
         .drop_duplicates("hadm_id")
         .copy()
     )
 
     cxr_icu = cxr_icu.merge(
-        admission_data,
+        adm_small,
         on="hadm_id",
         how="left",
         validate="many_to_one",
@@ -920,6 +1010,25 @@ def main():
         int(cxr_icu["dischtime"].notna().sum())
         if "dischtime" in cxr_icu.columns else 0,
     )
+
+    valid_index = (
+        (
+            cxr_icu["admittime"].isna()
+            | (cxr_icu["study_datetime"] >= cxr_icu["admittime"])
+        )
+        & (
+            cxr_icu["dischtime"].isna()
+            | (cxr_icu["study_datetime"] <= cxr_icu["dischtime"])
+        )
+        & (
+            cxr_icu["deathtime"].isna()
+            | (cxr_icu["study_datetime"] <= cxr_icu["deathtime"])
+        )
+    )
+
+    print("X-rays outside recorded hospitalization:", int((~valid_index).sum()))
+
+    cxr_icu = cxr_icu.loc[valid_index].copy()
 
     section("7) Select respiratory intervention events")
 
@@ -938,27 +1047,20 @@ def main():
 
     proc_labeled = proc.merge(d_items_small, on="itemid", how="left")
 
-    resp_patterns = [
-        r"\bintubat",
-        r"mechanical ventilation",
-        r"invasive ventilation",
-        r"ventilator",
-        r"\bventilation\b",
-        r"\bcpap\b",
-        r"\bbipap\b",
-        r"non.?invasive",
-        r"high flow",
-        r"high-flow",
-        r"\bhfnc\b",
-        r"tracheostomy",
-        r"\btrach\b",
-    ]
+    respiratory_itemids = {224385, 225792, 225794}
 
-    pattern = re.compile("|".join(resp_patterns), flags=re.IGNORECASE)
-
-    proc_labeled["is_resp_event"] = proc_labeled["item_label_clean"].apply(
-        lambda x: bool(pattern.search(str(x)))
+    proc_labeled["is_resp_event"] = proc_labeled["itemid"].isin(
+        respiratory_itemids
     )
+
+    matched_itemids = set(
+        proc_labeled.loc[
+            proc_labeled["is_resp_event"], "itemid"
+        ].dropna().astype(int)
+    )
+
+    if matched_itemids != respiratory_itemids:
+        raise RuntimeError("Expected respiratory intervention codes were not found.")
 
     resp_items = (
         proc_labeled.loc[proc_labeled["is_resp_event"], ["itemid", "item_label"]]
@@ -1006,6 +1108,15 @@ def main():
         )
     }
 
+    active_intervals_by_hadm = {
+        int(hadm_id): g[["event_time", "endtime"]].copy()
+        for hadm_id, g in proc_labeled.loc[
+            proc_labeled["is_resp_event"]
+            & proc_labeled["hadm_id"].notna()
+            & proc_labeled["event_time"].notna()
+        ].groupby("hadm_id")
+    }
+
     def get_event_timing(row):
         stay_id = row["stay_id"]
         hadm_id = row["hadm_id"]
@@ -1014,6 +1125,7 @@ def main():
         if pd.isna(t):
             return pd.Series({
                 "had_prior_resp_event": False,
+                "had_active_resp_support": False,
                 "first_prior_resp_event_time": pd.NaT,
                 "first_future_resp_event_time": pd.NaT,
                 "hours_to_future_resp_event": np.nan,
@@ -1023,22 +1135,54 @@ def main():
         had_prior = False
 
         if pd.notna(stay_id):
-            prior_events = events_by_stay.get(int(stay_id))
+            prior_events = events_by_stay.get(
+                int(stay_id),
+                None,
+            )
 
             if prior_events is not None and len(prior_events) > 0:
-                prior = prior_events[prior_events["event_time"] <= t]
+                prior = prior_events[
+                    prior_events["event_time"] <= t
+                ]
 
                 if len(prior) > 0:
                     prior_time = prior["event_time"].min()
                     had_prior = True
 
         future_time = pd.NaT
+        had_active = False
 
         if pd.notna(hadm_id):
-            future_events = events_by_hadm.get(int(hadm_id))
+            intervals = active_intervals_by_hadm.get(int(hadm_id))
+
+            if intervals is not None:
+                had_active = bool((
+                    (intervals["event_time"] <= t)
+                    & (
+                        intervals["endtime"].isna()
+                        | (intervals["endtime"] > t)
+                    )
+                ).any())
+
+            future_events = events_by_hadm.get(
+                int(hadm_id),
+                None,
+            )
 
             if future_events is not None and len(future_events) > 0:
-                future = future_events[future_events["event_time"] > t]
+                future = future_events[
+                    future_events["event_time"] > t
+                ]
+
+                if pd.notna(row["dischtime"]):
+                    future = future[
+                        future["event_time"] <= row["dischtime"]
+                    ]
+
+                if pd.notna(row["deathtime"]):
+                    future = future[
+                        future["event_time"] <= row["deathtime"]
+                    ]
 
                 if len(future) > 0:
                     future_time = future["event_time"].min()
@@ -1046,10 +1190,13 @@ def main():
         if pd.isna(future_time):
             hours = np.nan
         else:
-            hours = (future_time - t).total_seconds() / 3600.0
+            hours = (
+                future_time - t
+            ).total_seconds() / 3600.0
 
         return pd.Series({
             "had_prior_resp_event": bool(had_prior),
+            "had_active_resp_support": bool(had_active),
             "first_prior_resp_event_time": prior_time,
             "first_future_resp_event_time": future_time,
             "hours_to_future_resp_event": hours,
@@ -1064,6 +1211,7 @@ def main():
 
     print("Rows:", len(cxr_icu))
     print("Prior respiratory event rows:", int(cxr_icu["had_prior_resp_event"].sum()))
+    print("Active respiratory support rows:", int(cxr_icu["had_active_resp_support"].sum()))
     print("Future respiratory event rows:", int(cxr_icu["first_future_resp_event_time"].notna().sum()))
     print(cxr_icu["hours_to_future_resp_event"].describe())
 
@@ -1074,7 +1222,10 @@ def main():
     for window in [12, 24, 48, 72]:
         cxr_icu[f"label_event_{window}h"] = ((h > 0) & (h <= window)).astype(int)
 
-    horizon_72h = cxr_icu["study_datetime"] + pd.Timedelta(hours=72)
+    horizon_72h = (
+        cxr_icu["study_datetime"]
+        + pd.Timedelta(hours=72)
+    )
 
     death_before_72h = (
         cxr_icu["deathtime"].notna()
@@ -1099,21 +1250,44 @@ def main():
     cxr_icu["discharge_before_72h"] = discharge_before_72h
     cxr_icu["full_72h_observation"] = full_72h_observation
 
-    positive_48h = (h > 0) & (h <= 48)
-    ambiguous_48_72h = (h > 48) & (h <= 72)
-    no_event_through_72h = h.isna() | (h > 72)
+    positive_48h = (
+        (h > 0)
+        & (h <= 48)
+    )
+
+    ambiguous_48_72h = (
+        (h > 48)
+        & (h <= 72)
+    )
+
+    no_event_through_72h = (
+        h.isna()
+        | (h > 72)
+    )
 
     cxr_icu["label_48h_stable72h"] = np.nan
-    cxr_icu.loc[positive_48h, "label_48h_stable72h"] = 1
+
     cxr_icu.loc[
-        no_event_through_72h & full_72h_observation,
+        positive_48h,
+        "label_48h_stable72h",
+    ] = 1
+
+    cxr_icu.loc[
+        no_event_through_72h
+        & full_72h_observation,
         "label_48h_stable72h",
     ] = 0
 
     cxr_icu["label_24h_stable72h"] = np.nan
-    cxr_icu.loc[(h > 0) & (h <= 24), "label_24h_stable72h"] = 1
+
     cxr_icu.loc[
-        no_event_through_72h & full_72h_observation,
+        (h > 0) & (h <= 24),
+        "label_24h_stable72h",
+    ] = 1
+
+    cxr_icu.loc[
+        no_event_through_72h
+        & full_72h_observation,
         "label_24h_stable72h",
     ] = 0
 
@@ -1136,12 +1310,19 @@ def main():
     )
 
     print("\nStrict 72-hour follow-up status:")
-    print(cxr_icu["followup_72h_status"].value_counts(dropna=False))
+    print(
+        cxr_icu["followup_72h_status"]
+        .value_counts(dropna=False)
+    )
+
+    cxr_clean = cxr_icu.loc[
+        ~cxr_icu["had_active_resp_support"]
+    ].copy()
 
     if EXCLUDE_PRIOR_RESP_EVENT:
-        cxr_clean = cxr_icu[~cxr_icu["had_prior_resp_event"]].copy()
-    else:
-        cxr_clean = cxr_icu.copy()
+        cxr_clean = cxr_clean.loc[
+            ~cxr_clean["had_prior_resp_event"]
+        ].copy()
 
     label_cols = [
         "label_event_12h",
@@ -1188,6 +1369,7 @@ def main():
         max_size_deviation=float(
             args.max_split_size_deviation
         ),
+        existing_assignments_path=OUT_SUBJECT_SPLITS,
     )
 
     def assign_split(subject_id):
@@ -1376,10 +1558,10 @@ def main():
     cohort["label_definition"] = (
         "1=selected_respiratory_intervention_within_48h_after_CXR_across_same_hospitalization; "
         "0=no_selected_respiratory_intervention_through_72h_with_complete_hospital_observation; "
-        "prior_event_CXRs_excluded; "
+        "prior_event_in_index_ICU_stay_excluded; "
+        "active_qualifying_support_at_CXR_excluded; "
         "events_between_48h_and_72h_excluded; "
-        "death_before_72h_excluded; "
-        "hospital_discharge_before_72h_excluded; "
+        "early_death_or_discharge_without_qualifying_event_excluded; "
         "uncertain_72h_followup_excluded"
     )
 
@@ -1410,6 +1592,7 @@ def main():
         "hours_to_future_resp_event",
         "first_future_resp_event_time",
         "had_prior_resp_event",
+        "had_active_resp_support",
         "ViewPosition",
         "ViewPosition_clean",
         "prediction_window_hours",
@@ -1517,9 +1700,9 @@ def main():
             ),
         },
         "label": "label_48h_stable72h renamed to label",
-        "positive": "selected respiratory intervention within 48h after CXR across the same hospitalization",
+        "positive": "intubation, invasive ventilation, or non-invasive ventilation within 48h after CXR and before discharge or death in the same hospitalization",
         "negative": "no selected respiratory intervention through 72h after CXR with complete hospital observation through the full 72h horizon",
-        "excluded": "prior-event CXR rows; first respiratory event 48-72h; death before 72h; hospital discharge before 72h; uncertain 72h follow-up",
+        "excluded": "prior respiratory intervention within the index ICU stay; active qualifying support at CXR; X-ray outside recorded hospitalization; first intervention 48-72h; early death or discharge without an earlier qualifying intervention; uncertain 72h follow-up",
         "counts": {
             "cohort_rows": int(len(cohort)),
             "positive": int((cohort["label"] == 1).sum()),
@@ -1552,7 +1735,6 @@ def main():
 
     del meta, icu, adm, d_items, proc, proc_labeled
     gc.collect()
-
 
 if __name__ == "__main__":
     tqdm.pandas()

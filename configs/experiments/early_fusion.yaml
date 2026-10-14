@@ -1,21 +1,20 @@
-# Configure the summary-level early-fusion experiment.
 model:
   name: early_fusion
   fusion_type: normalized_feature_concatenation
   fusion_dim: 8
-  fusion_dropout: 0.7
+  fusion_dropout: 0.2
 image_branch:
   backbone: tf_efficientnet_b0.ns_jft_in1k
   pretrained: true
   image_size: 224
   hidden_dim: 128
-  dropout: 0.5
+  dropout: 0.3
 ehr_branch:
   d_model: 128
   n_heads: 4
   n_layers: 2
   dim_feedforward: 320
-  dropout: 0.35
+  dropout: 0.3
   use_mask_channel: true
   use_cls_token: true
   ehr_token_dim: 48
@@ -46,16 +45,16 @@ training:
   num_workers: 2
   use_amp: false
   lr_image_backbone: 0.0
-  lr_image_head: 2.0e-05
-  lr_ehr: 4.0e-06
+  lr_image_head: 2.0e-04
+  lr_ehr: 4.0e-05
   lr_fusion: 0.0001
-  weight_decay_image: 0.001
-  weight_decay_ehr: 0.005
-  weight_decay_fusion: 0.005
+  weight_decay_image: 1.0e-04
+  weight_decay_ehr: 3.0e-04
+  weight_decay_fusion: 3.0e-04
   warmup_epochs: 0
   min_lr_factor: 0.1
   grad_clip: 1.0
-  patience: 12
+  patience: 10
 sampling:
   balanced_batches: false
   pos_fraction: 0.35

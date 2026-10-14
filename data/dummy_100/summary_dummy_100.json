@@ -2,6 +2,14 @@
   "base": ".",
   "source_cohort_csv": "data/processed/cohorts/cohort.csv",
   "source_ehr_npz": "data/processed/ehr/ehr_final_24h_train_ready/ehr_24h_final_train_ready_current_split.npz",
+  "source_cohort_contract": {
+    "samples": 9509,
+    "patients": 4668,
+    "positives": 1667,
+    "train_samples": 6691,
+    "validation_samples": 1389,
+    "test_samples": 1429
+  },
   "cohort_out": "data/dummy_100/cohort_dummy_100.csv",
   "ehr_npz_out": "data/dummy_100/ehr_dummy_100.npz",
   "n_requested": 100,
@@ -39,6 +47,12 @@
   "M_shape": [100, 24, 26],
   "n_value_features_detected": 26,
   "feature_names_count": 26,
+  "itemids": [
+    "220045", "220210", "220277", "220179", "220180", "223761",
+    "223834", "223835", "50813", "50820", "50821", "50818", "50882",
+    "50811", "51301", "50912", "50960", "50971", "225638", "220224",
+    "220235", "225698", "52172", "220632", "51214", "226536"
+  ],
   "configs_written": [
     "data/dummy_100/configs/paths_dummy_100.yaml",
     "data/dummy_100/configs/medfuse_dummy_2e.yaml"

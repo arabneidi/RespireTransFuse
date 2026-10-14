@@ -1,4 +1,3 @@
-# Configure the three adapted MedFuse baselines.
 project_root: .
 
 runs:
@@ -8,17 +7,17 @@ runs:
       cohort_csv: data/processed/cohorts/cohort.csv
       ehr_npz: data/processed/ehr/ehr_final_24h_train_ready/ehr_24h_final_train_ready_current_split.npz
       output_root: .
-      save_dir: outputs/medfuse_uni_cxr_linear_probe_513
+      save_dir: outputs/medfuse_uni_cxr_42
       fusion_type: uni_cxr
       labels_set: respire
       num_classes: 1
       vision_num_classes: 1
       epochs: 20
-      patience: 20
+      patience: 10
       lr: 3.0e-05
       batch_size: 32
       dropout: 0.3
-      weight_decay: 1.0e-04
+      weight_decay: 3.0e-04
       monitor_metric: auprc
       grad_clip: 5.0
       dim: 256
@@ -38,16 +37,16 @@ runs:
       cohort_csv: data/processed/cohorts/cohort.csv
       ehr_npz: data/processed/ehr/ehr_final_24h_train_ready/ehr_24h_final_train_ready_current_split.npz
       output_root: .
-      save_dir: outputs/medfuse_ehr
+      save_dir: outputs/medfuse_ehr42
       fusion_type: uni_ehr
       labels_set: respire
       num_classes: 1
       vision_num_classes: 1
       epochs: 20
-      patience: 15
-      lr: 1.0e-05
-      batch_size: 64
-      dropout: 0.7
+      patience: 10
+      lr: 3.0e-04
+      batch_size: 32
+      dropout: 0.2
       weight_decay: 3.0e-04
       monitor_metric: auprc
       grad_clip: 5.0
@@ -63,17 +62,17 @@ runs:
       cohort_csv: data/processed/cohorts/cohort.csv
       ehr_npz: data/processed/ehr/ehr_final_24h_train_ready/ehr_24h_final_train_ready_current_split.npz
       output_root: .
-      save_dir: outputs/medfuse_multimodal_lstm_26f_lr9e7_wd1e3_bs32
+      save_dir: outputs/medfuse_multimodal_lstm_42
       fusion_type: lstm
       labels_set: respire
       num_classes: 1
       vision_num_classes: 1
       epochs: 20
-      patience: 18
-      lr: 9.0e-06
+      patience: 10
+      lr: 3.0e-04
       batch_size: 32
-      dropout: 0.3
-      weight_decay: 1.0e-03
+      dropout: 0.4
+      weight_decay: 3.0e-04
       monitor_metric: auprc
       grad_clip: 1.0
       dim: 256
@@ -81,7 +80,7 @@ runs:
       vision-backbone: resnet34
       pretrained: true
       image_size: 224
-      load_state_ehr: outputs/medfuse_ehr/best_checkpoint.pth.tar
+      load_state_ehr: outputs/medfuse_ehr42/best_checkpoint.pth.tar
       load_state_cxr: external/medfuse_original/checkpoints/cxr_rad_full/best_checkpoint.pth.tar
       freeze_loaded_ehr: true
       freeze_loaded_cxr: true

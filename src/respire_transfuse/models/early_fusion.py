@@ -17,7 +17,7 @@ class EarlyFusionModel(nn.Module):
         image_branch,
         ehr_branch,
         fusion_dim=8,
-        fusion_dropout=0.0,
+        fusion_dropout=0.20,
     ):
         super().__init__()
 

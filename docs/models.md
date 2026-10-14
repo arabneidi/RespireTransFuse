@@ -1,6 +1,6 @@
 # Models
 
-The project evaluates seven models on the same patient-level training, validation, and held-out test partitions.
+The project evaluates seven models with seeds 40, 41, and 42 on the same patient-level training, validation, and held-out test partitions.
 
 | Model | Inputs | Main architecture |
 | --- | --- | --- |
@@ -28,6 +28,8 @@ Image and EHR features are projected into a shared width of 48. Four-head cross-
 - EHR queries attend to image keys and values, producing image-conditioned EHR tokens.
 
 Each direction uses a residual scale of 0.40 and a 48-to-96-to-48 feed-forward update. The model concatenates four 48-dimensional summaries: the projected image summary, projected EHR summary, mean-pooled image cross-summary, and masked-mean EHR cross-summary. The 192-dimensional fusion vector is passed through a 192-to-48-to-24-to-1 classifier followed by a sigmoid.
+
+Training combines fusion BCE with EHR and image auxiliary losses weighted 0.05 and 0.02. The EHR, image, and fusion dropout rates are 0.35, 0.40, and 0.20.
 
 ## Baselines
 

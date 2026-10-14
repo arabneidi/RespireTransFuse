@@ -1,4 +1,3 @@
-# Configure two-epoch MedFuse smoke tests for the dummy dataset.
 project_root: .
 
 runs:
@@ -17,11 +16,11 @@ runs:
 
       epochs: 2
       patience: 2
-      lr: 3.0e-04
-      batch_size: 16
+      lr: 3.0e-05
+      batch_size: 32
       dropout: 0.3
       beta_2: 0.999
-      weight_decay: 1.0e-04
+      weight_decay: 3.0e-04
       monitor_metric: auprc
       grad_clip: 5.0
 
@@ -51,11 +50,11 @@ runs:
 
       epochs: 2
       patience: 2
-      lr: 5.0e-05
-      batch_size: 64
-      dropout: 0.0
+      lr: 3.0e-04
+      batch_size: 32
+      dropout: 0.2
       beta_2: 0.999
-      weight_decay: 1.0e-04
+      weight_decay: 3.0e-04
       monitor_metric: auprc
       grad_clip: 5.0
 
@@ -78,10 +77,11 @@ runs:
 
       epochs: 2
       patience: 2
-      lr: 2.0e-06
-      batch_size: 16
+      lr: 3.0e-04
+      batch_size: 32
       beta_2: 0.999
-      weight_decay: 1.0e-05
+      dropout: 0.4
+      weight_decay: 3.0e-04
       monitor_metric: auprc
       grad_clip: 1.0
 

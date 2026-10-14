@@ -6,43 +6,71 @@ Run the complete workflow from the repository root:
 python start_preprocessing.py
 ```
 
-The launcher validates each stage before continuing and writes derived files under `data/processed/`.
+The launcher validates every stage and writes derived files under `data/processed/`.
 
 ## Cohort construction
 
-Each candidate sample is a frontal MIMIC-CXR study linked to a MIMIC-IV ICU stay. Respiratory intervention events are identified from procedure events.
+Each candidate is a frontal MIMIC-CXR study linked to a MIMIC-IV ICU stay. Qualifying procedures use item IDs 224385, 225792, and 225794.
 
-- Prior-event exclusion is evaluated within the index ICU stay.
-- Future events are searched across all ICU stays in the same hospital admission.
-- A positive sample has its first future event during the 0-to-48-hour prediction window.
-- A negative sample has no event through 72 hours and remains hospitalized through the complete 72-hour horizon.
-- Events from 48 to 72 hours, death before 72 hours, early hospital discharge, and uncertain follow-up are excluded.
-- Patients are assigned to approximately 70% training, 15% validation, and 15% test partitions with no cross-partition patient overlap.
+- The image must occur during the linked hospital admission and before recorded death.
+- A qualifying procedure before or at the image within the index ICU stay excludes the sample.
+- A procedure interval active at image time also excludes the sample.
+- Future events are searched across ICU stays in the same hospital admission and are limited by discharge and death times.
+- A positive sample has its first future event in `(0, 48]` hours.
+- A negative sample has no event through 72 hours and complete hospital observation through the 72-hour horizon.
+- Events from 48 to 72 hours, early death or discharge, and uncertain follow-up are excluded.
+- Patients are assigned to approximately 70% training, 15% validation, and 15% test partitions without patient overlap.
 
-The resulting cohort contains 9,591 samples: 6,765 training, 1,396 validation, and 1,430 test samples. Overall prevalence is 17.41%.
+The final cohort contains 9,509 samples from 4,668 patients, including 1,667 positives. Split counts are 6,691 training samples with 1,175 positives, 1,389 validation samples with 243 positives, and 1,429 test samples with 249 positives.
 
 ## EHR assembly
 
-The EHR observation window is `[index time - 24 hours, index time]` and is divided into 24 hourly bins.
+The observation window is `[image time - 24 hours, image time]`, divided into 24 hourly bins. Multiple observations of one variable in an hour are averaged.
 
-- Chart events must have `charttime <= index_time`.
-- Laboratory events must have both `charttime <= index_time` and `storetime <= index_time`.
-- An event exactly at the index time is assigned to the final hourly bin.
-- Missing values remain masked; normalization statistics are estimated from observed training values only.
+- Chart events require `charttime <= index_time`.
+- Laboratory events require both `charttime <= index_time` and `storetime <= index_time`.
+- An event at the image time belongs to the final hourly bin.
+- Missing entries remain masked without forward filling.
+- Means and standard deviations are estimated from observed training values only.
+- Missing entries become zero after standardization while the observation mask is retained.
 
-Candidate variables are screened through clinical and broad training-only selection branches. The final registry contains 18 clinically selected and 8 data-driven variables:
+Clinical and broad candidate branches are screened using training data only. Their evidence is merged into this ordered 26-variable registry:
 
-| Branch | Variables |
-| --- | --- |
-| Clinical | Heart rate, respiratory rate, oxygen saturation, non-invasive systolic and diastolic blood pressure, temperature, oxygen flow, inspired oxygen fraction, lactate, pH, pO2, pCO2, bicarbonate, hemoglobin, white blood cells, creatinine, magnesium, potassium |
-| Data-driven | Differential bands, arterial O2 pressure, arterial CO2 pressure, arterial TCO2, RDW-SD, LDH, functional fibrinogen, whole-blood chloride |
+| Position | Variable | Item ID |
+| ---: | --- | ---: |
+| 1 | Heart rate | 220045 |
+| 2 | Respiratory rate | 220210 |
+| 3 | Oxygen saturation | 220277 |
+| 4 | Non-invasive systolic blood pressure | 220179 |
+| 5 | Non-invasive diastolic blood pressure | 220180 |
+| 6 | Temperature Fahrenheit | 223761 |
+| 7 | Oxygen flow | 223834 |
+| 8 | Inspired oxygen fraction | 223835 |
+| 9 | Lactate | 50813 |
+| 10 | pH | 50820 |
+| 11 | pO2 | 50821 |
+| 12 | pCO2 | 50818 |
+| 13 | Bicarbonate | 50882 |
+| 14 | Hemoglobin | 50811 |
+| 15 | White blood cells | 51301 |
+| 16 | Creatinine | 50912 |
+| 17 | Magnesium | 50960 |
+| 18 | Potassium | 50971 |
+| 19 | Differential bands | 225638 |
+| 20 | Arterial oxygen pressure | 220224 |
+| 21 | Arterial carbon dioxide pressure | 220235 |
+| 22 | Arterial total carbon dioxide, calculated | 225698 |
+| 23 | RDW-SD | 52172 |
+| 24 | LDH | 220632 |
+| 25 | Functional fibrinogen | 51214 |
+| 26 | Whole-blood chloride | 226536 |
 
-The final train-ready tensor has shape `N x 24 x 26`. Its NPZ metadata includes feature identities, order, masks, labels, patient-level splits, and training-derived normalization statistics.
+The train-ready tensor has shape `N x 24 x 26`. Its NPZ metadata records feature identities and order, masks, labels, patient-level splits, and training-derived normalization statistics.
 
 ## Stages
 
-1. Construct the strict CXR-indexed cohort.
-2. Build the initial 24-hour clinical candidate tensor.
+1. Construct the CXR-indexed cohort.
+2. Build the 24-hour clinical candidate tensor.
 3. Remove variables without training observations.
 4. Run clinical feature selection.
 5. Build the broad candidate tensor.
@@ -50,7 +78,7 @@ The final train-ready tensor has shape `N x 24 x 26`. Its NPZ metadata includes 
 7. Assemble the final 26-variable tensor.
 8. Normalize from training data and verify cohort, tensor, and metadata alignment.
 
-Use `--start-step` only when earlier outputs from the same cohort version have already been verified:
+Use `--start-step` only when earlier outputs from the same cohort version have already been generated:
 
 ```bash
 python start_preprocessing.py --start-step 5

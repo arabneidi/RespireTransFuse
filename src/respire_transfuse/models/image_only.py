@@ -12,7 +12,7 @@ class ImageOnlyModel(nn.Module):
         backbone_name,
         pretrained=True,
         hidden_dim=128,
-        dropout=0.50,
+        dropout=0.35,
     ):
         super().__init__()
 

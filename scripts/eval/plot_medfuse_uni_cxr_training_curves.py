@@ -560,15 +560,15 @@ labels, probabilities, prediction_source = (
     )
 )
 
-if len(labels) != 1695:
+if len(labels) != 1429:
     raise RuntimeError(
-        f"Expected 1695 test samples, "
+        f"Expected 1429 test samples, "
         f"found {len(labels)}."
     )
 
-if int(labels.sum()) != 237:
+if int(labels.sum()) != 249:
     raise RuntimeError(
-        f"Expected 237 test positives, "
+        f"Expected 249 test positives, "
         f"found {int(labels.sum())}."
     )
 

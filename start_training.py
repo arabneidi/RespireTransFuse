@@ -11,6 +11,7 @@ import yaml
 
 ROOT = Path(__file__).resolve().parent
 MEDFUSE_CONFIG = ROOT / "configs/experiments/medfuse.yaml"
+DEFAULT_SEEDS = (40, 41, 42)
 
 MODEL_CHOICES = (
     "all",
@@ -22,6 +23,16 @@ MODEL_CHOICES = (
     "medfuse_multimodal_lstm",
     "respire_transfuse",
 )
+
+OUTPUT_DIRS = {
+    "ehr_only": "ehr_only{seed}",
+    "image_only": "image_only{seed}",
+    "early_fusion": "early_fusion{seed}",
+    "medfuse_uni_cxr": "medfuse_uni_cxr_{seed}",
+    "medfuse_uni_ehr": "medfuse_ehr{seed}",
+    "medfuse_multimodal_lstm": "medfuse_multimodal_lstm_{seed}",
+    "respire_transfuse": "respire_transfuse{seed}",
+}
 
 
 def parse_args() -> argparse.Namespace:
@@ -35,112 +46,141 @@ def parse_args() -> argparse.Namespace:
         help="Experiment to run; the default runs all seven in dependency order.",
     )
     parser.add_argument(
+        "--seeds",
+        nargs="+",
+        type=int,
+        default=list(DEFAULT_SEEDS),
+        help="Training seeds; the reported experiments use 40, 41, and 42.",
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Print the commands without starting training.",
     )
-    return parser.parse_args()
+    args = parser.parse_args()
+    if len(set(args.seeds)) != len(args.seeds):
+        parser.error("Each seed may be listed only once.")
+    return args
 
 
-def yaml_command(run_name: str) -> list[str]:
+def output_dir(model: str, seed: int) -> str:
+    return "outputs/" + OUTPUT_DIRS[model].format(seed=seed)
+
+
+def yaml_command(run_name: str, model: str, seed: int) -> list[str]:
     with MEDFUSE_CONFIG.open("r", encoding="utf-8") as stream:
         config = yaml.safe_load(stream)
 
     run = config["runs"][run_name]
-    command = [sys.executable, "-u", run["script"]]
+    values = dict(run.get("args", {}))
+    values["seed"] = seed
+    values["save_dir"] = output_dir(model, seed)
 
-    for key, value in run.get("args", {}).items():
+    if run_name == "multimodal_lstm":
+        values["load_state_ehr"] = (
+            f"outputs/medfuse_ehr{seed}/best_checkpoint.pth.tar"
+        )
+
+    command = [sys.executable, "-u", run["script"]]
+    for key, value in values.items():
         if isinstance(value, bool):
             if value:
                 command.append(f"--{key}")
         elif value is not None:
             command.extend([f"--{key}", str(value)])
-
     return command
 
 
-def configured_commands() -> dict[str, tuple[str, list[str]]]:
-    python = sys.executable
-    paths = "configs/paths.yaml"
+def project_command(script: str, config: str, model: str, seed: int) -> list[str]:
+    return [
+        sys.executable,
+        "-u",
+        script,
+        "--paths",
+        "configs/paths.yaml",
+        "--config",
+        config,
+        "--seed",
+        str(seed),
+        "--save_dir",
+        output_dir(model, seed),
+    ]
 
+
+def configured_commands(seed: int) -> dict[str, tuple[str, list[str]]]:
     return {
         "ehr_only": (
             "EHR-Only Transformer",
-            [
-                python,
-                "-u",
+            project_command(
                 "scripts/train/train_ehr.py",
-                "--paths",
-                paths,
-                "--config",
                 "configs/experiments/ehr_only.yaml",
-            ],
+                "ehr_only",
+                seed,
+            ),
         ),
         "image_only": (
             "Image-Only CNN",
-            [
-                python,
-                "-u",
+            project_command(
                 "scripts/train/train_image.py",
-                "--paths",
-                paths,
-                "--config",
                 "configs/experiments/image_only.yaml",
-            ],
+                "image_only",
+                seed,
+            ),
         ),
         "early_fusion": (
             "Early Fusion",
-            [
-                python,
-                "-u",
+            project_command(
                 "scripts/train/train_early_fusion.py",
-                "--paths",
-                paths,
-                "--config",
                 "configs/experiments/early_fusion.yaml",
-            ],
+                "early_fusion",
+                seed,
+            ),
         ),
         "medfuse_uni_cxr": (
             "MedFuse Uni-CXR",
-            yaml_command("uni_cxr"),
+            yaml_command("uni_cxr", "medfuse_uni_cxr", seed),
         ),
         "medfuse_uni_ehr": (
             "MedFuse Uni-EHR",
-            yaml_command("uni_ehr"),
+            yaml_command("uni_ehr", "medfuse_uni_ehr", seed),
         ),
         "medfuse_multimodal_lstm": (
             "MedFuse Multimodal LSTM",
-            yaml_command("multimodal_lstm"),
+            yaml_command(
+                "multimodal_lstm",
+                "medfuse_multimodal_lstm",
+                seed,
+            ),
         ),
         "respire_transfuse": (
             "RespireTransFuse",
-            [
-                python,
-                "-u",
+            project_command(
                 "scripts/train/train_respire_transfuse.py",
-                "--paths",
-                paths,
-                "--config",
                 "configs/experiments/respire_transfuse.yaml",
-            ],
+                "respire_transfuse",
+                seed,
+            ),
         ),
     }
 
 
 def main() -> int:
     args = parse_args()
-    commands = configured_commands()
-    selected = list(commands) if args.model == "all" else [args.model]
+    selected = MODEL_CHOICES[1:] if args.model == "all" else (args.model,)
+    jobs = []
+    for seed in args.seeds:
+        commands = configured_commands(seed)
+        for key in selected:
+            name, command = commands[key]
+            jobs.append((name, seed, command))
 
     print("Repository:", ROOT)
     print("Python:", sys.executable)
 
-    for index, key in enumerate(selected, start=1):
-        name, command = commands[key]
+    for index, (name, seed, command) in enumerate(jobs, start=1):
         print()
-        print(f"[{index}/{len(selected)}] {name}")
+        print(f"[{index}/{len(jobs)}] {name}, seed {seed}")
         print(" ".join(command))
-
         if not args.dry_run:
             subprocess.run(command, cwd=ROOT, check=True)
 

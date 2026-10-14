@@ -33,6 +33,13 @@ REQUIRED_PATHS = [
     MEDFUSE_ROOT,
 ]
 
+EXPECTED_ITEMIDS = [
+    "220045", "220210", "220277", "220179", "220180", "223761",
+    "223834", "223835", "50813", "50820", "50821", "50818", "50882",
+    "50811", "51301", "50912", "50960", "50971", "225638", "220224",
+    "220235", "225698", "52172", "220632", "51214", "226536",
+]
+
 
 def display_path(path):
     try:
@@ -53,8 +60,13 @@ def main():
 
         required_columns = {
             "sample_id",
+            "subject_id",
             "label",
             "split",
+            "had_prior_resp_event",
+            "had_active_resp_support",
+            "full_72h_observation",
+            "followup_72h_status",
         }
 
         missing_columns = sorted(
@@ -106,6 +118,33 @@ def main():
             errors.append(
                 f"Expected 100 cohort rows, found {len(cohort)}"
             )
+
+        if not missing_columns:
+            if cohort["had_prior_resp_event"].astype(bool).any():
+                errors.append("Dummy cohort contains a prior respiratory event")
+
+            if cohort["had_active_resp_support"].astype(bool).any():
+                errors.append("Dummy cohort contains active respiratory support")
+
+            positives = cohort["label"].astype(int).eq(1)
+            negatives = cohort["label"].astype(int).eq(0)
+            if not cohort.loc[
+                positives, "followup_72h_status"
+            ].eq("POSITIVE_EVENT_0_48H").all():
+                errors.append("Dummy positive labels do not match follow-up status")
+
+            if not cohort.loc[
+                negatives, "followup_72h_status"
+            ].eq("SOLID_NEGATIVE_FULL_72H").all():
+                errors.append("Dummy negative labels do not match follow-up status")
+
+            if not cohort.loc[
+                negatives, "full_72h_observation"
+            ].astype(bool).all():
+                errors.append("Dummy negative rows lack complete 72-hour follow-up")
+
+            if cohort.groupby("subject_id")["split"].nunique().gt(1).any():
+                errors.append("Dummy cohort has patient overlap across splits")
 
         if EHR_PATH.exists() and not missing_columns:
             with np.load(EHR_PATH, allow_pickle=True) as ehr:
@@ -172,6 +211,10 @@ def main():
                             "Expected 26 EHR feature labels, "
                             f"found {len(ehr['labels'])}"
                         )
+
+                    itemids = ehr["itemids"].astype(str).tolist()
+                    if itemids != EXPECTED_ITEMIDS:
+                        errors.append("EHR item identifiers do not match the 26-feature registry")
 
     if errors:
         print("Missing or invalid resources:")

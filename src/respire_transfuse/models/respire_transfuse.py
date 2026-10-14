@@ -24,7 +24,7 @@ class CrossAttentionBlock(nn.Module):
         dim,
         n_heads=4,
         dim_feedforward=96,
-        dropout=0.45,
+        dropout=0.20,
         residual_scale=0.40,
     ):
         super().__init__()
@@ -77,7 +77,7 @@ class BidirectionalCrossAttentionLayer(nn.Module):
         dim,
         n_heads=4,
         dim_feedforward=96,
-        dropout=0.45,
+        dropout=0.20,
         residual_scale=0.40,
     ):
         super().__init__()
@@ -124,7 +124,7 @@ class RespireTransFuse(nn.Module):
         fusion_dim=48,
         n_heads=4,
         dim_feedforward=96,
-        dropout=0.45,
+        dropout=0.20,
         residual_scale=0.40,
         detach_ehr_fusion_features=False,
         image_token_grid_size=2,

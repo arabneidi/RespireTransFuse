@@ -538,7 +538,32 @@ class FusionTrainer(Trainer):
         y_true = np.asarray(y_true).reshape(-1).astype(int)
         probs = np.asarray(probs).reshape(-1).astype(float)
 
+        loaders = {
+            "val": self.val_dl,
+            "validation": self.val_dl,
+            "test": self.test_dl,
+        }
+        loader = loaders.get(str(split).lower())
+
+        if loader is None or not hasattr(loader.dataset, "df"):
+            raise RuntimeError(f"Could not resolve sample IDs for the {split} split.")
+
+        dataset = loader.dataset
+        sample_col = getattr(dataset, "sample_col", "sample_id")
+
+        if sample_col not in dataset.df.columns:
+            raise RuntimeError(f"Dataset is missing the sample ID column: {sample_col}")
+
+        sample_ids = dataset.df[sample_col].astype(str).to_numpy()
+
+        if len(sample_ids) != len(y_true):
+            raise RuntimeError(
+                f"Prediction count does not match sample IDs for {split}: "
+                f"{len(y_true)} predictions and {len(sample_ids)} sample IDs."
+            )
+
         df = pd.DataFrame({
+            "sample_id": sample_ids,
             "row_index": np.arange(len(y_true)),
             "y_true": y_true,
             "prob": probs,
