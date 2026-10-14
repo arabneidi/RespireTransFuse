@@ -64,14 +64,14 @@ The repository evaluates four project models and three adapted MedFuse baselines
 
 RespireTransFuse concatenates the projected image summary, projected EHR summary, EHR-conditioned image summary, and image-conditioned EHR summary. The resulting 192-dimensional vector is classified by a 192-to-48-to-24-to-1 head. The training objective combines fusion BCE with EHR and image auxiliary losses weighted 0.05 and 0.02. See [`docs/models.md`](docs/models.md) and [`docs/experiments.md`](docs/experiments.md).
 
-## External resources
+## Data access
 
-Large data and image-model assets are stored outside the repository:
+MIMIC-IV, MIMIC-CXR-JPG, and extracted patient-level data are not distributed with this repository. Both source datasets are credentialed resources on PhysioNet. Researchers must obtain access independently, complete the required training, and accept the applicable data use agreement before using them:
 
-- [Required MIMIC-IV and MIMIC-CXR project data](https://drive.google.com/drive/folders/1l-LYWFxiVTThrFozhGGk8xNpNA8jbJlt?usp=sharing)
-- [CXR image-model resources](https://drive.google.com/drive/folders/1PeLDVnkaq7b-tPSXCB-zGD6pHQpzsqEv?usp=sharing)
+- [MIMIC-IV on PhysioNet](https://physionet.org/content/mimiciv/)
+- [MIMIC-CXR-JPG on PhysioNet](https://physionet.org/content/mimic-cxr-jpg/)
 
-Place or mount the downloaded data so the repository has this layout:
+After access is approved, place or mount the source files using the following local layout. These directories are placeholders and remain excluded from Git:
 
 ```text
 data/raw/
@@ -83,7 +83,7 @@ data/raw/
     `-- icu/
 ```
 
-MIMIC data use remains subject to the applicable PhysioNet credentialing and data-use requirements.
+Pretrained CXR image-model resources used by the project are available in the [model asset folder](https://drive.google.com/drive/folders/1PeLDVnkaq7b-tPSXCB-zGD6pHQpzsqEv?usp=sharing).
 
 ## Installation
 
